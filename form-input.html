@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<style>
+*{
+  padding:0;
+  margin:0;
+  box-sizing:border-box;
+  font-size:1.2rem;
+}
+body{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+.input{
+	border:none;
+    margin:4px;
+    background-color:#F5EDED;
+    border-radius:12px;
+    padding:8px 12px;
+}
+textarea{
+	width:99%;
+    min-height:300px;
+}
+#btns{
+	width:90%;
+	display:flex;
+    gap:5px;
+    justify-content:flex-end;
+    flex-wrap:wrap;
+}
+button{
+	padding:8px 12px;
+    background-color:#7FA1C3;
+    border:none;
+    min-width:150px;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:2px 2px 4px gray;
+    transition:all .05s ease-in;
+}
+button:active{
+	transform:translate(2px,2px);
+    box-shadow:none;
+}
+@media only screen and (max-width: 680px) {
+  .input{
+  	width:100%;
+  }
+  #btns{
+  	justify-content:center;
+  }
+}
+</style>
+</head>
+<body>
+<div>
+	<div>
+	<input type="text" class="input" placeholder="Điện Thoại">
+    <input type="text" class="input" placeholder="CCCD">
+    </div>
+    <textarea class="input" placeholder="Nội Dung"></textarea>
+</div>
+<div id="btns">
+	<button>Tìm kiếm</button>
+    <button>Đăng xuất</button>
+    <button>Tài khoản</button>
+</div>
+</body>
+</html>
