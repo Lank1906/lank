@@ -15,6 +15,11 @@ body{
     flex-direction:column;
     justify-content:center;
     align-items:center;
+    
+}
+.content{
+	max-width:800px;
+    padding:24px;
 }
 .input{
 	border:none;
@@ -28,7 +33,7 @@ textarea{
     min-height:300px;
 }
 #btns{
-	width:90%;
+	width:100%;
 	display:flex;
     gap:5px;
     justify-content:flex-end;
@@ -59,17 +64,19 @@ button:active{
 </style>
 </head>
 <body>
-<div>
-	<div>
-	<input type="text" class="input" placeholder="Điện Thoại">
-    <input type="text" class="input" placeholder="CCCD">
-    </div>
-    <textarea class="input" placeholder="Nội Dung"></textarea>
-</div>
-<div id="btns">
-	<button>Tìm kiếm</button>
-    <button>Đăng xuất</button>
-    <button>Tài khoản</button>
+<div class="content">
+  <div>
+      <div>
+      <input type="text" class="input" placeholder="Điện Thoại">
+      <input type="text" class="input" placeholder="CCCD">
+      </div>
+      <textarea class="input" placeholder="Nội Dung"></textarea>
+  </div>
+  <div id="btns">
+      <button>Tìm kiếm</button>
+      <button>Đăng xuất</button>
+      <button>Tài khoản</button>
+  </div>
 </div>
 </body>
 </html>
