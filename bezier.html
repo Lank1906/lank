@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style> 
+*{
+	padding:0;
+    margin:0;
+    box-sizing:border-box;
+}
+body{
+	display:flex;
+}
+div {
+  width: 100px;
+  height: 100px;
+  background: red;
+  transition: height 2s;
+  transition-timing-function:cubic-bezier(.29, 1.01, 1, -0.68);
+ float:right;
+ }
+ svg{
+	border:1px solid black;
+    transform:rotate(270deg);
+ 
+ }
+
+div:hover {
+  height:400px;
+}
+.active:hover{
+	fill:blue;
+    cursor:pointer;
+    
+}
+</style>
+</head>
+<body>
+<!--transition-timing-function:cubic-bezier(.29, 1.01, 1, -0.68);-->
+
+<svg height="400" width="400">
+<path id="line" d="M 150 150 C 179 251 250 82 250 250" stroke="blue"
+  stroke-width="1" fill="none" />
+   <circle cx="150" cy="150" r="3" fill="black"/>
+   <circle id="dot1" class="active" cx="179" cy="251" r="8" fill="green"/>
+   <circle id="dot2" class="active" cx="250" cy="82" r="8" fill="green"/>
+   <circle cx="250" cy="250" r="3" fill="red"/>
+  </svg>
+
+
+<h1 style="margin:4px">demo</h1>
+
+
+<div id="demo" style="margin:4px"></div>
+<script>
+	dot1=document.getElementById("dot1")
+    dot2=document.getElementById("dot2")
+    line=document.getElementById("line")
+    demo=document.getElementById("demo")
+    x1=179;y1=251;
+    x2=250;y2=82;
+    check1=false;check2=false;
+    dot1.addEventListener("mousedown",function(){
+    	check1=true
+    })
+    dot1.addEventListener("mouseup",function(){
+    	check1=false
+        demodisplay(x1,y1,x2,y2)
+    })
+    dot1.addEventListener("mousemove",function(event){
+    	if(check1){
+        	dot1.style.cx=event.offsetX
+            dot1.style.cy=event.offsetY
+            x1=event.offsetX;y1=event.offsetY;
+            
+            line.setAttribute("d","M 150 150 C"+x1+" "+y1+" "+x2+" "+y2+" 250 250")
+        }
+    })
+    dot2.addEventListener("mousedown",function(){
+    	check2=true
+    })
+    dot2.addEventListener("mouseup",function(){
+    	check2=false
+        demodisplay(x1,y1,x2,y2)
+    })
+    dot2.addEventListener("mousemove",function(event){
+    	if(check2){
+        	dot2.style.cx=event.offsetX
+            dot2.style.cy=event.offsetY
+            x2=event.offsetX;y2=event.offsetY;
+            line.setAttribute("d","M 150 150 C"+x1+" "+y1+" "+x2+" "+y2+" 250 250")
+        }
+    })
+    demodisplay=(x1,y1,x2,y2)=>{
+    	demo.setAttribute("style","transition-timing-function:cubic-bezier("+(x1-150)/100+","+(y1-150)/100+","+(x2-150)/100+", "+(y2-150)/100+")")
+        
+    }
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
