@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      *{
+        padding:0;
+        margin:0;
+        box-sizing:border-box;
+      }
+      body{
+        background-color:#AD7BE9;
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+      }
+      .btn{
+        width:100px;
+        height:100px;
+        background-color:#ECF2FF;
+        border-radius:10px;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-around;
+        align-items:center;
+        position:relative;
+      }
+      .btn span{
+        border-radius:15%;
+        width:70%;
+        height:10%;
+        background-color:#443C68;
+        transition-duration:1s;
+      }
+      .btn:hover span:nth-child(1){
+        transform: translateY(330%) rotate(765deg) ;
+      }
+      .btn:hover span:nth-child(2){
+        transform: scale(0) ;
+      }
+      .btn:hover span:nth-child(3){
+        transform: translateY(-330%) rotate(675deg) ;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="btn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </body>
+</html>
