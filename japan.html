@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>日本語</title>
+<style>
+	*{
+    	padding:0;
+        margin:0;
+        box-sizing:border-box;
+    }
+    body{
+		background-color:#C8A1E0;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        min-height:100vh;
+    }
+    #contenter{
+    	color:#F7EFE5;
+        font-size:1.4rem;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+    }
+    #answer{
+    	visibility:hidden;
+        color:red;
+    }
+    input{
+    	border:none;
+        padding:12px 15px;
+        border-radius:15px;
+    }
+    input:focus-visible{
+    	border:none;
+        outset:none;
+        outline: 4px solid green;
+    }
+</style>
+</head>
+<body>
+<div id="contenter">
+<h3 id="question"> ngày 6 tháng 7</h3>
+<h3 id="title"> 何月何日ですか？</h3>
+<h3 id="answer"> 月 日</h3>
+
+<input type="text" id="input"/>
+</div>
+<script>
+question=document.getElementById('question');
+title=document.getElementById('title');
+answer=document.getElementById('answer');
+input=document.getElementById('input');
+a=6;b=7;
+
+
+
+number=['零','一','二','三','四','五','六','七','八','九','十']
+thang=['いち','に','さん','し','ご','ろく','しち','はち','く','じゅう','じゅういち','じゅうに'];
+ngay=['ついたち','ふつか','みっか','よっか','いつか','むいか','なのか','ようか','ここのか','とおか','じゅういちにち','じゅうににち','じゅうさんにち','じゅうよっか','じゅうごにち','じゅうろくにち','じゅうしちにち','じゅうはちにち','じゅうくにち','はつか','にじゅういちにち','にじゅうににち','にじゅうさんにち','にじゅうよっか','にじゅうごにち','にじゅうろくにち','にじゅうしちにち','にじゅうはちにち','にじゅうくにち','さんじゅうにち','さんじゅういちにち'];
+
+input.addEventListener('keyup',()=>{
+	if(event.code=="Enter"){
+    	if(input.value==thang[b-1]+'月'+ngay[a-1]+'日' || input.value==thang[b-1]+'がつ'+ngay[a-1]){
+        	answer.style.visibility='hidden'
+        }
+        else{
+        	answer.innerHTML=thang[b-1]+'がつ'+ngay[a-1];
+            answer.style.visibility='visible'
+        }
+    }
+})
+</script>
+</body>
+</html>
+
+
