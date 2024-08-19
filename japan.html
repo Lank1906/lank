@@ -41,7 +41,7 @@
 </head>
 <body>
 <div id="contenter">
-<h3 id="question"> ngày 6 tháng 7</h3>
+<h3 id="question"> ngày 16 tháng 7</h3>
 <h3 id="title"> 何月何日ですか？</h3>
 <h3 id="answer"> 月 日</h3>
 
@@ -52,7 +52,7 @@ question=document.getElementById('question');
 title=document.getElementById('title');
 answer=document.getElementById('answer');
 input=document.getElementById('input');
-a=6;b=7;
+a=16;b=7;
 
 
 unit=['','十','百','千','万','億']
@@ -74,7 +74,7 @@ function ConvertNumber(x){
         	x=Math.floor(x/10)
             continue;
         }
-    	value=number[x%10]+unit[index==z?index+1:index]+value
+    	value=(index==1?'':number[x%10])+(unit[index==z?index+1:index])+value
         index++
         x=Math.floor(x/10)
     }
@@ -92,6 +92,7 @@ input.addEventListener('keyup',()=>{
         else{
         	answer.innerHTML=thang[b-1]+'がつ'+ngay[a-1] +" --- "+ConvertNumber(b)+'月'+ConvertNumber(a)+'日';
             answer.style.visibility='visible'
+            alert(ConvertNumber(16))
         }
     }
 })
