@@ -62,7 +62,8 @@ function sound(src) {
         this.sound.pause();
     }    
 }
-mySound = new sound("bounce.mp3");
+mySound2 = new sound("https://cdn.pixabay.com/audio/2022/03/10/audio_6650ed59b7.mp3");
+mySound = new sound("https://cdn.pixabay.com/audio/2023/12/16/audio_9398492f64.mp3");
 question=document.getElementById('question');
 title=document.getElementById('title');
 answer=document.getElementById('answer');
@@ -103,11 +104,12 @@ input.addEventListener('keyup',()=>{
             a=Math.floor(Math.random() * 30)+1
             b=Math.floor(Math.random() * 11)+1
             question.innerHTML="Ngày "+a+" Tháng "+b
+            mySound2.play()
         }
         else{
+        	mySound.play()
         	answer.innerHTML=thang[b-1]+'がつ'+ngay[a-1] +" --- "+ConvertNumber(b)+'月'+ConvertNumber(a)+'日';
             answer.style.visibility='visible'
-            alert(ConvertNumber(121))
         }
     }
 })
