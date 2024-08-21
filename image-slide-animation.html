@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      *{
+        padding:0;
+        margin:0;
+        box-sizing:border-box;
+      }
+      body{
+        height:100vh;
+      }
+      #list{
+      	height:100%;
+      	background-color:#FFBF9B;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+      }
+      .card{
+        background-color:#19A7CE;
+        width:5%;
+        height:min(60%,700px);
+        border-radius:16px;
+        box-shadow:2px 2px 5px black;
+        overflow:hidden;
+        opacity:.4;
+        animation:autoRun 5s linear infinite;
+    	animation-delay:calc(  1s * var(--index) );
+        transition:width 2s ease-in-out !important;
+      }
+      .card:hover{
+        width:calc(0.54*min(60vh,700px)) !important;
+        opacity:1;
+      }
+      #list:hover>.card{
+      	animation-play-state:paused !important;
+      }
+      img{
+        height:100%;
+      }
+	  @keyframes autoRun{
+        0%{width:5%;}
+        20%{width:calc(0.54*min(60vh,700px));}
+        40%{width:5%;}
+      }
+    </style>
+  </head>
+  <body>
+  <div id="list">
+    <div class="card" style="--index:1;">
+      <img src="https://img.meta.com.vn/Data/image/2021/09/27/1.png"/>
+    </div>
+	  <div class="card" style="--index:2;">
+	  	<img src="https://img.meta.com.vn/Data/image/2021/09/27/6.png"/>
+	  </div>
+	  <div class="card" style="--index:3;">
+	  	<img src="https://img.meta.com.vn/Data/image/2021/09/27/15.png"/>
+	  </div>
+	  <div class="card" style="--index:4;">
+	  	<img src="https://img.meta.com.vn/Data/image/2021/09/27/9.png"/>
+	  </div>
+	  <div class="card" style="--index:5;">
+	  	<img src="https://img.meta.com.vn/Data/image/2021/09/27/19.png"/>
+	  </div>
+      </div>
+  </body>
+</html>
