@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<style>
+body{
+	min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.slide{
+	width:100%;
+    height:var(--height);
+    overflow:hidden;
+    -webkit-mask-image:linear-gradient(to right,transparent,black 30% 70%,transparent);
+}
+.slide>.list{
+	display:flex;
+    width:100%;
+    min-width:calc(var(--width)*var(--quantity));
+    position:relative;
+}
+.slide>.list>.item{
+	width:var(--width);
+    height:var(--height);
+    position:absolute;
+    left:100%;
+    overflow:hidden;
+    border-radius:10%;
+    animation:autoRun 8s linear infinite;
+    animation-delay:calc(  (8s/var(--quantity)) * (var(--position)-1) );
+}
+.slide>.list>.item>img{
+	width:100%;
+}
+@keyframes autoRun{
+	from{left:100%;}
+    to{left:calc(var(--width)*-1);}
+}
+.slide:hover>.list>.item{
+	animation-play-state:paused !important;
+}
+.slide:hover>.list>.item:not(:hover){
+	filter:grayscale(1);
+}
+
+</style>
+</head>
+<body>
+
+<div class="slide" style="
+	--width:400px;--height:400px;--quantity:8;
+">
+	<div class="list">
+    	<div class="item" style="--position:1"><img src="https://static.vecteezy.com/system/resources/thumbnails/028/626/672/small_2x/hd-image-ai-generative-free-photo.jpeg" width="400px"/></div>
+        <div class="item" style="--position:2"><img src="https://static.vecteezy.com/system/resources/thumbnails/025/949/533/small_2x/3d-rendered-colorful-glossy-and-matte-ultra-hd-geometric-background-wallpaper-ai-generated-free-photo.jpeg" width="400px"/></div>
+        <div class="item" style="--position:3"><img src="https://static.vecteezy.com/system/resources/previews/025/954/187/non_2x/3d-rendered-colorful-glossy-and-matte-ultra-hd-geometric-background-wallpaper-ai-generated-free-photo.jpeg" width="400px"/></div>
+        <div class="item" style="--position:4"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSy7RJVk1Ide3eLUrMTKbBQLHRNm99_n9shmg&s" width="400px"/></div>
+        <div class="item" style="--position:5"><img src="https://i.ebayimg.com/images/g/8DsAAOSw~VFgtlBr/s-l400.jpg" width="400px"/></div>
+        <div class="item" style="--position:6"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoWUrZ6wth1f7CwZMBtShT_yqYDEk_O9AX1Q&s" width="400px"/></div>
+        <div class="item" style="--position:7"><img src="https://i.pinimg.com/474x/71/a6/4e/71a64ef2a5017c4d68c2cf096d6ceca1.jpg" width="400px"/></div>
+        <div class="item" style="--position:8"><img src="https://avatarfiles.alphacoders.com/371/371124.png" width="400px"/></div>
+    </div>
+</div>
+
+</body>
+</html>
+
+
