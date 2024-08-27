@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<style>
+*{
+	padding:0;
+    margin:0;
+    box-sizing:border-box;
+}
+
+.btn{
+	background-color:#9DBC98;
+    padding:12px 24px;
+    border:none;
+    cursor:pointer;
+    border-radius:12px;
+    color:white;
+}
+.btn:hover{
+	background-color:#638889;
+}
+#editor{
+	border:1px solid black;
+    width:100%;
+    height:400px;
+  
+}
+#select-tool{
+    fill:#86A7FC;
+    opacity:0.5;
+    stroke:blue;
+    stroke-width:1;
+}
+</style>
+</head>
+<body>
+<div id="lb">
+<button class="btn" onclick="create('Rectange')">Rectange</button>
+<button class="btn" onclick="create('Oval')">Oval</button>
+<button class="btn" onclick="create('Triangel')">Triangle</button>
+<button class="btn" onclick="create('Star')">Star</button>
+<button class="btn" onclick="create('Line')">Line</button>
+</div> 
+
+<svg id="editor">
+<rect id="select-tool" ></rect>
+</svg>
+<script>
+state=false
+draw=false
+
+var selector={startX:0,startY:0,endX:0,endY:0}
+var rectange={
+	width:0,
+    height:0,
+    fill:"blue",
+    transform:"translate()",
+    cx:0,
+    cy:0,
+    element:null,
+    create:function(startX,startY,endX,endY,box){
+    	this.width=Math.abs(endX-startX)
+    	this.height=Math.abs(endY-startY)
+       	this.transform="translate("+Math.min(startX,endX)+","+Math.min(startY,endY)+")"
+        this.element=document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        this.element.setAttribute("fill","blue")
+        this.element.setAttribute("width",this.width)
+        this.element.setAttribute("height",this.height)
+        this.element.setAttribute("transform",this.transform)
+        box.appendChild(this.element)
+    	}
+    }
+var ellipse={
+	cx:0,
+    cy:0,
+    fill:"blue",
+    transform:"translate()",
+    rx:0,
+    ry:0,
+    element:null,
+    create:function(startX,startY,endX,endY,box){
+    	this.cx=Math.abs(endX-startX)/2
+    	this.cy=Math.abs(endY-startY)/2
+       	this.transform="translate("+Math.min(startX,endX)+","+Math.min(startY,endY)+")"
+        this.element=document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        this.element.setAttribute("fill","blue")
+        this.element.setAttribute("cx",this.cx)
+        this.element.setAttribute("cy",this.cy)
+        this.element.setAttribute("rx",this.cx)
+        this.element.setAttribute("ry",this.cy)
+        
+        this.element.setAttribute("transform",this.transform)
+        box.appendChild(this.element)
+    	}
+    }
+var triangle={
+	d:"",
+    fill:"blue",
+    transform:"translate()",
+    element:null,
+    create:function(startX,startY,endX,endY,box){
+    	this.d="M"+Math.abs(endX-startX)/2+" 0 L"+Math.abs(endX-startX)+" "+Math.abs(endY-startY)+" L0 "+Math.abs(endY-startY)+" Z"
+       	this.transform="translate("+Math.min(startX,endX)+","+Math.min(startY,endY)+")"
+        this.element=document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        this.element.setAttribute("fill","blue")
+        this.element.setAttribute("d",this.d)
+        
+        this.element.setAttribute("transform",this.transform)
+        box.appendChild(this.element)
+    	}
+    } 
+var line={
+	d:"",
+    fill:"blue",
+    stroke:"blue",
+    strokeWidth:1,
+    transform:"translate()",
+    element:null,
+    create:function(startX,startY,endX,endY,box){
+    	this.d="M0 0 L"+Math.abs(endX-startX)+" "+Math.abs(endY-startY)+" Z"
+       	this.transform="translate("+Math.min(startX,endX)+","+Math.min(startY,endY)+")"
+        this.element=document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        this.element.setAttribute("fill","blue")
+        this.element.setAttribute("d",this.d)
+        this.element.setAttribute("stroke",this.stroke)
+        this.element.setAttribute("stroke-width",this.strokeWidth)
+        
+        this.element.setAttribute("transform",this.transform)
+        box.appendChild(this.element)
+    	}
+    }    
+    
+    
+
+editor=document.getElementById("editor")
+x=document.getElementById("select-tool")
+create=function(cate){
+	state=true
+    //rectangeNow=Object.create(rectange)
+};
+
+
+
+createSelection=function(event){
+	//x=document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+   	x.setAttribute("width",0)
+   	x.setAttribute("height",0)
+    selector.startX=event.offsetX
+    selector.startY=event.offsetY
+    editor.appendChild(x)
+}
+
+resizeSelection=function(event){
+	if(draw && state){
+    	x.setAttribute("width",Math.abs(event.offsetX-selector.startX))
+    	x.setAttribute("height",Math.abs(event.offsetY-selector.startY))
+      	selector.endX=event.offsetX
+    	selector.endY=event.offsetY
+        selector.transform="translate("+Math.min(selector.startX,selector.endX)+","+Math.min(selector.startY,selector.endY)+")"
+    	x.setAttribute("transform",selector.transform)
+        
+    }
+}
+//move,n-resize,ne-resize,ns-resize,nw-resize
+
+
+
+
+editor.addEventListener("mousedown",function(){
+	draw=true
+    if(draw && state){
+    	createSelection(event)
+    }
+})
+editor.addEventListener("mouseover",function(){
+	if(state){
+    	editor.style.cursor="crosshair"
+    }
+})
+editor.addEventListener("mousemove",function(event){
+	if(draw){
+    	resizeSelection(event)
+    }
+})
+editor.addEventListener("mouseup",function(event){
+	if(draw && state){
+    	draw=false
+        x.remove()
+    	tam=Object.create(line)
+    	tam.create(selector.startX,selector.startY,selector.endX,selector.endY,editor)
+ 		console.log(selector)
+    }
+})
+</script>
+</body>
+</html>
