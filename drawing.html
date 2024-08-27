@@ -36,11 +36,11 @@
 </head>
 <body>
 <div id="lb">
-<button class="btn" onclick="create('Rectange')">Rectange</button>
-<button class="btn" onclick="create('Oval')">Oval</button>
-<button class="btn" onclick="create('Triangel')">Triangle</button>
-<button class="btn" onclick="create('Star')">Star</button>
-<button class="btn" onclick="create('Line')">Line</button>
+<button class="btn" onclick="create('rectange')">Rectange</button>
+<button class="btn" onclick="create('ellipse')">Oval</button>
+<button class="btn" onclick="create('triangle')">Triangle</button>
+<button class="btn" onclick="create('star')">Star</button>
+<button class="btn" onclick="create('line')">Line</button>
 </div> 
 
 <svg id="editor">
@@ -49,6 +49,7 @@
 <script>
 state=false
 draw=false
+objectNow=""
 
 var selector={startX:0,startY:0,endX:0,endY:0}
 var rectange={
@@ -137,7 +138,7 @@ editor=document.getElementById("editor")
 x=document.getElementById("select-tool")
 create=function(cate){
 	state=true
-    //rectangeNow=Object.create(rectange)
+    objectNow=cate
 };
 
 
@@ -187,7 +188,20 @@ editor.addEventListener("mouseup",function(event){
 	if(draw && state){
     	draw=false
         x.remove()
-    	tam=Object.create(line)
+        switch (objectNow) {
+        	case 'rectange':
+            	tam=Object.create(rectange);
+                break;
+            case 'ellipse':
+            	tam=Object.create(ellipse);
+                break;
+            case 'triangle':
+            	tam=Object.create(triangle);
+                break;
+            case 'line':
+            	tam=Object.create(line)
+                break;
+        }
     	tam.create(selector.startX,selector.startY,selector.endX,selector.endY,editor)
  		console.log(selector)
     }
