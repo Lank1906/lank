@@ -25,12 +25,8 @@
                 height: 10px;
                 background-color: black;
                 border-radius: 50%;
-                transition: all 2s;
-                transition-delay: calc(var(--index) * 0.1s);
-                transition-timing-function: var(--ani);
-            }
-            #demo:hover > div {
-                margin-top: 32px;
+                animation: animationTest 4s var(--ani) infinite;
+                animation-delay: calc(var(--index) * 0.1s);
             }
             #demo:hover {
                 height: 100px;
@@ -42,6 +38,17 @@
             .active:hover {
                 fill: blue;
                 cursor: pointer;
+            }
+            @keyframes animationTest {
+                0% {
+                    margin-top: 0px;
+                }
+                50% {
+                    margin-top: 32px;
+                }
+                100% {
+                    margin-top: 0px;
+                }
             }
         </style>
     </head>
@@ -65,6 +72,8 @@
             <div style="--index: 4;"></div>
             <div style="--index: 5;"></div>
         </div>
+        <h1 style="margin: 4px; cursor: pointer;" onClick="addKeyframes()">keyfames setting</h1>
+        <textarea id="keyfames"></textarea>
         <script>
             dot1 = document.getElementById("dot1");
             dot2 = document.getElementById("dot2");
@@ -112,6 +121,17 @@
             demodisplay = (x1, y1, x2, y2) => {
                 demo.style.setProperty("--ani", "cubic-bezier(" + (x1 - 150) / 100 + "," + (y1 - 150) / 100 + "," + (x2 - 150) / 100 + ", " + (y2 - 150) / 100 + ")");
             };
+
+            keyfames = document.getElementById("keyfames");
+            function addKeyframes() {
+                const style = document.createElement("style");
+                style.type = "text/css";
+
+                const keyframes = keyfames.value;
+                style.innerHTML = keyframes;
+
+                document.head.appendChild(style);
+            }
         </script>
     </body>
 </html>
