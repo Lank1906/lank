@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Love</title>
+<style>
+*{
+	margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+	display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    width:100%;
+    background:radial-gradient(#4c0c0c,#000);
+}
+.container{
+	position:relative;
+    height:430px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:1px solid rgba(255,255,255,0.05);
+}
+.heart{
+	position:relative;
+    z-index:2;
+}
+.heart>svg{
+	animation:heart 4s cubic-bezier(0.82,2.42,0.9, -0.04) infinite;
+}
+#heartChild{
+    position:absolute;
+}
+.fly{
+	position:absolute;
+    rotate:25deg;
+    animation:heartfly cubic-bezier(0.07,1.08,0.44, 0.9);
+}
+.fly:before{
+	content:'';
+    width:20px;
+    height:30px;
+    position:absolute;
+    background-color:#F5F5F5;
+    border:.2px solid #86D293;
+    border-top-left-radius:10px;
+    border-top-right-radius:10px;
+    transform-origin:50% 70%;
+    rotate:315deg;
+}
+.fly:after{
+	content:'';
+    width:20px;
+    height:30px;
+    position:absolute;
+    background-color:#F5F5F5;
+    border-top-left-radius:10px;
+    border-top-right-radius:10px;
+    transform-origin:50% 70%;
+    rotate:45deg;
+    border:.2px solid #86D293;
+	border-left:none;
+    border-bottom:none
+}
+@keyframes heart{
+	0%,100%{
+    	transform:scale(1,1);
+    }
+    50%{
+		transform:scale(.7,.7);
+    }
+}
+@keyframes heartfly{
+	0%,100%{
+    	transform:translateY(0);
+        opacity:0;
+    }
+    50%{
+    	transform:translateY(-120px) scale(1.5,1.5);
+        opacity:1;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+	<div class="heart">
+		<svg fill="#000000" height="200px" width="200px"viewBox="0 0 472.7 472.7"><path id="XMLID_810_" d="M433.5,67c-25.3-25.3-59-39.3-94.8-39.3s-69.6,14-94.9,39.4l-7.3,7.3l-7.5-7.5 c-25.4-25.4-59.1-39.4-95-39.4c-35.8,0-69.4,13.9-94.7,39.3C13.9,92.2,0,125.9,0,161.7s14,69.5,39.4,94.8l182.7,182.7 c3.8,3.8,9,6,14.5,6c5.4,0,10.6-2.2,14.5-6l182.2-182.4c25.4-25.4,39.3-59.1,39.4-94.9S458.8,92.4,433.5,67z M132.5,117.2 c-23.9,0-43.4,19.5-43.4,43.4c0,11-8.9,19.9-19.9,19.9s-19.9-8.9-19.9-19.9c0-45.8,37.3-83.1,83.1-83.1c11,0,19.9,8.9,19.9,19.9 C152.4,108.4,143.5,117.2,132.5,117.2z" fill="red"></path> </svg>   
+    </div>
+    <div id="heartChild"></div>
+</div>
+<script>
+	heartChild=document.getElementById("heartChild")
+    function gen(){
+    	e=document.createElement('div');
+        e.classList.add('fly');
+        heartChild.appendChild(e);
+        
+        rotate=Math.random()*360;
+        e.style.rotate=rotate+'deg'
+        e.style.animationDuration=4+Math.random()*4+'s'
+        
+        setTimeout(()=>{
+        	heartChild.removeChild(e)
+        },5000)
+    }
+    setInterval(gen,100)
+</script>
+</body>
+</html>
