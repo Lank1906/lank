@@ -38,7 +38,7 @@ body{
 .fly{
 	position:absolute;
     rotate:25deg;
-    animation:heartfly cubic-bezier(0.07,1.08,0.44, 0.9);
+    animation:heartfly 4s cubic-bezier(0.07,1.08,0.44, 0.9);
 }
 .fly:before{
 	content:'';
@@ -76,11 +76,11 @@ body{
 }
 @keyframes heartfly{
 	0%,100%{
-    	transform:translateY(0);
+    	transform:translateY(0) rotate(0);
         opacity:0;
     }
-    50%{
-    	transform:translateY(-120px) scale(1.5,1.5);
+    60%{
+    	transform:translateY(var(--height)) rotate(90deg) scale(1.5,1.5);
         opacity:1;
     }
 }
@@ -95,20 +95,30 @@ body{
 </div>
 <script>
 	heartChild=document.getElementById("heartChild")
+    rotate=0;
     function gen(){
     	e=document.createElement('div');
         e.classList.add('fly');
         heartChild.appendChild(e);
-        
+        e.style.setProperty('--height','120px')
+        //default style
         rotate=Math.random()*360;
         e.style.rotate=rotate+'deg'
         e.style.animationDuration=4+Math.random()*4+'s'
+        e.style.setProperty('--height',0-Math.random()*200 +'px')
+        
+        //rotate style
+        //e.style.rotate=rotate+'deg'
+        //rotate=rotate+6
+        //e.style.setProperty('--height',0-Math.random()*200 +'px')
         
         setTimeout(()=>{
         	heartChild.removeChild(e)
         },5000)
     }
-    setInterval(gen,100)
+    setInterval(gen,50)
 </script>
 </body>
 </html>
+
+
