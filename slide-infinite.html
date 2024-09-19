@@ -1,70 +1,124 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Page Title</title>
-<style>
-body{
-	min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-.slide{
-	width:100%;
-    height:var(--height);
-    overflow:hidden;
-    -webkit-mask-image:linear-gradient(to right,transparent,black 30% 70%,transparent);
-}
-.slide>.list{
-	display:flex;
-    width:100%;
-    min-width:calc(var(--width)*var(--quantity));
-    position:relative;
-}
-.slide>.list>.item{
-	width:var(--width);
-    height:var(--height);
-    position:absolute;
-    left:100%;
-    overflow:hidden;
-    border-radius:10%;
-    animation:autoRun 8s linear infinite;
-    animation-delay:calc(  (8s/var(--quantity)) * (var(--position)-1) );
-}
-.slide>.list>.item>img{
-	width:100%;
-}
-@keyframes autoRun{
-	from{left:100%;}
-    to{left:calc(var(--width)*-1);}
-}
-.slide:hover>.list>.item{
-	animation-play-state:paused !important;
-}
-.slide:hover>.list>.item:not(:hover){
-	filter:grayscale(1);
-}
+    <title>3D slide animation</title>
+    <style>
+        body {
+            width: 100%;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
 
-</style>
+        body .slider {
+            position: absolute;
+            width: 200px;
+            height: 250px;
+            top: 10%;
+            left: calc(50% - 100px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            /*-- setting z's distance--*/
+            animation: autoRun 20s linear infinite;
+            z-index: 2;
+        }
+
+        body .slider .item {
+            position: absolute;
+            inset: 0 0 0 0;
+            border-radius:30px;
+            overflow: hidden;
+            transform:
+                rotateY(calc((var(--index) - 1) * (360 / var(--quantity)) *1deg)) translateZ(140px);
+        }
+
+        body .slider:hover{
+            animation-play-state:paused !important;
+        }
+
+        body .slider .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes autoRun {
+            from {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(0deg);
+            }
+
+            to {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(360deg);
+            }
+        }
+
+        /* .banner {
+            width: 100%;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .banner .slider {
+            position: absolute;
+            width: 200px;
+            height: 250px;
+            top: 10%;
+            left: calc(50% - 100px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            animation: autoRun 20s linear infinite;
+            z-index: 2;
+        }
+
+        @keyframes autoRun {
+            from {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(0deg);
+            }
+
+            to {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(360deg);
+            }
+        }
+
+        .banner .slider .item {
+            position: absolute;
+            inset: 0 0 0 0;
+            transform:
+                rotateY(calc((var(--index) - 1) * (360 / var(--quantity)) * 1deg)) 
+                translateZ(550px);
+        }
+
+        .banner .slider .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        } */
+    </style>
 </head>
-<body>
 
-<div class="slide" style="
-	--width:400px;--height:400px;--quantity:8;
-">
-	<div class="list">
-    	<div class="item" style="--position:-1"><img src="https://static.vecteezy.com/system/resources/thumbnails/028/626/672/small_2x/hd-image-ai-generative-free-photo.jpeg" width="400px"/></div>
-        <div class="item" style="--position:-2"><img src="https://static.vecteezy.com/system/resources/thumbnails/025/949/533/small_2x/3d-rendered-colorful-glossy-and-matte-ultra-hd-geometric-background-wallpaper-ai-generated-free-photo.jpeg" width="400px"/></div>
-        <div class="item" style="--position:-3"><img src="https://static.vecteezy.com/system/resources/previews/025/954/187/non_2x/3d-rendered-colorful-glossy-and-matte-ultra-hd-geometric-background-wallpaper-ai-generated-free-photo.jpeg" width="400px"/></div>
-        <div class="item" style="--position:-4"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSy7RJVk1Ide3eLUrMTKbBQLHRNm99_n9shmg&s" width="400px"/></div>
-        <div class="item" style="--position:-5"><img src="https://i.ebayimg.com/images/g/8DsAAOSw~VFgtlBr/s-l400.jpg" width="400px"/></div>
-        <div class="item" style="--position:-6"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoWUrZ6wth1f7CwZMBtShT_yqYDEk_O9AX1Q&s" width="400px"/></div>
-        <div class="item" style="--position:-7"><img src="https://i.pinimg.com/474x/71/a6/4e/71a64ef2a5017c4d68c2cf096d6ceca1.jpg" width="400px"/></div>
-        <div class="item" style="--position:-8"><img src="https://avatarfiles.alphacoders.com/371/371124.png" width="400px"/></div>
+<body>
+    <div class="slider" style="--quantity:5">
+        <div class="item" style="--index:1;">
+            <img src="https://th.bing.com/th/id/OIP.XTWQNOJ2eqZEJbYGZIQWYwHaLH?rs=1&pid=ImgDetMain" width="200px" />
+        </div>
+        <div class="item" style="--index:2;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k106.jpg" width="200px" />
+        </div>
+        <div class="item" style="--index:3;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k133.jpg" width="200px" />
+        </div>
+        <div class="item" style="--index:4;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k126.jpg" width="200px" />
+        </div>
+        <div class="item" style="--index:5;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k113.jpg" width="200px" />
+        </div>
     </div>
-</div>
 
 </body>
+
 </html>
-
-
