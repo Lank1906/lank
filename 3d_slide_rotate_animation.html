@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>3D slide animation</title>
+    <style>
+        body {
+            width: 100%;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body .slider {
+            position: absolute;
+            width: 200px;
+            height: 250px;
+            top: 10%;
+            left: calc(50% - 100px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            /*-- setting z's distance--*/
+            animation: autoRun 20s linear infinite;
+            z-index: 2;
+        }
+
+        body .slider .item {
+            position: absolute;
+            inset: 0 0 0 0;
+            border-radius:30px;
+            overflow: hidden;
+            transform:
+                rotateY(calc((var(--index) - 1) * (360 / var(--quantity)) *1deg)) translateZ(140px);
+        }
+
+        body .slider .item:hover{
+            border: 1px solid black;
+        }
+
+        body .slider .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes autoRun {
+            from {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(0deg);
+            }
+
+            to {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(360deg);
+            }
+        }
+
+        /* .banner {
+            width: 100%;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .banner .slider {
+            position: absolute;
+            width: 200px;
+            height: 250px;
+            top: 10%;
+            left: calc(50% - 100px);
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+            animation: autoRun 20s linear infinite;
+            z-index: 2;
+        }
+
+        @keyframes autoRun {
+            from {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(0deg);
+            }
+
+            to {
+                transform: perspective(1000px) rotateX(-16deg) rotateY(360deg);
+            }
+        }
+
+        .banner .slider .item {
+            position: absolute;
+            inset: 0 0 0 0;
+            transform:
+                rotateY(calc((var(--index) - 1) * (360 / var(--quantity)) * 1deg)) 
+                translateZ(550px);
+        }
+
+        .banner .slider .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        } */
+    </style>
+</head>
+
+<body>
+    <div class="slider" style="--quantity:5">
+        <div class="item" style="--index:1;">
+            <img src="https://th.bing.com/th/id/OIP.XTWQNOJ2eqZEJbYGZIQWYwHaLH?rs=1&pid=ImgDetMain" width="200px" />
+        </div>
+        <div class="item" style="--index:2;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k106.jpg" width="200px" />
+        </div>
+        <div class="item" style="--index:3;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k133.jpg" width="200px" />
+        </div>
+        <div class="item" style="--index:4;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k126.jpg" width="200px" />
+        </div>
+        <div class="item" style="--index:5;">
+            <img src="https://mega.com.vn/media/news/1706_hinh-nen-dien-thoai-4k113.jpg" width="200px" />
+        </div>
+    </div>
+
+</body>
+
+</html>
