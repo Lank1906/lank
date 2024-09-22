@@ -42,7 +42,7 @@
         top:10px;
         right:10px;
         height:80vh;
-        overflow:scroll-y;
+        overflow-y:scroll;
         width:400px;
         border:1px solid white;
         border-radius:24px;
@@ -737,7 +737,7 @@ mySound = new sound("https://cdn.pixabay.com/audio/2023/12/16/audio_9398492f64.m
           element.style["background-color"] = "red"
           title.innerHTML = arr[index - 1][1]
           wrong.innerHTML = arr[index - 1][0] + " : " + arr[index - 1][1]
-          wl.innerHTML+=arr[index - 1][0] + " : " + arr[index - 1][1]+'<br>'
+          wl.innerHTML+="<strong>"+arr[index - 1][0] + "</strong> : " + arr[index - 1][1]+'<br>'
           expland.innerHTML = arr[index - 1][2]
           mySound.play()
         }
