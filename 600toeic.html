@@ -11,6 +11,7 @@
         align-items: center;
         background-color: #000;
         color: white;
+        position:relative;
       }
 
       div {
@@ -31,11 +32,30 @@
         height: 100px;
         margin: 8px;
         cursor: pointer;
-        ;
         border-radius: 12px;
         border: 4px solid white;
         color: white;
         background-color: #000;
+      }
+      #wronglist{
+      	position:absolute;
+        top:10px;
+        right:10px;
+        height:80vh;
+        overflow:scroll-y;
+        width:400px;
+        border:1px solid white;
+        border-radius:24px;
+        background:black;
+        padding:24px;
+      }
+      #wlbtn{
+      	position:absolute;
+        top:10px;
+        right:10px;
+        z-index:2;
+        width:40px;
+        height:40px;
       }
     </style>
   </head>
@@ -50,7 +70,19 @@
     <p id="wrong">wrong</p>
     <p id="expland">expland</p>
     <button onclick="index+=10">10 up</button>
+    <button id="wlbtn" onClick="ToggleWL()">WL</button>
+    <div id="wronglist" style="display:none"></div>
     <script>
+    wl = document.getElementById('wronglist')
+    function ToggleWL(){
+    	if(wl.style.display=='none')
+        	wl.style.display='block'
+        else
+        	wl.style.display='none'
+    }
+    
+		    
+    
       title = document.getElementById('title')
       wrong = document.getElementById('wrong')
       expland = document.getElementById('expland')
@@ -662,6 +694,23 @@
         ["sense /sens/ ", " (n): giác quan, cảm giác, ý thức, tri thức; sự thông minh, khả năng phán đoán ", " Giải thích: a feeling about something important "],
         ["volunteer /,vɔlən'tiə/ ", " (n): tình nguyện viên, người xung phong ", " Giải thích: to offer to do something without being forced to do it "]
       ]
+      
+      function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }    
+}
+mySound2 = new sound("https://cdn.pixabay.com/audio/2022/03/10/audio_6650ed59b7.mp3");
+mySound = new sound("https://cdn.pixabay.com/audio/2023/12/16/audio_9398492f64.mp3");
 
       function changeQuestion() {
         title.innerHTML = arr[index][0]
@@ -683,11 +732,14 @@
       function checkAnswer(element) {
         if (element.innerHTML == arr[index - 1][1]) {
           element.style["background-color"] = "green"
+          mySound2.play()
         } else {
           element.style["background-color"] = "red"
           title.innerHTML = arr[index - 1][1]
           wrong.innerHTML = arr[index - 1][0] + " : " + arr[index - 1][1]
+          wl.innerHTML+=arr[index - 1][0] + " : " + arr[index - 1][1]+'<br>'
           expland.innerHTML = arr[index - 1][2]
+          mySound.play()
         }
         setTimeout(() => {
           element.style["background-color"] = "black"
