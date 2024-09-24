@@ -16,7 +16,6 @@
                 display: flex;
                 gap: 10px;
                 margin: 20px;
-                height: 500px;
                 transition: all 2s;
                 transition-timing-function: var(--ani);
             }
@@ -26,10 +25,10 @@
                 background-color: black;
                 border-radius: 50%;
                 animation: animationTest 4s var(--ani) infinite;
-                animation-delay: calc(var(--index) * 0.1s);
+                animation-delay: calc(var(--index) * 1s);
             }
             #demo:hover {
-                height: 100px;
+                width: 200px;
             }
             svg {
                 border: 1px solid black;
@@ -63,6 +62,7 @@
             <circle cx="250" cy="250" r="3" fill="red" />
         </svg>
 
+<div>
         <h1 style="margin: 4px;">demo</h1>
 
         <div id="demo" style="margin:24px;--ani:'cubic-bezier(0.27,1.97,0.69, -0.48)">
@@ -73,7 +73,34 @@
             <div style="--index: 5;"></div>
         </div>
         <h1 style="margin: 4px; cursor: pointer;" onClick="addKeyframes()">keyfames setting</h1>
-        <textarea id="keyfames"></textarea>
+        <textarea id="keyfames" rows="20" cols="80">
+#demo{
+position:relative;
+}
+#demo > div {
+    width: 10px;
+    height: 10px;
+    background-color: black;
+    transform-origin:150% 150%;
+    position:absolute;
+    top:0;
+    right:0;
+    border-radius: 50%;
+    animation: animationTest 4s var(--ani) infinite;
+    animation-delay: calc(var(--index) * 1s);
+}
+@keyframes animationTest {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+        
+        </textarea>
+</div>
         <script>
             dot1 = document.getElementById("dot1");
             dot2 = document.getElementById("dot2");
