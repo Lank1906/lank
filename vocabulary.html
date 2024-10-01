@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Vocabulary</title>
+<style>
+*{
+	padding:0;
+    margin:0;
+}
+body{
+	background-color:#000000;
+    postion:relative;
+}
+#plus{
+	color:#FF6500;
+    border:2px solid #FF6500;
+    position:absolute;
+    top:20px;
+    right:20px;
+    width:20px;
+    height:20px;
+    text-align:center;
+    line-height:20px;
+    cursor:pointer;
+}
+#box{
+	position:absolute;
+    top:40%;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:4;
+    display:none;
+    background-color:#1E3E62;
+}
+input,button{
+	padding:12px 32px;
+    margin:12px;
+}
+#answer{
+	color:white;
+	position:absolute;
+    top:40%;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+</style>
+</head>
+<body>
+<div id="plus">+</div>
+<div id="box">
+	<input type="text" id="sen"/>
+    <input type="text" id="sen2"/>
+    <button id="add">ADD</button>
+</div>
+<div id="answer">
+	<h1 id="ques">Tolonws</h1>
+    <input type="text" id="an"/>
+    <button id="check">Check</button>
+</div>
+<script>
+	list=[{key:"how are you?",answer:"Ok"}]
+    indexnow=0;
+    box=document.getElementById('box')
+    a=document.getElementById('sen')
+    b=document.getElementById('sen2')
+    ques=document.getElementById('ques')
+    an=document.getElementById('an')
+        
+    document.getElementById('plus').addEventListener('click',()=>{
+    	if(box.style.display=='flex')
+        	box.style.display='none'
+        else
+        	box.style.display='flex'
+    })
+    document.getElementById('add').addEventListener('click',()=>{
+    	if(a.value==''||b.value==''){
+        	return
+        }
+        list.push({key:a.value,answer:b.value})
+    })
+    
+    document.getElementById('check').addEventListener('click',()=>{
+    	if(an.value==list[indexnow].answer){
+        	if(indexnow==list.length-1)
+            {
+            	indexnow=0
+                ques.innerText=list[indexnow].key
+                return
+            }
+        	indexnow++;
+            ques.innerText=list[indexnow].key
+        }
+        else
+        	an.value=''
+    })
+</script>
+</body>
+</html>
+
+
