@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <style>
+      body{
+        padding:0;
+        margin:0;
+        box-sizing:border-box;
+        background-color:#408E91;
+        color:#D5B4B4;
+        diplay:flex;
+        min-height:100vh;
+        justify-content:center;
+        align-items:center;
+        font-size: 1.5rem
+      }
+      p{
+        display:inline-block;
+        margin:8px;
+      }
+      button{
+        background-color:transparent;
+        padding:10px 20px;
+        
+      }
+      button:active{
+        background-color:#E49393;
+      }
+    </style>
+  </head>
+  <body>
+    <p>b?n ch?n: </p>
+    <span id="user"></span><br>
+    <p>máy ch?n: </p>
+    <span id="computer"></span><br>
+    <p>k?t qu?: </p>
+    <span id="result"></span><br>
+    <button id="but">kéo</button>
+	  <button id="but">búa</button>
+    <button id="but">bao</button>
+    <script>
+      let you;
+      let com;
+      let re;
+	    var a=['kéo','búa','bao'];
+      let choose=document.getElementsByTagName("button");
+      for(var i=0;i<3;i++){
+        choose[i].addEventListener('click',(e)=>{
+          you=e.target.innerText;
+          comchoose();
+          results();
+	      	document.getElementById("user").innerHTML=you;
+        	document.getElementById("computer").innerHTML=com;
+          document.getElementById("result").innerHTML=re;
+        })
+      }
+      let comchoose=()=>{
+        com=a[Math.floor(Math.random()*3)];
+      }
+      let results=()=>{
+        if(you==com){
+			      re= "Hòa";
+        }
+        else if(you=="kéo" && com=="bao"){
+            re="Thắng";
+        }
+		    else if(you=="bao" && com=="búa"){
+		        re="Thắng";
+		    }
+	      else if(you=="búa" && com=="kéo"){
+	          re="Th?ng";
+        }
+        else if(you=="kéo" && com=="búa"){
+            re="Thua";
+        }
+        else if(you=="búa" && com=="bao"){
+            re="Thua";
+        }
+        else if(you=="bao" && com=="kéo"){
+            re="Thua";
+        }
+      }
+    </script>
+  </body>
+</html>
