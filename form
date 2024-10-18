@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+	<style>
+		table,
+		tr,
+		td {
+			margin: 20px auto;
+			padding: 4px;
+		}
+
+		td {
+			text-align: end;
+		}
+
+		#testhoten,#testngaysinh,#testsdt,#testdiachi,#testemail {
+			position: relative;
+		}
+
+		#testhoten :nth-child(2),#testngaysinh :nth-child(2),
+	#testdiachi :nth-child(2),#testsdt :nth-child(2),
+#testemail :nth-child(2){
+			position: absolute;
+			width: 160px;
+			border: 1px solid red;
+			border-radius: 4px;
+			padding: 4px;
+			top: -20px;
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div style="background-color:aqua;line-height:100%;padding:30px;text-align:center;">
+		ÐANG KÝ KHÓA H?C L?P TRÌNH WEB V?I ASP.NET
+	</div>
+	<table>
+		<tr>
+			<td><label for="hoten">H? và Tên:</label></td>
+			<td><input name="hoten" id="hoten" ></td>
+			<td id="testhoten">
+				<div></div>
+				<div>Trong tên không có s?</div>
+			</td>
+		</tr>
+		<tr>
+			<td>Gi?i Tính:</td>
+			<td style="text-align:start;">
+				<input name="gioitinh" data="Nam" type="radio" >
+				<label>Nam</label>
+				<input name="gioitinh" data="Nu" type="radio" >
+				<label>N?</label>
+			</td>
+		</tr>
+		<tr>
+			<td><label for="ngaysinh">Ngày sinh:</label></td>
+			<td><input name="ngaysinh" id="ngaysinh" ></td>
+	    <td id="testngaysinh">
+	    	<div></div>
+	    	<div>vd:20/10/2003</div>
+	    </td>
+		</tr>
+		<tr>
+			<td><label for="diachi">Ð?a ch?:</label></td>
+			<td><input name="diachi" id="diachi" ></td>
+	    <td id="testdiachi">
+	    	<div></div>
+	    	<div>không quá 50 ki t?</div>
+	    </td>
+		</tr>
+		<tr>
+			<td><label for="sdt">S? di?n tho?i:</label></td>
+			<td><input name="sdt" id="sdt" ></td>
+	<td id="testsdt">
+		<div></div>
+		<div>ch? du?c ch?a s?</div>
+	</td>
+		</tr>
+		<tr>
+			<td><label for="email">Email:</label></td>
+			<td><input name="email" id="email" ></td>
+	<td id="testemail">
+		<div></div>
+		<div>vd:string@example.com</div>
+	</td>
+		</tr>
+		<tr>
+			<td><label for="macn">Mã xác nh?n:</label></td>
+			<td style="text-align:start;"><input name="macn" id="macn" style="max-width:80px"></td>
+		</tr>
+		<tr>
+			<td colspan="2" style="text-align:center">
+				<button>Ðang Ký</button>
+			</td>
+		</tr>
+	</table>
+	<script>
+		hoten=document.getElementById('hoten')
+    hoten.addEventListener('keyup',()=>{
+      text=document.getElementById('hoten').value
+      if(/[0-9]/.test(text)){
+        test=document.querySelector('#testhoten :nth-child(1)')
+        test.innerHTML='*'
+        test.style.color='red'
+        test.style.cursor='pointer'
+        test.addEventListener('mouseover',()=>{
+		      testtext=document.querySelector('#testhoten :nth-child(2)')
+          testtext.style.display='block';
+        })
+		test.addEventListener('mouseout',()=>{
+		testtext=document.querySelector('#testhoten :nth-child(2)')
+		testtext.style.display='none';
+		})
+      }
+      else{
+		test=document.querySelector('#testhoten :nth-child(1)')
+		test.innerHTML=''
+      }
+    })
+    //===========================
+diachi=document.getElementById('diachi')
+diachi.addEventListener('keyup',()=>{
+text=document.getElementById('diachi').value
+if(text.length>50){
+test=document.querySelector('#testdiachi :nth-child(1)')
+test.innerHTML='*'
+test.style.color='red'
+test.style.cursor='pointer'
+test.addEventListener('mouseover',()=>{
+testtext=document.querySelector('#testdiachi :nth-child(2)')
+testtext.style.display='block';
+})
+test.addEventListener('mouseout',()=>{
+testtext=document.querySelector('#testdiachi :nth-child(2)')
+testtext.style.display='none';
+})
+}
+else{
+test=document.querySelector('#testdiachi :nth-child(1)')
+test.innerHTML=''
+}
+})
+//===============================================
+sdt=document.getElementById('sdt')
+sdt.addEventListener('keyup',()=>{
+text=document.getElementById('sdt').value
+if(/[A-z]/.test(text)){
+test=document.querySelector('#testsdt :nth-child(1)')
+test.innerHTML='*'
+test.style.color='red'
+test.style.cursor='pointer'
+test.addEventListener('mouseover',()=>{
+testtext=document.querySelector('#testsdt :nth-child(2)')
+testtext.style.display='block';
+})
+test.addEventListener('mouseout',()=>{
+testtext=document.querySelector('#testsdt :nth-child(2)')
+testtext.style.display='none';
+})
+}
+else{
+test=document.querySelector('#testsdt :nth-child(1)')
+test.innerHTML=''
+}
+})
+///=================================================
+email=document.getElementById('email')
+email.addEventListener('keyup',()=>{
+text=document.getElementById('email').value
+if(!/[@]/.test(text) && !/[@]/.test(text)){
+test=document.querySelector('#testemail :nth-child(1)')
+test.innerHTML='*'
+test.style.color='red'
+test.style.cursor='pointer'
+test.addEventListener('mouseover',()=>{
+testtext=document.querySelector('#testemail :nth-child(2)')
+testtext.style.display='block';
+})
+test.addEventListener('mouseout',()=>{
+testtext=document.querySelector('#testemail :nth-child(2)')
+testtext.style.display='none';
+})
+}
+else{
+test=document.querySelector('#testemail :nth-child(1)')
+test.innerHTML=''
+}
+})
+//==========================================
+re = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+ngaysinh=document.getElementById('ngaysinh')
+ngaysinh.addEventListener('keyup',()=>{
+text=document.getElementById('ngaysinh').value
+if(!re.test(text)){
+test=document.querySelector('#testngaysinh :nth-child(1)')
+test.innerHTML='*'
+test.style.color='red'
+test.style.cursor='pointer'
+test.addEventListener('mouseover',()=>{
+testtext=document.querySelector('#testngaysinh :nth-child(2)')
+testtext.style.display='block';
+})
+test.addEventListener('mouseout',()=>{
+testtext=document.querySelector('#testngaysinh :nth-child(2)')
+testtext.style.display='none';
+})
+}
+else{
+test=document.querySelector('#testngaysinh :nth-child(1)')
+test.innerHTML=''
+}
+})
+	</script>
+</body>
+
+</html>
