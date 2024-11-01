@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>To do List</title>
+<style>
+*{
+	margin:0;
+    padding:0;
+    box-sizing:border-box;
+    color:#FFF4B7;
+}
+body{
+	min-height:100vh;
+	background-color:#000B58;
+    color:#FFF4B7;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-around;
+    align-items:center;
+}
+table{
+	max-width:300px;
+    table-layout: fixed;
+}
+td{
+  padding: 15px;
+  text-align: left;
+  vertical-align:middle;
+  font-weight: 300;
+  font-size: 12px;
+  color: #fff;
+  border-bottom: solid 1px rgba(255,255,255,0.1);
+  border-top: solid 1px rgba(255,255,255,0.1);
+}
+
+button {
+  align-self: center;
+  background-color: transparent;
+  background-image: none;
+  background-position: 0 90%;
+  background-repeat: repeat no-repeat;
+  background-size: 4px 3px;
+  border-radius: 15px 225px 255px 15px 15px 255px 225px 15px;
+  border-style: solid;
+  border-width: 2px;
+  border-color:#FFF4B7;
+  box-shadow: rgba(0, 0, 0, .2) 15px 28px 25px -18px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Neucha, sans-serif;
+  outline: none;
+  padding: .25rem;
+  text-decoration: none;
+  transition: all 235ms ease-in-out;
+  border-bottom-left-radius: 15px 255px;
+  border-bottom-right-radius: 225px 15px;
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+button:active {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 8px -5px;
+  transform: translate3d(0, 2px, 0);
+}
+
+button:focus {
+  box-shadow: rgba(0, 0, 0, .3) 2px 8px 4px -6px;
+}
+
+input{
+	width:150px;
+	padding: 6px 12px;
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #212529;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #ced4da;
+	appearance: none;
+	border-radius: 4px;
+	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; 
+}
+input:focus{
+	color: #212529;
+	background-color: #fff;
+	border-color: #86b7fe;
+	outline: 0;
+	box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+}
+</style>
+</head>
+<body>
+<table id="data">
+    
+</table>
+<div>
+<input type="text" id="input"/>
+<button onclick="addJob(input.value)">ADD</button>
+<button onclick="save()">SAVE</button>
+<button onclick="DataL()">LOAD</button>
+</div>
+<script>
+data=document.getElementById("data");
+today=new Date().toISOString().slice(0, 10)
+input=document.getElementById("input")
+let list=[{"id":0,"title":"first job","dayAdd":"2024-11-01","dayComplete":"2024-11-01"}]
+function load(element){
+	let str=""
+    str+=list.map(item=>'<tr><td>'+item.title+'</td><td><button onclick="deleteJob('+item.id+')">Complete</button></td></tr>').join("")
+    element.innerHTML=str
+}
+load(data)
+function addJob(str){
+	let lastId=list[list.length-1].id+1;
+    list.push({"id":lastId,"title":str,"dayAdd":today,"dayComplete":undefined})
+    load(data)
+}
+function completeJob(id){
+	
+}
+function deleteJob(id){
+	let index=list.findIndex(item=>item.id===id)
+    list.splice(index,1)
+    load(data)
+}
+function save(){
+	localStorage.setItem("Lank", JSON.stringify(list));
+}
+function DataL(){
+	list=JSON.parse(localStorage.getItem("Lank"))
+    load(data)
+}
+</script>
+</body>
+</html>
+
+
