@@ -3,6 +3,9 @@
 <head>
 <title>Love</title>
 <style>
+:root{
+	color-scheme:light dark;
+}
 *{
 	margin:0;
     padding:0;
@@ -14,7 +17,7 @@ body{
     align-items:center;
     min-height:100vh;
     width:100%;
-    background:radial-gradient(#4c0c0c,#000);
+    background: light-dark(radial-gradient(#4c0c0c, #000),radial-gradient(#4c0c0c, #f5f4f0));
 }
 .container{
 	position:relative;
@@ -45,7 +48,7 @@ body{
     width:20px;
     height:30px;
     position:absolute;
-    background-color:#F5F5F5;
+    background-color:light-dark(pink,#F5F5F5);
     border:.2px solid #86D293;
     border-top-left-radius:10px;
     border-top-right-radius:10px;
@@ -57,7 +60,7 @@ body{
     width:20px;
     height:30px;
     position:absolute;
-    background-color:#F5F5F5;
+    background-color:light-dark(pink,#F5F5F5);
     border-top-left-radius:10px;
     border-top-right-radius:10px;
     transform-origin:50% 70%;
@@ -120,5 +123,4 @@ body{
 </script>
 </body>
 </html>
-
 
