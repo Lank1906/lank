@@ -49,7 +49,6 @@ body{
     height:30px;
     position:absolute;
     background-color:light-dark(pink,#F5F5F5);
-    border:.2px solid #86D293;
     border-top-left-radius:10px;
     border-top-right-radius:10px;
     transform-origin:50% 70%;
@@ -65,7 +64,6 @@ body{
     border-top-right-radius:10px;
     transform-origin:50% 70%;
     rotate:45deg;
-    border:.2px solid #86D293;
 	border-left:none;
     border-bottom:none
 }
@@ -100,26 +98,26 @@ body{
 	heartChild=document.getElementById("heartChild")
     rotate=0;
     function gen(){
-    	e=document.createElement('div');
-        e.classList.add('fly');
-        heartChild.appendChild(e);
-        e.style.setProperty('--height','120px')
+    	ae=document.createElement('div');
+        ae.classList.add('fly');
+        heartChild.appendChild(ae);
+        ae.style.setProperty('--height','120px')
         //default style
-        rotate=Math.random()*360;
-        e.style.rotate=rotate+'deg'
-        e.style.animationDuration=4+Math.random()*4+'s'
-        e.style.setProperty('--height',0-Math.random()*200 +'px')
+        //rotate=Math.random()*360;
+        //ae.style.rotate=rotate+'deg'
+        //.style.animationDuration=4+Math.random()*4+'s'
+        //ae.style.setProperty('--height',0-Math.random()*200 +'px')
         
         //rotate style
-        //e.style.rotate=rotate+'deg'
-        //rotate=rotate+6
-        //e.style.setProperty('--height',0-Math.random()*200 +'px')
+        ae.style.rotate=rotate+'deg'
+        rotate=rotate+6
+        ae.style.setProperty('--height',0-Math.random()*200 +'px')
         
-        setTimeout(()=>{
-        	heartChild.removeChild(e)
-        },5000)
+        setTimeout(() => {
+            heartChild.removeChild(heartChild.firstChild);
+    }, 5000);
     }
-    setInterval(gen,50)
+    setInterval(gen,30)
 </script>
 </body>
 </html>
