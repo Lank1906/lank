@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bug Follow</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      height: 100vh;
+    }
+    .follow {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-color: red;
+      border-radius: 50%;
+      pointer-events: none; /* Để thẻ div không ảnh hưởng đến các sự kiện chuột */
+    }
+  </style>
+</head>
+<body>
+  <div class="follow"></div>
+
+  <script>
+    const followDiv = document.querySelector('.follow');
+    let mouseX = 0, mouseY = 0; // Vị trí chuột
+    let divX = 0, divY = 0; // Vị trí của thẻ div
+    let dgCheo=Math.sqrt(window.innerWidth*window.innerWidth+window.innerHeight*window.innerHeight)
+
+    let speed = 0.01; // Tốc độ di chuyển (0.1 = chậm, 1 = nhanh)
+
+    // Lắng nghe sự kiện di chuyển chuột
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animate() {
+      // Tính khoảng cách giữa vị trí chuột và thẻ div
+      const dx = mouseX - divX;
+      const dy = mouseY - divY;
+      
+      speed=Math.sqrt(dx*dx+dy*dy)/dgCheo/100
+
+      // Cập nhật vị trí thẻ div dựa trên khoảng cách
+      divX += dx * speed;
+      divY += dy * speed;
+
+      // Áp dụng vị trí mới cho thẻ div
+      followDiv.style.transform = `translate(${divX}px, ${divY}px)`;
+
+      // Tiếp tục vòng lặp animation
+      requestAnimationFrame(animate);
+    }
+
+    animate(); // Khởi động animation
+  </script>
+</body>
+</html>
