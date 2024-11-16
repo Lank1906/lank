@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<style>
+		* {
+			padding: 0px;
+			margin: 0px;
+			box-sizing: border-box;
+		}
+
+		body {
+			background-image: linear-gradient(90deg, #863A6F, #E5B8F4);
+      min-height:100vh;
+	    display:flex;
+	    align-items:center;
+	    justify-content:center;
+		}
+    #face{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background-color:black;
+      height:280px;
+      width:280px;
+      border-radius:50%;
+      opacity:0.4;
+      position:relative;
+    }
+    #face span{
+      color:#21E1E1;
+      font-size:1.4rem;
+      position:absolute;
+    }
+    #dot{
+      height:15px;
+      width:15px;
+      background-color:white;
+      border-radius:50%;
+      z-index:1;
+    }
+    #hour12{
+      top:0px;
+    }
+    #hour1{
+      right:65px;
+      top:20px;
+    }
+	  #hour2{
+	  right:20px;
+	  top:65px;
+	  }
+	  #hour3{
+	  right:0px;
+	  }
+    #hour4{
+      bottom:65px;
+      right:20px;
+    }
+    #hour5{
+      right:65px;
+      bottom:20px;
+    }
+	  #hour6{
+	    bottom:0px;
+	  }
+	  #hour11{
+	    left:65px;
+	    top:20px;
+	  }
+	  #hour10{
+	    left:20px;
+	    top:65px;
+	  }
+	    #hour9{
+	    left:0px;
+	  }
+	  #hour8{
+	    bottom:65px;
+	    left:20px;
+	  }
+	  #hour7{
+	    left:65px;
+	    bottom:20px;
+	  }
+    .xx{
+      position:absolute;
+      border-radius:2px;
+      transition:all 1s linear;
+    }
+    .hour{
+      background-color:#F55353;
+      height:60px;
+      width:4px;
+	    transform-origin:50% 100%;
+	    bottom:140px;
+      z-index:-2;
+    }
+    .minute{
+	    background-color:#FEB139;
+	    height:100px;
+	    width:3px;
+		  transform-origin:50% 100%;
+		  bottom:140px;
+	    z-index:-1;
+    }
+    .second{
+	    background-color:#F6F54D;
+	    height:90px;
+	    width:1px;
+	    transform-origin:50% 100%;
+      bottom:140px;
+	    z-index:0;
+    }
+    #face:before{
+      content:"";
+      width:300px;
+      height:300px;
+      position:absolute;
+      background-color:black;
+      z-index:-3;
+      border-radius:50%;
+      border-top:solid 4px #FBD6D2;
+			border-left:solid 4px #94B3FD;
+			border-bottom:solid 4px #368B85;
+			border-right:solid 4px #7D5A50;
+      animation:spin 6s infinite;
+    }
+    @keyframes spin{
+      0%{
+        rotate:0deg;
+      }
+      25%{
+        rotate:360deg;
+      }
+      50%{
+        rotate:180deg;
+      }
+      75%{
+        rotate:300deg;
+      }
+      100%{
+        rotate:0deg;
+      }
+    }
+	</style>
+</head>
+
+<body>
+  <div id="bor"></div>
+  <div id='face'>
+    <span id="dot"></span>
+    <span id="hour1">1</span>
+	  <span id="hour2">2</span>
+    <span id="hour3">3</span>
+    <span id="hour4">4</span>
+    <span id="hour5">5</span>
+    <span id="hour6">6</span>
+    <span id="hour7">7</span>
+    <span id="hour8">8</span>
+    <span id="hour9">9</span>
+    <span id="hour10">10</span>
+    <span id="hour11">11</span>
+    <span id="hour12">12</span>
+    <div class="xx hour" id="hour"></div>
+    <div class="xx minute" id="minute"></div>
+    <div class="xx second" id="second"></div>
+  </div>
+  <script>
+    var h=0;
+    var m=0;
+    var s=0;
+    var d=new Date();
+
+    setInterval(
+      function(){
+        d=new Date();
+        m=d.getMinutes()*6+d.getHours()*360;
+        s=d.getSeconds()*6+d.getMinutes()*360+d.getHours()*360*60;
+		    h=d.getHours()*30+30/360*d.getMinutes()*6;
+        document.getElementById("second").style.transform="rotate("+s+"deg)";
+		    document.getElementById("minute").style.transform="rotate("+m+"deg)";
+		    document.getElementById("hour").style.transform="rotate("+h+"deg)";
+      },1000)
+  </script>
+</body>
+
+</html>
