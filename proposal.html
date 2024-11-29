@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Proposal temolate</title>
+<style>
+*{
+	font-size:1.2rem;
+}
+body{
+	display:flex;
+    flex-direction:column;
+    justify-content:center;
+    width:60%;
+    margin:60px auto;
+    gap:10px;
+}
+body :nth-child(1){
+	width:40%;
+}
+body :nth-child(6){
+	width:40%;
+    place-self:flex-end;
+}
+input,textarea,button{
+	border:none;
+    background-color:#ECEBDE;
+    padding:8px;
+    border-radius:8px;
+}
+input:focus-visible,textarea:focus-visible{
+	outline:none;
+}
+button{
+	cursor:pointer;
+    transition:all .2s linear;
+}
+button:active{
+	transform:translateY(4px);
+}
+
+</style>
+</head>
+<body>
+<input type='text' id="input0" value="Hi, "/>
+<textarea type='text' id="input1" placeholder="Repeat your request"></textarea>
+<textarea type='text' id="input2" placeholder="Experience reference"></textarea>
+<textarea type='text' id="input3" placeholder="Idea implement"></textarea>
+<textarea type='text' id="input4" placeholder="Question about request"></textarea>
+
+<button id="button">Copy</button>
+<script>
+	input0=document.getElementById("input0");
+    input1=document.getElementById("input1");
+    input2=document.getElementById("input2");
+    input3=document.getElementById("input3");
+    input4=document.getElementById("input4");
+    button=document.getElementById("button");
+    
+    button.addEventListener('click',()=>{
+    	let str= input0.value+"\n"
+        		+input1.value+"\n"
+        		+input2.value+"\n"
+        		+input3.value+"\n"
+        		+input4.value;
+      if(input0.value==""||input1.value==""||input2.value==""||input3.value==""||input4.value==""){
+        alert("Complete ALL of Fields !! ლ(ಠ益ಠლ)")
+        return
+      }
+    	navigator.clipboard.writeText(str);
+        alert("Have join your job! Try your best! ᕙ(⇀‸↼‶)ᕗ")
+    })
+</script>
+</body>
+</html>
