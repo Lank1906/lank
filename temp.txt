@@ -1,0 +1,108 @@
+import React, { useState } from 'react';
+import { ResponsiveLine } from '@nivo/line';
+
+const MyLineChart = () => {
+    const allData = [
+        {
+            id: "Room 1",
+            data: [
+                { x: "2024-08", y: 1210000 },
+                { x: "2024-09", y: 1210000 },
+                { x: "2024-10", y: 1210000 },
+                { x: "2024-11", y: 1210000 },
+                { x: "2024-12", y: 1210000 },
+                { x: "2025-01", y: 1210000 }
+            ]
+        },
+        {
+            id: "Room 2",
+            data: [
+                { x: "2024-08", y: 1365000 },
+                { x: "2024-09", y: 1365000 },
+                { x: "2024-10", y: 1365000 },
+                { x: "2024-11", y: 1365000 },
+                { x: "2024-12", y: 1365000 },
+                { x: "2025-01", y: 1365000 }
+            ]
+        }
+    ];
+
+    const [selectedLine, setSelectedLine] = useState(null);
+
+    // Dữ liệu hiển thị: nếu không có dòng nào được chọn, hiển thị tất cả
+    const displayedData = selectedLine
+        ? allData.filter(line => line.id === selectedLine)
+        : allData;
+
+    // Tính toán lại min/max cho trục Y
+    const yValues = selectedLine
+        ? displayedData[0].data.map(point => point.y)
+        : allData.flatMap(line => line.data.map(point => point.y));
+    const minY = Math.min(...yValues);
+    const maxY = Math.max(...yValues);
+
+    return (
+        <div style={{ height: '500px' }}>
+            <ResponsiveLine
+                data={displayedData}
+                margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+                xScale={{ type: 'point' }}
+                yScale={{ type: 'linear', min: minY, max: maxY }}
+                axisTop={null}
+                axisRight={null}
+                axisBottom={{
+                    orient: 'bottom',
+                    legend: 'Month',
+                    legendOffset: 36,
+                    legendPosition: 'middle'
+                }}
+                axisLeft={{
+                    orient: 'left',
+                    legend: 'Amount',
+                    legendOffset: -40,
+                    legendPosition: 'middle'
+                }}
+                pointSize={10}
+                pointColor={{ theme: 'background' }}
+                pointBorderWidth={2}
+                pointBorderColor={{ from: 'serieColor' }}
+                pointLabel="y"
+                pointLabelYOffset={-12}
+                useMesh={true}
+                legends={[
+                    {
+                        anchor: 'bottom-right',
+                        direction: 'column',
+                        justify: false,
+                        translateX: 100,
+                        translateY: 0,
+                        itemsSpacing: 0,
+                        itemDirection: 'left-to-right',
+                        itemWidth: 80,
+                        itemHeight: 20,
+                        itemOpacity: 0.75,
+                        symbolSize: 12,
+                        symbolShape: 'circle',
+                        symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                        effects: [
+                            {
+                                on: 'hover',
+                                style: {
+                                    itemBackground: 'rgba(0, 0, 0, .03)',
+                                    itemOpacity: 1
+                                }
+                            }
+                        ],
+                        onClick: (data) => {
+                            // Xử lý sự kiện click vào label
+                            const clickedLine = data.id;
+                            setSelectedLine(selectedLine === clickedLine ? null : clickedLine);
+                        }
+                    }
+                ]}
+            />
+        </div>
+    );
+};
+
+export default MyLineChart;
