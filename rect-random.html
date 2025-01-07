@@ -61,9 +61,9 @@ while(nextCell){
 	const {row,col}=nextCell
     xNow=row
     maxRow=1;
-    maxCol=1;
+    maxCol=1
     
-    for(let i=row+1;i<gridSize;i++){
+    for(let i=row+1;i<Math.min(gridSize,row+2);i++){
     	if(!grid[i][col])
         	maxRow++;
         else
@@ -75,7 +75,7 @@ while(nextCell){
         else
         	break;
     }
-    rowSpan=Math.ceil(Math.random()* Math.min(maxRow,2))
+    rowSpan=Math.ceil(Math.random()* maxRow)
     colSpan=Math.ceil(Math.random()* Math.min(maxCol,2))
     
     const rect = document.createElement('div');
