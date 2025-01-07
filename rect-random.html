@@ -35,53 +35,59 @@ body {
 <script>
 const container = document.querySelector('.grid-container');
 const gridSize = 50;
+let xNow=0;
+let yNow=0;
 const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(false)); 
 
-function markBlock(row, col, rowSpan, colSpan) {
-  for (let r = row; r < row + rowSpan; r++) {
-    for (let c = col; c < col + colSpan; c++) {
-      grid[r][c] = true;
+function markBlock(x,y,rowSpan,colSpan){
+	for(let i=x;i<x+rowSpan;i++){
+    	for(let j=y;j<y+colSpan;j++){
+        	grid[i][j]=true;
+        }
     }
-  }
 }
 
-function findNextEmptyCell() {
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      if (!grid[row][col]) return { row, col };
+function findNextEmptyCell(){
+	for(let row=xNow;row<gridSize;row++){
+    	for(let col=yNow;col<gridSize;col++){
+        	if(!grid[row][col]) return {row,col}
+        }
     }
-  }
-  return null;
+    return null;
 }
 
-let nextCell = findNextEmptyCell();
-while (nextCell) {
-  const { row, col } = nextCell;
-
-  let maxRowSpan = 1;
-  let maxColSpan = 1;
-
-  while (row + maxRowSpan < gridSize && !grid[row + maxRowSpan][col]) {
-    maxRowSpan++;
-  }
-
-  while (col + maxColSpan < gridSize && !grid[row][col + maxColSpan]) {
-    maxColSpan++;
-  }
-
-  const rowSpan = Math.ceil(Math.random() * Math.min(maxRowSpan,3));
-  const colSpan = Math.ceil(Math.random() * Math.min(maxColSpan,3));
-
-  const rect = document.createElement('div');
-  rect.classList.add('rect');
-  rect.style.gridRow = `span ${rowSpan}`;
-  rect.style.gridColumn = `span ${colSpan}`;
-  container.appendChild(rect);
-
-  markBlock(row, col, rowSpan, colSpan);
-
-  nextCell = findNextEmptyCell();
+let nextCell=findNextEmptyCell()
+while(nextCell){
+	const {row,col}=nextCell
+    xNow=row
+    maxRow=1;
+    maxCol=1;
+    
+    for(let i=row+1;i<gridSize;i++){
+    	if(!grid[i][col])
+        	maxRow++;
+        else
+        	break;
+    }
+    for(let i=col+1;i<gridSize;i++){
+    	if(!grid[row][i])
+        	maxCol++;
+        else
+        	break;
+    }
+    rowSpan=Math.ceil(Math.random()* Math.min(maxRow,2))
+    colSpan=Math.ceil(Math.random()* Math.min(maxCol,2))
+    
+    const rect = document.createElement('div');
+    rect.classList.add('rect');
+    rect.style.gridRow = `span ${rowSpan}`;
+    rect.style.gridColumn = `span ${colSpan}`;
+    container.appendChild(rect);
+    
+    markBlock(row,col,rowSpan,colSpan);
+    nextCell=findNextEmptyCell();
 }
+
 </script>
 </body>
 </html>
