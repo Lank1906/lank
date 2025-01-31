@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Waveform Visualizer</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #0e1a2b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 60vh;
+        }
+        input {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="audioFile" accept="audio/mp3">
+    <canvas id="waveCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("waveCanvas");
+        const ctx = canvas.getContext("2d");
+        const audioInput = document.getElementById("audioFile");
+        let audioContext;
+        let analyser;
+        let source;
+        let dataArray;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight * 0.6;
+
+        audioInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = (e) => {
+                    playAudio(e.target.result);
+                };
+            }
+        });
+
+        function playAudio(arrayBuffer) {
+            if (audioContext) {
+                audioContext.close();
+            }
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+                if (source) {
+                    source.disconnect();
+                }
+                source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                source.start();
+                visualize();
+            });
+        }
+
+        function visualize() {
+            requestAnimationFrame(visualize);
+            analyser.getByteTimeDomainData(dataArray);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            let sliceWidth = canvas.width / dataArray.length;
+            let x = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                let v = dataArray[i] / 128.0;
+                let y = v * canvas.height / 2;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                x += sliceWidth;
+            }
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight * 0.6;
+        });
+    </script>
+</body>
+</html>
