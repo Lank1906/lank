@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Profile</title>
+  <style>
+  :root {
+    --background-color: white;
+    --text-color: black;
+    --second-color: gray;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #121212;
+        --text-color: #ffffff;
+        --second-color: #bbbbbb;
+    }
+}
+
+*{
+    padding: 0;
+    margin:0;
+    box-sizing: border-box;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color:var(--text-color);
+}
+.time{
+    color:var(--second-color);
+}
+body{
+    width: 100vw;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--background-color);
+}
+.head{
+    width: calc(100% - 36px);
+    display: flex;
+    justify-content: space-between;
+    margin: 24px 8px;
+    align-items: center;
+}
+#avatar{
+    width: 24%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+#name{
+    display: flex;
+    flex-direction:column ;
+    justify-content: center;
+}
+#info{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-left: 1px solid var(--text-color);
+    padding: 12px;
+    height: fit-content;
+}
+.space{
+    width: 10px;
+}
+.row{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.row img{
+    width:10px;
+    filter: invert(1);
+}
+.objective{
+    margin:16px auto;
+}
+.body{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap:16px;
+}
+.projects{
+    width:70%;
+    position: relative;
+}
+.projects::before{
+    content: '';
+    display: block;
+    height: calc(100% - 48px);
+    width: 4px;
+    background-color: var(--text-color);
+    border-radius: 2px;
+    position: absolute;
+    bottom: 0;
+}
+.project{
+    position: relative;
+    margin-left: 24px;
+    margin-bottom: 24px;
+}
+.project::before{
+    content: '';
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    background-color: var(--text-color);
+    position: absolute;
+    left:-28px;
+    top:6px;
+}
+.project>:nth-child(2){
+    position: absolute;
+    right:20px;
+    top:4px;
+}
+.other{
+    width: 30%;
+}
+.techs{
+    display: flex;
+    justify-content: space-around;
+    align-items:center;
+}
+.tech{
+    border-radius: 12px;
+    padding:8px;
+    border:1px solid var(--text-color);
+}
+h2{
+    margin: 12px 0;
+}
+.section h4{
+    margin-top: 12px;
+}
+.section>:not(h2){
+    padding-left:12px;
+}
+ul :not(h4){
+    margin-left: 16px;
+}
+  </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="head">
+            <div id="avatar">
+                <img src="./src/avatar.jpg" width="100%" alt="">
+            </div>
+            <div id="name">
+                <h1>BÙI XUÂN HOÀNG</h1>
+                <h3>Software Engineer</h3>
+            </div>
+            <div id="info">
+                <div class="row"><img src="./src/phone-solid.svg" alt="">
+                    <div class="space"></div>(+84) 349852986
+                </div>
+                <div class="row"><img src="./src/envelope-solid.svg" alt="">
+                    <div class="space"></div>buixuanhoang.work@gmail.com
+                </div>
+                <div class="row"><img src="./src/cake-candles-solid.svg" alt="">
+                    <div class="space"></div> 19/06/2003
+                </div>
+                <div class="row"><img src="./src/github-brands-solid.svg" alt="">
+                    <div class="space"></div>github.com/Lank1906
+                </div>
+            </div>
+        </div>
+        <div class="objective">
+            <h2>OBJECTIVE</h2>
+            <p>In 5 years, I want to become an expert in the field of code and create many useful tools. With a product
+                made
+                wil show value, benefits for life. Always focusing on the product helps the product bring a sense of
+                completion and optimization.</p>
+        </div>
+        <div class="body">
+            <div class="projects">
+                <h2>PERSONAL PROJECTS</h2>
+                <div class="project">
+                    <h4>Donut Shop</h4>
+                    <h4>Window Form</h4>
+                    <p class="time">12.2021 - 4.2022</p>
+                    <p>I design databases. Create base code and request data from the database. Design interface of
+                        desktop
+                        application. Write project documentation and revenue analysts.</p>
+                    <ul>Achievements:
+                        <li>Knowledge of sql server</li>
+                        <li>More understand about UX/UI design</li>
+                        <li>Understand OOP</li>
+                        <li>3 layers model</li>
+                    </ul>
+                    <p>Technologies:</p>
+                    <div class="techs">
+                        <div class="tech">Window Form</div>
+                        <div class="tech">Sql Serve</div>
+                        <div class="tech">.Net Framework</div>
+                        <div class="tech">ADO.net</div>
+                    </div>
+                </div>
+                <div class="project">
+                    <h4>Quizz</h4>
+                    <h4>Entity Framework</h4>
+                    <p class="time">11.2024 - 2 weeks</p>
+                    <p>Conceptualize the system, identify the necessary functions and requirements for the system. I
+                        design
+                        the UI for this website. And participate in contributing ideas to build the database.
+                        Responsible
+                        for building the reporting and admin page apis and interface.</p>
+                    <ul>Achievements:
+                        <li>Understand deeply about .Net API</li>
+                        <li>Understand math in code fields</li>
+                        <li>Make a share system</li>
+                    </ul>
+                    <p>Technologies:</p>
+                    <div class="techs">
+                        <div class="tech">Entity Framework</div>
+                        <div class="tech">Sql Serve</div>
+                        <div class="tech">Angular cli</div>
+                    </div>
+                </div>
+                <div class="project">
+                    <h4>Boarding House Management</h4>
+                    <h4>Project 3</h4>
+                    <p class="time">6.2023 - Now</p>
+                    <p>Boarding house business analyst. Design databases, trigger, procedure. Draw prototype, paper
+                        wireframe,... Handling backend, authentication, logic constraints, handling requests and writing
+                        api
+                        documentation for projects. Build interface follows the prototype. Handling interactive of
+                        fontend.
+                    </p>
+                    <ul>Achievements:
+                        <li>Building complete manage application</li>
+                        <li>UX/UI design</li>
+                        <li>Business analyst of Boarding house</li>
+                        <li>Bill automation, announcement friendly system</li>
+                    </ul>
+                    <p>Technologies:</p>
+                    <div class="techs">
+                        <div class="tech">Express JS</div>
+                        <div class="tech">React TS</div>
+                        <div class="tech">Mysql</div>
+                        <div class="tech">Figma</div>
+                    </div>
+                </div>
+            </div>
+            <div class="other">
+                <div class="section">
+                    <h2>EDUCATION</h2>
+                    <h4>FPT Software Academy </h4>
+                    <p class="time">11.2024 – 1.2025</p>
+                    <p>Intern .Net Developer</p>
+
+                    <h4>Hung Yen University of Technology and Education</h4>
+                    <p>08.2021 – 06.2025</p>
+                    <p>Software Engineering, GPA: 3.5/4</p>
+                </div>
+                <div class="section">
+                    <h2>CERTIFICATE & AWARD</h2>
+                    <a href="">TOEIC 625</a><br>
+                    <a href="https://coursera.org/share/724b46aea610ce30f43b6724957c3b77">HTML,CSS,JS</a><br>
+                    <a href="https://coursera.org/share/cc16f0c40bd54b44b533ae40b2bda599">REACT</a><br>
+                    <a href="https://coursera.org/share/b789d86609bbd6606c43e89652a8e5b2">NODE JS</a><br>
+                    <a href="https://coursera.org/share/5591a18c4d7c7cc9cc47f92b4a4e523b">Git/ Github</a><br>
+                </div>
+                <div class="section">
+                    <h2>SKILLS</h2>
+                    <ul>
+                        <h4>Frontend:</h4>
+                        <li>Angular cli</li>
+                        <li>React TS</li>
+                        <li>HTML,CSS,JS</li>
+                        <li>Figma</li>
+                    </ul>
+                    <ul>
+                        <h4>Backend:</h4>
+                        <li>C#/ .Net</li>
+                        <li>Python</li>
+                        <li>Javascript/ Express</li>
+                    </ul>
+                    <ul>
+                        <h4>Others:</h4>
+                        <li>Apache Server</li>
+                        <li>Git/Github</li>
+                        <li>Visual paradigm, draw.io</li>
+                        <li>...</li>
+                    </ul>
+                </div>
+                <div class="section">
+                    <h2>INTEREST</h2>
+                    <p>Reading book</p>
+                    <p>Hiking</p>
+                    <p>Interested in new technology</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
