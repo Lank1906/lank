@@ -64,6 +64,16 @@
             color: green;
             font-weight: bold;
         }
+
+        #score {
+            font-size: 24px;
+            margin-top: 30px;
+            color: #ff5722;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -82,6 +92,11 @@
             <button class="option-btn" id="option4"></button>
         </div>
         <div id="result-message"></div>
+    </div>
+
+    <div id="score">
+        <p>Số câu đúng: <span id="correct-count">0</span></p>
+        <p>Số câu sai: <span id="wrong-count">0</span></p>
     </div>
 
     <script>
@@ -104,6 +119,8 @@
         const mySound = new sound("https://cdn.pixabay.com/audio/2023/12/16/audio_9398492f64.mp3");
 
         let index = 0;
+        let correctCount = 0;  // Số câu đúng
+        let wrongCount = 0;    // Số câu sai
 
         const arr = [
             // Example questions
@@ -159,9 +176,13 @@
             if (selectedOption === correctAnswer) {
                 resultMessage.textContent = "Giỏi lắm! Bạn đã chọn đúng!";
                 mySound2.play(); // Âm thanh khi đúng
+                correctCount++;
+                document.getElementById('correct-count').textContent = correctCount;
             } else {
                 resultMessage.textContent = "Thử lại nào! Bạn chọn sai rồi!";
                 mySound.play(); // Âm thanh khi sai
+                wrongCount++;
+                document.getElementById('wrong-count').textContent = wrongCount;
             }
 
             setTimeout(() => {
