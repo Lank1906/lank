@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học phép tính cho trẻ em</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ffecb3;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            border: 5px solid #ff5722;
+            border-radius: 15px;
+            background-color: #fffde7;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            font-size: 36px;
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+        .problem {
+            font-size: 60px;
+            margin-top: 30px;
+            font-weight: bold;
+            color: #f57c00;
+        }
+
+        .buttons {
+            margin-top: 30px;
+        }
+
+        .option-btn {
+            font-size: 24px;
+            padding: 15px 20px;
+            margin: 15px;
+            background-color: #ff5722;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            width: 150px;
+            transition: background-color 0.3s;
+        }
+
+        .option-btn:hover {
+            background-color: #ff7043;
+        }
+
+        #result-message {
+            font-size: 24px;
+            margin-top: 20px;
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title" id="title">Học phép tính cùng bé!</h1>
+        <div class="problem">
+            <span id="number1"></span>
+            <span id="operator"></span>
+            <span id="number2"></span>
+            = ?
+        </div>
+        <div class="buttons">
+            <button class="option-btn" id="option1"></button>
+            <button class="option-btn" id="option2"></button>
+            <button class="option-btn" id="option3"></button>
+            <button class="option-btn" id="option4"></button>
+        </div>
+        <div id="result-message"></div>
+    </div>
+
+    <script>
+        function sound(src) {
+            this.sound = document.createElement("audio");
+            this.sound.src = src;
+            this.sound.setAttribute("preload", "auto");
+            this.sound.setAttribute("controls", "none");
+            this.sound.style.display = "none";
+            document.body.appendChild(this.sound);
+            this.play = function() {
+                this.sound.play();
+            }
+            this.stop = function() {
+                this.sound.pause();
+            }
+        }
+
+        const mySound2 = new sound("https://cdn.pixabay.com/audio/2022/03/10/audio_6650ed59b7.mp3");
+        const mySound = new sound("https://cdn.pixabay.com/audio/2023/12/16/audio_9398492f64.mp3");
+
+        let index = 0;
+
+        const arr = [
+            // Example questions
+            ["5 + 3", 8, "Cộng 5 và 3."],
+            ["7 - 4", 3, "Trừ 7 đi 4."]
+            // Add more questions as needed
+        ];
+
+        function generateProblem() {
+            const num1 = Math.floor(Math.random() * 10) + 1; // số đầu tiên từ 1 đến 10
+            const operator = Math.random() < 0.5 ? '+' : '-'; // phép toán ngẫu nhiên
+
+            let num2;
+            if (operator === '+') {
+                num2 = Math.floor(Math.random() * (10 - num1 + 1)); // phép cộng
+            } else {
+                num2 = Math.floor(Math.random() * num1); // phép trừ
+            }
+
+            document.getElementById('number1').textContent = num1;
+            document.getElementById('operator').textContent = operator;
+            document.getElementById('number2').textContent = num2;
+
+            return { num1, num2, operator };
+        }
+
+        function generateOptions(num1, num2, operator) {
+            let correctAnswer;
+            if (operator === '+') {
+                correctAnswer = num1 + num2;
+            } else {
+                correctAnswer = num1 - num2;
+            }
+
+            let options = [correctAnswer];
+            while (options.length < 4) {
+                let randomOption = Math.floor(Math.random() * 10) + 1;
+                if (!options.includes(randomOption) && randomOption <= 10) {
+                    options.push(randomOption);
+                }
+            }
+
+            options = options.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`option${i + 1}`).textContent = options[i];
+                document.getElementById(`option${i + 1}`).onclick = () => checkAnswer(options[i], correctAnswer);
+            }
+        }
+
+        function checkAnswer(selectedOption, correctAnswer) {
+            const resultMessage = document.getElementById('result-message');
+            if (selectedOption === correctAnswer) {
+                resultMessage.textContent = "Giỏi lắm! Bạn đã chọn đúng!";
+                mySound2.play(); // Âm thanh khi đúng
+            } else {
+                resultMessage.textContent = "Thử lại nào! Bạn chọn sai rồi!";
+                mySound.play(); // Âm thanh khi sai
+            }
+
+            setTimeout(() => {
+                const { num1, num2, operator } = generateProblem();
+                generateOptions(num1, num2, operator);
+                resultMessage.textContent = "";
+            }, 2000); // Sau 2 giây tự động tạo câu hỏi mới
+        }
+
+        // Khởi tạo câu hỏi ban đầu
+        const { num1, num2, operator } = generateProblem();
+        generateOptions(num1, num2, operator);
+    </script>
+</body>
+</html>
