@@ -1,0 +1,8 @@
+== DATABASE ==
+- add is_active, create_at, update_at field for any table is nessecsary
+
+== BACKEND ==
+- 
+
+== FRONTEND ==
+- 
