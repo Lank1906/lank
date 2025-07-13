@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Creative Coding</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      font-family: sans-serif;
+    }
+
+    canvas {
+      border: 1px solid black;
+      width: 600px;
+      height: 600px;
+    }
+
+    #toast-container {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+    }
+
+    .toast {
+      background-color: #333;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      animation: fadeInRight 0.4s ease-out, fadeOutRight 0.4s ease-in 2.6s;
+    }
+
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeOutRight {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas width="600" height="600"></canvas>
+<div id="toast-container"></div>
+
+<script>
+  // BASIC
+  let title = "Lank";
+  let showTitle = (title = "KO") => {
+    alert(title);
+  };
+  let arr = ["Lank1", "Lank2", "Lank3"];
+  const title2="Lank"
+  
+  for(let i=0;i<arr.length;i++){}
+  arr.forEach(item=>{})
+  
+  if(true){}
+  else{}
+
+  // DRAWING
+  let canvas = document.querySelector('canvas');
+  let context = canvas.getContext('2d');
+
+  //context.fillStyle = 'blue';
+  //context.fillRect(100, 100, 400, 400);
+  //context.lineWidth = 4;
+
+  //context.beginPath();
+  //context.rect(50, 50, 200, 200); //x,y,width, height
+  //context.stroke();
+
+  //context.beginPath();
+  //context.arc(100, 100, 50, 0, 2 * Math.PI); //x,y,r,startAngle,endAngle
+  //context.stroke();
+  
+  for(let i=0;i<9;i++){
+  	for(let j=0;j<9;j++){
+    	
+        let width=40;
+        let height=40;
+        let gap=30;
+        let x=(width+gap)*i;
+        let y=(height+gap)*j;
+        
+    	context.beginPath();
+        context.rect(x,y,width,height)
+        context.stroke()
+        
+        if(Math.random()>0.5){
+        	context.beginPath();
+          context.rect(x+8,y+8,width-16,height-16)
+          context.stroke()
+        }
+        
+    }
+  }
+
+  // TOAST SYSTEM
+  function showToast(message) {
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.innerText = message;
+
+    container.appendChild(toast);
+
+    // Remove after animation ends (400ms in + 2600ms wait + 400ms out = 3400ms)
+    setTimeout(() => {
+      toast.remove();
+    }, 3400);
+  }
+</script>
+
+</body>
+</html>
