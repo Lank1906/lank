@@ -72,6 +72,25 @@
 <div id="toast-container"></div>
 
 <script>
+  // TOAST SYSTEM
+  function showToast(message) {
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.innerText = message;
+
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
+  }
+  
+  // Degree to radius
+  const degToRad = degrees => degrees/180 * Math.PI;
+  
+  // Random Range
+  const randomRange = (min,max)=> Math.random()*(max-min)+min;
+  
   // BASIC
   let title = "Lank";
   let showTitle = (title = "KO") => {
@@ -89,7 +108,9 @@
   // DRAWING
   let canvas = document.querySelector('canvas');
   let context = canvas.getContext('2d');
-
+  
+  const width=canvas.width;
+  const height=canvas.height;
   //context.fillStyle = 'blue';
   //context.fillRect(100, 100, 400, 400);
   //context.lineWidth = 4;
@@ -102,41 +123,69 @@
   //context.arc(100, 100, 50, 0, 2 * Math.PI); //x,y,r,startAngle,endAngle
   //context.stroke();
   
-  for(let i=0;i<9;i++){
-  	for(let j=0;j<9;j++){
-    	
-        let width=40;
-        let height=40;
-        let gap=30;
-        let x=(width+gap)*i;
-        let y=(height+gap)*j;
-        
-    	context.beginPath();
-        context.rect(x,y,width,height)
-        context.stroke()
-        
-        if(Math.random()>0.5){
-        	context.beginPath();
-          context.rect(x+8,y+8,width-16,height-16)
-          context.stroke()
-        }
-        
-    }
-  }
+  //EX2
+  //for(let i=0;i<9;i++){
+  //	for(let j=0;j<9;j++){
+  //  	
+  //      let width=40;
+  //      let height=40;
+  //      let gap=30;
+  //      let x=(width+gap)*i;
+  //      let y=(height+gap)*j;
+  //      
+  //  	context.beginPath();
+  //      context.rect(x,y,width,height)
+  //      context.stroke()
+  //      
+  //      if(Math.random()>0.5){
+  //      	context.beginPath();
+  //        context.rect(x+8,y+8,width-16,height-16)
+  //        context.stroke()
+  //      }
+  //  }
+  //}
+  
+  //EX3
+  const cx=width*0.5;
+  const cy=height*0.5;
+  const w=width*0.01;
+  const h=height*0.1;
+  
+  let x,y;
+  
+  let num=40;
+  const r=width*0.3;
+  
+  context.fillStyle='black';
+  
+  for (let i=0;i<num;i++){
 
-  // TOAST SYSTEM
-  function showToast(message) {
-    const container = document.getElementById("toast-container");
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.innerText = message;
-
-    container.appendChild(toast);
-
-    // Remove after animation ends (400ms in + 2600ms wait + 400ms out = 3400ms)
-    setTimeout(() => {
-      toast.remove();
-    }, 3400);
+  	const slice =degToRad(360 / num);
+    const angle=slice*i;
+    
+    x= cx + r * Math.sin(angle);
+    y= cy + r * Math.cos(angle);
+    
+    context.save();// save origin present
+    
+    context.translate(x,y); //+x,+y
+    context.rotate(-angle); //rotate from origin
+    context.scale(randomRange(1,3),randomRange(0,2)); //scale follow x and y
+    
+    context.beginPath();
+    context.rect(randomRange(0,w*0,5),randomRange(0,h*0,5),w,h*0.5)
+    context.fill()
+    
+    context.restore();// restore origin to save point
+    
+    context.lineWidth=randomRange(5,10);
+    context.save();
+    context.translate(cx,cy);
+    context.rotate(-angle);
+    context.beginPath();
+    context.arc(0,0,r*randomRange(0.7,1.3),slice*randomRange(1,-8),slice*randomRange(1,5));//radius
+    context.stroke();
+    context.restore();
   }
 </script>
 
