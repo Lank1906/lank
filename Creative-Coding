@@ -1,193 +1,251 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Creative Coding</title>
-  <style>
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      font-family: sans-serif;
-    }
-
-    canvas {
-      border: 1px solid black;
-      width: 600px;
-      height: 600px;
-    }
-
-    #toast-container {
-      position: fixed;
-      top: 30px;
-      right: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 999;
-    }
-
-    .toast {
-      background-color: #333;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-      animation: fadeInRight 0.4s ease-out, fadeOutRight 0.4s ease-in 2.6s;
-    }
-
-    @keyframes fadeInRight {
-      from {
-        opacity: 0;
-        transform: translateX(100%);
+  <head>
+    <title>Creative Coding</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
       }
-      to {
-        opacity: 1;
-        transform: translateX(0);
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        font-family: sans-serif;
       }
-    }
 
-    @keyframes fadeOutRight {
-      from {
-        opacity: 1;
-        transform: translateX(0);
+      canvas {
+        border: 1px solid black;
+        width: 600px;
+        height: 600px;
       }
-      to {
-        opacity: 0;
-        transform: translateX(100%);
+
+      #toast-container {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 999;
       }
-    }
-  </style>
-</head>
-<body>
 
-<canvas width="600" height="600"></canvas>
-<div id="toast-container"></div>
+      .toast {
+        background-color: #333;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        animation: fadeInRight 0.4s ease-out, fadeOutRight 0.4s ease-in 2.6s;
+      }
 
-<script>
-  // TOAST SYSTEM
-  function showToast(message) {
-    const container = document.getElementById("toast-container");
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.innerText = message;
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(100%);
+        }
 
-    container.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  }
-  
-  // Degree to radius
-  const degToRad = degrees => degrees/180 * Math.PI;
-  
-  // Random Range
-  const randomRange = (min,max)=> Math.random()*(max-min)+min;
-  
-  // BASIC
-  let title = "Lank";
-  let showTitle = (title = "KO") => {
-    alert(title);
-  };
-  let arr = ["Lank1", "Lank2", "Lank3"];
-  const title2="Lank"
-  
-  for(let i=0;i<arr.length;i++){}
-  arr.forEach(item=>{})
-  
-  if(true){}
-  else{}
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
 
-  // DRAWING
-  let canvas = document.querySelector('canvas');
-  let context = canvas.getContext('2d');
-  
-  const width=canvas.width;
-  const height=canvas.height;
-  //context.fillStyle = 'blue';
-  //context.fillRect(100, 100, 400, 400);
-  //context.lineWidth = 4;
+      @keyframes fadeOutRight {
+        from {
+          opacity: 1;
+          transform: translateX(0);
+        }
 
-  //context.beginPath();
-  //context.rect(50, 50, 200, 200); //x,y,width, height
-  //context.stroke();
-
-  //context.beginPath();
-  //context.arc(100, 100, 50, 0, 2 * Math.PI); //x,y,r,startAngle,endAngle
-  //context.stroke();
-  
-  //EX2
-  //for(let i=0;i<9;i++){
-  //	for(let j=0;j<9;j++){
-  //  	
-  //      let width=40;
-  //      let height=40;
-  //      let gap=30;
-  //      let x=(width+gap)*i;
-  //      let y=(height+gap)*j;
-  //      
-  //  	context.beginPath();
-  //      context.rect(x,y,width,height)
-  //      context.stroke()
-  //      
-  //      if(Math.random()>0.5){
-  //      	context.beginPath();
-  //        context.rect(x+8,y+8,width-16,height-16)
-  //        context.stroke()
-  //      }
-  //  }
-  //}
-  
-  //EX3
-  const cx=width*0.5;
-  const cy=height*0.5;
-  const w=width*0.01;
-  const h=height*0.1;
-  
-  let x,y;
-  
-  let num=40;
-  const r=width*0.3;
-  
-  context.fillStyle='black';
-  
-  for (let i=0;i<num;i++){
-
-  	const slice =degToRad(360 / num);
-    const angle=slice*i;
+        to {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="600" height="600"></canvas>
+    <div id="toast-container"></div>
+    <script>
     
-    x= cx + r * Math.sin(angle);
-    y= cy + r * Math.cos(angle);
-    
-    context.save();// save origin present
-    
-    context.translate(x,y); //+x,+y
-    context.rotate(-angle); //rotate from origin
-    context.scale(randomRange(1,3),randomRange(0,2)); //scale follow x and y
-    
-    context.beginPath();
-    context.rect(randomRange(0,w*0,5),randomRange(0,h*0,5),w,h*0.5)
-    context.fill()
-    
-    context.restore();// restore origin to save point
-    
-    context.lineWidth=randomRange(5,10);
-    context.save();
-    context.translate(cx,cy);
-    context.rotate(-angle);
-    context.beginPath();
-    context.arc(0,0,r*randomRange(0.7,1.3),slice*randomRange(1,-8),slice*randomRange(1,5));//radius
-    context.stroke();
-    context.restore();
-  }
-</script>
-
-</body>
+      // TOAST SYSTEM
+      function showToast(message) {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.innerText = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+      
+      // Degree to radius
+      const degToRad = degrees => degrees / 180 * Math.PI;
+      
+      // Random Range
+      const randomRange = (min, max) => Math.random() * (max - min) + min;
+      
+      //Animate Function
+      const animate = (context, callback) => {
+        setTimeout(() => {
+          context.clearRect(0, 0, width, height);
+          callback();
+          requestAnimationFrame(() => animate(context, callback));
+        }, 1000 / 24)
+      }
+      
+      // BASIC
+      let title = "Lank";
+      let showTitle = (title = "KO") => {
+        alert(title);
+      };
+      let arr = ["Lank1", "Lank2", "Lank3"];
+      const title2 = "Lank"
+      for (let i = 0; i < arr.length; i++) {}
+      arr.forEach(item => {})
+      if (true) {} else {}
+      
+      // DRAWING
+      let canvas = document.querySelector('canvas');
+      let context = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      //context.fillStyle = 'blue';
+      //context.fillRect(100, 100, 400, 400);
+      //context.lineWidth = 4;
+      //context.beginPath();
+      //context.rect(50, 50, 200, 200); //x,y,width, height
+      //context.stroke();
+      //context.beginPath();
+      //context.arc(100, 100, 50, 0, 2 * Math.PI); //x,y,r,startAngle,endAngle
+      //context.stroke();
+      
+      //EX2
+      //for(let i=0;i< 9;i++) {
+      //	for(let j=0;j< 9;j++) {
+      //  	
+      //      let width=40;
+      //      let height=40;
+      //      let gap=30;
+      //      let x=(width+gap)*i;
+      //      let y=(height+gap)*j;
+      //      
+      //  	context.beginPath();
+      //      context.rect(x,y,width,height)
+      //      context.stroke()
+      //      
+      //      if(Math.random()>0.5){
+      //      	context.beginPath();
+      //        context.rect(x+8,y+8,width-16,height-16)
+      //        context.stroke()
+      //      }
+      //  }
+      //}
+        
+      //EX3
+      //const cx=width*0.5;
+      //const cy=height*0.5;
+      //const w=width*0.01;
+      //const h=height*0.1;
+      //let x,y;
+      //let num=40;
+      //const r=width*0.3;
+      //context.fillStyle='black';
+      //for (let i=0;i< num;i++) {
+      //	const slice =degToRad(360 / num);
+      //  const angle=slice*i;
+      
+      //  x= cx + r * Math.sin(angle);
+      //  y= cy + r * Math.cos(angle);
+      //  context.save();// save origin present
+      //  context.translate(x,y); //+x,+y
+      //  context.rotate(-angle); //rotate from origin
+      //  context.scale(randomRange(1,3),randomRange(0,2)); //scale follow x and y
+      
+      //  context.beginPath();
+      //  context.rect(randomRange(0,w*0,5),randomRange(0,h*0,5),w,h*0.5)
+      //  context.fill()
+      
+      //  context.restore();// restore origin to save point
+      
+      //  context.lineWidth=randomRange(5,10);
+      //  context.save();
+      //  context.translate(cx,cy);
+      //  context.rotate(-angle);
+      //  context.beginPath();
+      //  context.arc(0,0,r*randomRange(0.7,1.3),slice*randomRange(1,-8),slice*randomRange(1,5));//radius
+      //  context.stroke();
+      //  context.restore();
+      //}
+      //EX4
+      class Vector {
+        constructor(x, y) {
+          this.x = x;
+          this.y = y;
+        }
+        getDistance(vector) {
+          const dx = this.x - vector.x;
+          const dy = this.y - vector.y;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+      }
+      
+      class Agent {
+        constructor(x, y) {
+          this.pos = new Vector(x, y);
+          this.vel = new Vector(randomRange(-1, 1), randomRange(-1, 1));
+          this.r = randomRange(4, 8);
+        }
+        update(width, height) {
+          if (this.pos.x > width || this.pos.x < 0) this.vel.x *= -1
+          if (this.pos.y > height || this.pos.y < 0) this.vel.y *= -1
+          this.pos.x += this.vel.x;
+          this.pos.y += this.vel.y;
+        }
+        draw(context) {
+          context.save();
+          context.translate(this.pos.x, this.pos.y)
+          context.beginPath();
+          context.lineWidth = 3;
+          context.arc(0, 0, this.r, 0, Math.PI * 2);
+          context.fill();
+          context.stroke();
+          context.restore();
+        }
+      }
+      
+      context.fillStyle = 'white'
+      
+      let agents = []
+      
+      for (let i = 0; i < 24; i++) {
+        agents.push(new Agent(randomRange(0, width), randomRange(0, height)));
+      }
+      
+      animate(context, () => {
+        for (let i = 0; i < agents.length; i++) {
+          const item = agents[i];
+          for (let j = i + 1; j < agents.length; j++) {
+            const other = agents[j];
+            dis = item.pos.getDistance(other.pos);
+            if (dis > 100) continue;
+            context.lineWidth = 5 * (1 - dis / 100);
+            context.beginPath();
+            context.moveTo(item.pos.x, item.pos.y);
+            context.lineTo(other.pos.x, other.pos.y);
+            context.stroke();
+          }
+          item.update(width, height);
+          item.draw(context);
+        }
+      })
+    </script>
+  </body>
 </html>
