@@ -1,8 +1,26 @@
 == DATABASE ==
 - add is_active, create_at, update_at field for any table is nessecsary
+- use uuid instead of id(number) for id or primary key
+- use library's migration to code quicker
 
 == BACKEND ==
-- 
+- a check flow in function: data extend in, data not in db(.env,..), data from db.
+- if have shorthand structure. Use it instead.
+- token will be save in cookie.
 
 == FRONTEND ==
-- 
+- Don't use arrow funtion
+- use i18n, 
+- ui library always have yes,no dialog confirm.
+- alway use cache(like redux'library) to store data, if user go to a page 2th time don't fetch data again if not update.
+- form always have verify for each field.
+
+== DOCKER ==
+- use docker to build db to follow version and easy deployment
+
+== UX FLOW ==
+- must have confirm password for register, change password, verify email.
+- user chose plan => confirm => login(register + payment medthod) => checkout.
+- company name do not display in login, register page.
+- some country have firstname-lastname(JP,..), lastname-firstname(VN,..)
+- some page will shown information of company, plan, policy,..(pulic page) => dont need login.
