@@ -15,80 +15,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>My Projects</title>
+  <meta charset="UTF-8">
+  <title>✨ Galaxy Project Grid</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 2rem;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #f0f4f8, #d9e2ec);
-      color: #333;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #0f172a, #1e293b);
+      color: #f8fafc;
+      overflow-x: hidden;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 2rem;
-      color: #2a4365;
+      font-size: 2.5rem;
+      color: #93c5fd;
+      margin-bottom: 3rem;
     }
 
-    ul {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 0;
-      list-style: none;
+    .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
     }
 
-    li {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+    .card {
+      background: #1e293b;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      cursor: pointer;
     }
 
-    li:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      background: linear-gradient(45deg, #60a5fa, #9333ea, #ec4899);
+      filter: blur(20px);
+      opacity: 0.2;
+      z-index: 0;
+      transition: 0.3s;
+      border-radius: 25px;
     }
 
-    a {
+    .card:hover::before {
+      opacity: 0.5;
+    }
+
+    .card:hover {
+      transform: rotateX(5deg) rotateY(-5deg) scale(1.03);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    }
+
+    .card a {
+      position: relative;
+      z-index: 1;
       display: block;
-      padding: 1rem;
+      color: #93c5fd;
+      font-size: 1.2rem;
+      font-weight: 600;
       text-decoration: none;
-      color: #2b6cb0;
-      font-weight: 500;
     }
 
-    a:hover {
-      color: #1a202c;
+    .card a:hover {
+      color: #ffffff;
+    }
+
+    .card span {
+      display: block;
+      margin-top: 0.5rem;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 500px) {
+      .card {
+        padding: 1.2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>📂 My Project Links</h1>
-  <ul>
-    <li><a href="./3d_slide_rotate_animation.html">3D Slide</a></li>
-    <li><a href="./600toeic.html">600 TOEIC</a></li>
-    <li><a href="./DayStreak.html">Day Streak</a></li>
-    <li><a href="./Experience.txt">Experience</a></li>
-    <li><a href="./ToDo.html">To Do List</a></li>
-    <li><a href="./bezier.html">Bezier</a></li>
-    <li><a href="./bug.html">Bug</a></li>
-    <li><a href="./clock.html">Clock</a></li>
-    <li><a href="./drawing.html">Drawing</a></li>
-    <li><a href="./form-input.html">Form Input</a></li>
-    <li><a href="./heart.html">Heart</a></li>
-    <li><a href="./image-slide-animation.html">Image Slide Animation</a></li>
-    <li><a href="./japan.html">Japan Date</a></li>
-    <li><a href="./nav.html">Navigation</a></li>
-    <li><a href="./oan_tu_ti.html">Oẳn Tù Tì</a></li>
-    <li><a href="./plus-subtract-1-10.html">Cộng Trừ 1-10</a></li>
-    <li><a href="./slide-infinite.html">Slide Infinite</a></li>
-    <li><a href="./text-typing.html">Text Typing</a></li>
-  </ul>
+  <h1>🚀 Galaxy Projects</h1>
+  <div class="grid">
+    <div class="card"><a href="./3d_slide_rotate_animation.html">3D Slide</a><span>Hiệu ứng không gian</span></div>
+    <div class="card"><a href="./600toeic.html">600 TOEIC</a><span>Flashcard từ vựng</span></div>
+    <div class="card"><a href="./DayStreak.html">Day Streak</a><span>Thử thách liên tục</span></div>
+    <div class="card"><a href="./Experience.txt">Experience</a><span>Ghi chú kinh nghiệm</span></div>
+    <div class="card"><a href="./ToDo.html">To Do List</a><span>Danh sách việc cần làm</span></div>
+    <div class="card"><a href="./bezier.html">Bezier</a><span>Đường cong logic</span></div>
+    <div class="card"><a href="./bug.html">Bug</a><span>Demo lỗi vui vẻ</span></div>
+    <div class="card"><a href="./clock.html">Clock</a><span>Đồng hồ thời gian thực</span></div>
+    <div class="card"><a href="./drawing.html">Drawing</a><span>Canvas freestyle</span></div>
+    <div class="card"><a href="./form-input.html">Form Input</a><span>Form thử nghiệm</span></div>
+    <div class="card"><a href="./heart.html">Heart</a><span>Tim rơi ❤️</span></div>
+    <div class="card"><a href="./image-slide-animation.html">Image Slide</a><span>Ảnh trượt chuyển cảnh</span></div>
+    <div class="card"><a href="./japan.html">Japan Date</a><span>Ngày tháng kiểu Nhật</span></div>
+    <div class="card"><a href="./nav.html">Nav</a><span>Thanh điều hướng</span></div>
+    <div class="card"><a href="./oan_tu_ti.html">Oẳn Tù Tì</a><span>Game mini JS</span></div>
+    <div class="card"><a href="./plus-subtract-1-10.html">Cộng Trừ</a><span>Bài tập số</span></div>
+    <div class="card"><a href="./slide-infinite.html">Slide Infinite</a><span>Trượt vô hạn</span></div>
+    <div class="card"><a href="./text-typing.html">Text Typing</a><span>Hiệu ứng đánh máy</span></div>
+  </div>
 </body>
 </html>
-
