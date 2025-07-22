@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Creative Coding + Tweakpane Layout</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+
+    #tweakpane {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="600" height="600"></canvas>
+  <div id="tweakpane"></div>
+
+  <!-- Tweakpane -->
+  <script src="https://cdn.jsdelivr.net/npm/tweakpane@3.1.0/dist/tweakpane.min.js"></script>
+
+  <!-- canvas-sketch-util -->
+  <script type="module">
+    import * as util from 'https://cdn.jsdelivr.net/npm/canvas-sketch-util@1.10.0/+esm';
+
+    const { math, random } = util;
+
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const settings = {
+      lineCap: 'round',
+      cols: 10,
+      rows: 10,
+      scaleMin: 0.1,
+      scaleMax: 10,
+      freq: 0.001,
+      amp: 1,
+      animate: true,
+      frame: 0
+    };
+
+    // Setup Tweakpane
+    const pane = new Tweakpane.Pane({ container: document.getElementById('tweakpane') });
+
+    const gridFolder = pane.addFolder({ title: 'Grid' });
+    gridFolder.addInput(settings, 'lineCap', { options: { square: 'square', round: 'round', butt: 'butt' } });
+    gridFolder.addInput(settings, 'cols', { min: 2, max: 300, step: 1 });
+    gridFolder.addInput(settings, 'rows', { min: 2, max: 300, step: 1 });
+    gridFolder.addInput(settings, 'scaleMin', { min: 0.0, max: 50 });
+    gridFolder.addInput(settings, 'scaleMax', { min: 0.1, max: 100 });
+
+    const noiseFolder = pane.addFolder({ title: 'Noise' });
+    noiseFolder.addInput(settings, 'freq', { min: 0.0001, max: 0.01, step: 0.0001 });
+    noiseFolder.addInput(settings, 'amp', { min: 0, max: 1, step: 0.01 });
+    noiseFolder.addInput(settings, 'animate');
+    noiseFolder.addInput(settings, 'frame', { min: 0, max: 9999, step: 1 });
+
+    let internalFrame = 0;
+
+    function draw(frameOverride = 0) {
+      context.clearRect(0, 0, width, height);
+
+      const cols = settings.cols;
+      const rows = settings.rows;
+      const cellW = (width * 0.8) / cols;
+      const cellH = (height * 0.8) / rows;
+      const marginX = (width - cellW * cols) / 2;
+      const marginY = (height - cellH * rows) / 2;
+
+      const frame = settings.animate ? internalFrame : settings.frame;
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const x = marginX + col * cellW + cellW / 2;
+          const y = marginY + row * cellH + cellH / 2;
+
+          const n = random.noise2D(x + frame * 10, y, settings.freq, settings.amp);
+          const angle = n * Math.PI * 0.5;
+          const scale = math.mapRange(n, -1, 1, settings.scaleMin, settings.scaleMax);
+
+          context.save();
+          context.translate(x, y);
+          context.rotate(angle);
+          context.lineWidth = scale;
+          context.lineCap = settings.lineCap;
+
+          context.beginPath();
+          context.moveTo(-cellW * 0.4, 0);
+          context.lineTo(cellW * 0.4, 0);
+          context.stroke();
+          context.restore();
+        }
+      }
+    }
+
+    function animateFrame() {
+      if (settings.animate) {
+        internalFrame++;
+      }
+      draw();
+      requestAnimationFrame(animateFrame);
+    }
+
+    animateFrame();
+  </script>
+</body>
+</html>
