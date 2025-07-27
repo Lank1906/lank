@@ -101,6 +101,12 @@
         }, 1000 / 24)
       }
       
+      //ReDraw
+      const render = (context,callback,width,height)=>{
+      	context.clearRect(0, 0, width, height);
+      	callback(context);
+      }
+      
       //Noise random
       function noise2D(x, y, frequency = 1, amplitude = 1) {
         // --- Hàm hash ổn định từ x, y (giống seed)
@@ -296,52 +302,143 @@
       //})
       
       //EX5
-      const cols=10;
-      const rows=10;
-      const cells=cols*rows;
+      //const cols=10;
+      //const rows=10;
+      //const cells=cols*rows;
       
-      const gridw=width*0.8;
-      const gridh=height*0.8;
-      const cellw=gridw/cols;
-      const cellh=gridh/rows;
+      //const gridw=width*0.8;
+      //const gridh=height*0.8;
+      //const cellw=gridw/cols;
+      //const cellh=gridh/rows;
       
-      const margx=(width-gridw)*0.5;
-      const margy=(height-gridh)*0.5;
+      //const margx=(width-gridw)*0.5;
+      //const margy=(height-gridh)*0.5;
       
-      let frame=0;
+      //let frame=0;
       
-      animate(context,()=>{
-      	frame+=1;
-        for(let i=0;i<cells;i++){
-          const col=i % cols;
-          const row=Math.floor(i / cols);
+      //animate(context,()=>{
+      //	frame+=1;
+      //  for(let i=0;i<cells;i++){
+      //    const col=i % cols;
+      //    const row=Math.floor(i / cols);
 
-          const x=col*cellw;
-          const y=row*cellh;
-          const w=cellw*0.8;
-          const h=cellh*0.8;
+      //    const x=col*cellw;
+      //    const y=row*cellh;
+      //    const w=cellw*0.8;
+      //    const h=cellh*0.8;
 
-          const n=noise2D(x+frame*10,y,0.001,1);
-          const angle=n * Math.PI * 0.5;
-          const scale=mapRange(n,-1,1,1,20);
+      //    const n=noise2D(x+frame*10,y,0.001,1);
+      //    const angle=n * Math.PI * 0.5;
+      //    const scale=mapRange(n,-1,1,1,20);
 
-          context.save();
+      //    context.save();
 
-          context.translate(x,y);
-          context.translate(margx,margy);
-          context.translate(cellw*0.5,cellh*0.5);
-          context.rotate(angle);
+      //    context.translate(x,y);
+      //    context.translate(margx,margy);
+      //    context.translate(cellw*0.5,cellh*0.5);
+      //    context.rotate(angle);
 
+      //    context.lineWidth=scale;
 
-          context.lineWidth=scale;
+      //    context.beginPath();
+      //    context.moveTo(w * -0.5,0);
+      //    context.lineTo(w * 0.5,0);
+      //    context.stroke();
+      //    context.restore();
+      //  }
+      //})
+      
+      //EX6
+      const typeCanva=document.createElement('canvas');
+      const typeCtx=typeCanva.getContext('2d');
+      
+      const cell = 11.1;
+      const cols = Math.floor(width / cell);
+      const rows = Math.floor(height / cell);
+      const numCells = cols*rows;
+      
+      typeCanva.width  = cols;
+      typeCanva.height = rows;
+      
+      let text='Lạnk';
+      
+      const draw=(typeCtx)=>{
+      	typeCtx.fillStyle='white';
+        typeCtx.fillRect(0,0,cols,rows)
+        typeCtx.fillStyle='black';
+        typeCtx.font=cols+'px serif';
+        typeCtx.textBaseline='top'; //'middle';
+        //context.textAlign='center';
+      
+        const metrics=typeCtx.measureText(text);
+        const mx=metrics.actualBoundingBoxLeft * -1;//từ điểm bắt đầu vẽ đến rìa trái 
+        const my=metrics.actualBoundingBoxAscent * -1;//từ baseline đến điểm cao nhất của text
+        const mw=metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
+        const mh=metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
 
-          context.beginPath();
-          context.moveTo(w * -0.5,0);
-          context.lineTo(w * 0.5,0);
-          context.stroke();
-          context.restore();
+        const tx=(cols-mw)*0.5-mx;
+        const ty=(rows-mh)*0.5-my
+
+        typeCtx.save();
+        typeCtx.translate(tx,ty);
+        typeCtx.fillText(text,0,0);
+        typeCtx.restore();
+        
+        const typeData=typeCtx.getImageData(0,0,cols,rows).data;
+        
+        context.drawImage(typeCanva,0,0)
+        
+        for(let i=0;i<numCells;i++){
+        	const col=i%cols;
+            const row=Math.floor(i/cols);
+            
+            const x=col*cell;
+            const y=row*cell;
+            
+            const r=typeData[i*4+0];
+            const g=typeData[i*4+1];
+            const b=typeData[i*4+2];
+            const a=typeData[i*4+3];
+            
+            context.fillStyle=`rgba(${r},${g},${b})`;
+            
+            context.save();
+            context.translate(x,y);
+            context.translate(cell*0.5,cell*0.5);
+            //context.fillRect(0,0,cell,cell);
+            context.beginPath();
+            context.arc(0,0,cell * 0.5,0,Math.PI*2);
+            context.fill();
+            context.restore();
         }
+      }
+      
+      draw(typeCtx);
+      
+      document.addEventListener('keyup',(e)=>{
+      	context.clearRect(0, 0, width, height);
+      	text=e.key.toUpperCase();
+        render(typeCtx,draw,cols,rows)
       })
+      
+      //Async/Await
+      //const asyncFunc=()=>{
+      //	return new Promise((resolve,reject)=>{
+      //  	//some handle.
+      //      const image=new Image();
+      //      image.onload(()=>resolve(image));
+      //      image.onerror(()=>reject());
+      //      image.src=url;
+      //  })
+      //}
+      //const start =()=>{
+      //	asyncFunc().then(()=>console.log('first'));
+      //  console.log('second')
+      //}
+      //const start2 =async ()=>{
+      //	await asyncFunc().then(()=>console.log('first'));
+      //  console.log('second')
+      //}
     </script>
   </body>
 </html>
