@@ -107,6 +107,31 @@
       	callback(context);
       }
       
+      function getGlyph(r, g, b) {
+      // 1. Tính độ sáng theo công thức human-eye weighted
+      const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+
+      // 2. Danh sách glyph theo độ đậm nhạt (dark → light)
+      const glyphGroups = [
+        ['@', '%', '$'],      // very dark
+        ['#', '8', '&'],      // dark
+        ['o', '=', '+'],      // mid
+        ['-', ':', '~'],      // light
+        ['.', ' ', '`'],      // very light
+      ];
+
+      // 3. Chia độ sáng thành nhóm
+      const level = Math.min(
+        glyphGroups.length - 1,
+        Math.floor((brightness / 255) * glyphGroups.length)
+      );
+
+      // 4. Random chọn 1 glyph trong nhóm
+      const glyphOptions = glyphGroups[level];
+      const randomIndex = Math.floor(Math.random() * glyphOptions.length);
+      return glyphOptions[randomIndex];
+    }
+      
       //Noise random
       function noise2D(x, y, frequency = 1, amplitude = 1) {
         // --- Hàm hash ổn định từ x, y (giống seed)
@@ -386,7 +411,7 @@
         
         const typeData=typeCtx.getImageData(0,0,cols,rows).data;
         
-        context.drawImage(typeCanva,0,0)
+        //context.drawImage(typeCanva,0,0)
         
         for(let i=0;i<numCells;i++){
         	const col=i%cols;
@@ -402,13 +427,16 @@
             
             context.fillStyle=`rgba(${r},${g},${b})`;
             
+            const glyph=getGlyph(r,g,b);
+            context.font=Math.random()<0.1? (cell*3)+'px serif':cell+'px serif';
             context.save();
             context.translate(x,y);
             context.translate(cell*0.5,cell*0.5);
             //context.fillRect(0,0,cell,cell);
             context.beginPath();
-            context.arc(0,0,cell * 0.5,0,Math.PI*2);
-            context.fill();
+            //context.arc(0,0,cell * 0.5,0,Math.PI*2);
+            //context.fill();
+            context.fillText(glyph,0,0)
             context.restore();
         }
       }
