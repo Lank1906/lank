@@ -113,11 +113,11 @@
 
       // 2. Danh sách glyph theo độ đậm nhạt (dark → light)
       const glyphGroups = [
-        ['@', '%', '$'],      // very dark
-        ['#', '8', '&'],      // dark
+        ['.', ' ', '`'],      // very dark
+        ['-', ':', '~'],      // dark
         ['o', '=', '+'],      // mid
-        ['-', ':', '~'],      // light
-        ['.', ' ', '`'],      // very light
+        ['#', '8', '&'],      // light
+        ['@', '%', '$'],      // very light
       ];
 
       // 3. Chia độ sáng thành nhóm
@@ -374,6 +374,10 @@
       //})
       
       //EX6
+      context.fillSyle='black';
+      context.fillRect(0,0,width,height);
+      
+      
       const typeCanva=document.createElement('canvas');
       const typeCtx=typeCanva.getContext('2d');
       
@@ -388,9 +392,11 @@
       let text='Lạnk';
       
       const draw=(typeCtx)=>{
-      	typeCtx.fillStyle='white';
+      	context.fillSyle='black';
+        context.fillRect(0,0,width,height);
+      	typeCtx.fillStyle='black';
         typeCtx.fillRect(0,0,cols,rows)
-        typeCtx.fillStyle='black';
+        typeCtx.fillStyle='white';
         typeCtx.font=cols+'px serif';
         typeCtx.textBaseline='top'; //'middle';
         //context.textAlign='center';
