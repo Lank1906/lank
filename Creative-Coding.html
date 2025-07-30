@@ -2,6 +2,9 @@
 <html>
   <head>
     <title>Creative Coding</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@100..900&family=Iceberg&display=swap" rel="stylesheet">
     <style>
       * {
         padding: 0;
@@ -374,14 +377,10 @@
       //})
       
       //EX6
-      context.fillSyle='black';
-      context.fillRect(0,0,width,height);
-      
-      
       const typeCanva=document.createElement('canvas');
       const typeCtx=typeCanva.getContext('2d');
       
-      const cell = 11.1;
+      const cell = 10;
       const cols = Math.floor(width / cell);
       const rows = Math.floor(height / cell);
       const numCells = cols*rows;
@@ -392,13 +391,13 @@
       let text='Lạnk';
       
       const draw=(typeCtx)=>{
-      	context.fillSyle='black';
+      	context.fillStyle='black';
         context.fillRect(0,0,width,height);
       	typeCtx.fillStyle='black';
         typeCtx.fillRect(0,0,cols,rows)
         typeCtx.fillStyle='white';
-        typeCtx.font=cols+'px serif';
-        typeCtx.textBaseline='top'; //'middle';
+        typeCtx.font=(cols/text.length)+'px Iceberg';
+        typeCtx.textBaseline='alphabetic'//'top'; //'middle';
         //context.textAlign='center';
       
         const metrics=typeCtx.measureText(text);
@@ -406,9 +405,9 @@
         const my=metrics.actualBoundingBoxAscent * -1;//từ baseline đến điểm cao nhất của text
         const mw=metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
         const mh=metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-
+		//console.log(metrics)
         const tx=(cols-mw)*0.5-mx;
-        const ty=(rows-mh)*0.5-my
+        const ty=(rows-mh)*0.5-my;
 
         typeCtx.save();
         typeCtx.translate(tx,ty);
@@ -434,7 +433,7 @@
             context.fillStyle=`rgba(${r},${g},${b})`;
             
             const glyph=getGlyph(r,g,b);
-            context.font=Math.random()<0.1? (cell*3)+'px serif':cell+'px serif';
+            context.font=Math.random()<0.1? (cell*3)+'px Iceberg':cell+'px serif';
             context.save();
             context.translate(x,y);
             context.translate(cell*0.5,cell*0.5);
@@ -449,7 +448,7 @@
       
       draw(typeCtx);
       
-      document.addEventListener('keyup',(e)=>{
+      document.addEventListener('keydown',(e)=>{
       	context.clearRect(0, 0, width, height);
       	text=e.key.toUpperCase();
         render(typeCtx,draw,cols,rows)
