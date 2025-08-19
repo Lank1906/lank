@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Avatar</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+        background: #f2f2f2;
+        font-family: sans-serif;
+      }
+
+      canvas {
+        border: 1px solid black;
+        width: 600px;
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas width="600" height="600"></canvas>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const context = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+
+      const typeCanva = document.createElement("canvas");
+      const typeCtx = typeCanva.getContext("2d");
+      const cell =2;
+      const cols = Math.floor(width / cell);
+      const rows = Math.floor(height / cell);
+      const numCells = cols*rows;
+     
+      typeCanva.width = cols;
+ typeCanva.height = rows;
+
+      const imageUrl = "https://i.postimg.cc/tR3gVfxt/4286804543fcf8a2a1ed-removebg-preview.png";
+
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+
+      img.onload = function () {
+        const imgAspect = img.width / img.height;
+        const canvasAspect = cols / rows;
+
+        let sx, sy, sw, sh;
+
+        if (imgAspect > canvasAspect) {
+          sh = img.height;
+          sw = sh * canvasAspect;
+          sx = (img.width - sw) / 2;
+          sy = 0;
+        } else {
+          sw = img.width;
+          sh = sw / canvasAspect;
+          sx = 0;
+          sy = (img.height - sh) / 2;
+        }
+
+        typeCtx.drawImage(img, sx, sy, sw, sh, 0, 0, cols, rows);
+
+        draw();
+      };
+
+      img.onerror = function () {
+        console.error("❌ Không tải được ảnh:", imageUrl);
+      };
+
+      img.src = imageUrl;
+
+      function draw() {
+        context.clearRect(0, 0, width, height);
+        const typeData=typeCtx.getImageData(0,0,cols,rows).data;
+        for(let i=0;i<numCells;i++){
+        const col=i%cols;
+            const row=Math.floor(i/cols);
+           
+            const x=col*cell;
+            const y=row*cell;
+           
+            const r=typeData[i*4+0];
+            const g=typeData[i*4+1];
+            const b=typeData[i*4+2];
+            const a=typeData[i*4+3];
+            if(a==0)
+            continue
+            context.font=(cell*1.3)+'px mono';
+            const glyph=getGlyph(r,g,b);
+            context.save();
+            context.translate(x,y);
+            context.translate(cell*0.5,cell*0.5);
+            context.beginPath();
+            context.fillText(glyph,0,0)
+            context.restore();
+        }
+      }
+     
+function getGlyph(r, g, b) {
+      // 1. Tính độ sáng theo công thức human-eye weighted
+      const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+
+      // 2. Danh sách glyph theo độ đậm nhạt (dark → light)
+      const glyphGroups = [
+        ['@', '%', '$'],      // very dark
+        ['#', '8', '&'],      // dark
+        ['o', '=', '+'],      // mid
+        ['-', ':', '~'],      // light
+        ['.', ' ', '`'],      // very light
+      ];
+
+      // 3. Chia độ sáng thành nhóm
+      const level = Math.min(
+        glyphGroups.length - 1,
+        Math.floor((brightness / 255) * glyphGroups.length)
+      );
+
+      // 4. Random chọn 1 glyph trong nhóm
+      const glyphOptions = glyphGroups[level];
+      const randomIndex = Math.floor(Math.random() * glyphOptions.length);
+      return glyphOptions[randomIndex];
+    }
+
+    </script>
+  </body>
+</html>
