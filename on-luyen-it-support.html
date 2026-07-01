@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ôn luyện phỏng vấn IT Support</title>
+<style>
+  :root{
+    --bg:#0f1220; --card:#1a1e33; --card2:#232a47; --accent:#5b8def;
+    --accent2:#33d69f; --danger:#ff5d73; --warn:#ffb84d; --text:#eef0fb; --muted:#9aa0c3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(160deg,#0f1220,#161a30);color:var(--text);min-height:100vh}
+  header{padding:24px 16px 8px;text-align:center}
+  header h1{margin:0 0 4px;font-size:1.6em}
+  header p{margin:0;color:var(--muted);font-size:.95em}
+  .wrap{max-width:820px;margin:0 auto;padding:16px}
+  .panel{background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+  .stat{background:var(--card2);padding:10px 16px;border-radius:12px;text-align:center;min-width:90px}
+  .stat b{display:block;font-size:1.3em}
+  .stat span{color:var(--muted);font-size:.78em}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px}
+  .chip{background:var(--card2);border:1px solid #333a5c;color:var(--text);padding:8px 14px;border-radius:20px;cursor:pointer;font-size:.85em;transition:.15s}
+  .chip.active{background:var(--accent);border-color:var(--accent);font-weight:600}
+  .chip:hover{border-color:var(--accent)}
+  .startbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  button.primary{background:var(--accent);color:#fff;border:none;padding:12px 26px;border-radius:10px;font-size:1em;cursor:pointer;font-weight:600}
+  button.primary:hover{filter:brightness(1.1)}
+  button.secondary{background:transparent;border:1px solid var(--muted);color:var(--text);padding:12px 20px;border-radius:10px;cursor:pointer}
+  #quizArea{display:none}
+  .progress-bar{height:8px;background:var(--card2);border-radius:5px;overflow:hidden;margin-bottom:16px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:.3s}
+  .qmeta{display:flex;justify-content:space-between;color:var(--muted);font-size:.85em;margin-bottom:8px}
+  .qtag{background:var(--card2);padding:3px 10px;border-radius:8px}
+  .question{font-size:1.15em;font-weight:600;margin:10px 0 18px;line-height:1.5}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .opt{background:var(--card2);border:2px solid transparent;padding:13px 16px;border-radius:12px;cursor:pointer;text-align:left;font-size:.98em;color:var(--text);transition:.15s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.correct{background:rgba(51,214,159,.18);border-color:var(--accent2)}
+  .opt.wrong{background:rgba(255,93,115,.18);border-color:var(--danger)}
+  .opt.disabled{pointer-events:none}
+  .explain{margin-top:14px;padding:14px;background:var(--card2);border-radius:12px;font-size:.92em;color:var(--muted);display:none}
+  .explain b{color:var(--text)}
+  .navbar{display:flex;justify-content:space-between;margin-top:20px}
+  .navbar button{padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+  #btnNext{background:var(--accent);color:#fff}
+  #btnNext:disabled{background:#333a5c;color:var(--muted);cursor:not-allowed}
+  #resultArea{display:none;text-align:center}
+  #resultArea .score{font-size:3em;font-weight:700;margin:10px 0}
+  .review{text-align:left;margin-top:20px}
+  .review-item{background:var(--card2);border-radius:12px;padding:14px;margin-bottom:10px}
+  .review-item.wrong{border-left:4px solid var(--danger)}
+  .review-item.right{border-left:4px solid var(--accent2)}
+  .badge{display:inline-block;font-size:.75em;padding:2px 8px;border-radius:6px;background:#333a5c;color:var(--muted);margin-left:6px}
+  footer{text-align:center;color:var(--muted);font-size:.8em;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🖥️ Ôn luyện phỏng vấn IT Support</h1>
+  <p>Mạng máy tính · Phần cứng · Windows · Kiến thức bổ sung</p>
+</header>
+
+<div class="wrap">
+
+  <div class="panel" id="setupPanel">
+    <div class="stats">
+      <div class="stat"><b id="totalQ">0</b><span>Tổng câu hỏi</span></div>
+      <div class="stat"><b id="bestScore">-</b><span>Điểm cao nhất</span></div>
+      <div class="stat"><b id="wrongSaved">0</b><span>Câu sai đã lưu</span></div>
+    </div>
+
+    <div style="text-align:center;color:var(--muted);margin-bottom:10px">Chọn chủ đề ôn luyện:</div>
+    <div class="filters" id="catFilters"></div>
+
+    <div style="text-align:center;color:var(--muted);margin:14px 0 6px">Số câu mỗi lượt:</div>
+    <div class="filters" id="countFilters">
+      <div class="chip" data-count="10">10 câu</div>
+      <div class="chip active" data-count="20">20 câu</div>
+      <div class="chip" data-count="9999">Tất cả</div>
+    </div>
+
+    <div class="startbar">
+      <button class="primary" id="btnStart">🚀 Bắt đầu làm bài</button>
+      <button class="secondary" id="btnReview">📌 Ôn lại câu đã sai</button>
+    </div>
+  </div>
+
+  <div class="panel" id="quizArea">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="qmeta">
+      <span>Câu <b id="qNum">1</b>/<b id="qTotal">1</b></span>
+      <span class="qtag" id="qCat">Mạng</span>
+    </div>
+    <div class="question" id="qText">...</div>
+    <div class="options" id="qOptions"></div>
+    <div class="explain" id="qExplain"></div>
+    <div class="navbar">
+      <button class="secondary" id="btnQuit">✕ Thoát</button>
+      <button id="btnNext" disabled>Câu tiếp theo →</button>
+    </div>
+  </div>
+
+  <div class="panel" id="resultArea">
+    <div style="color:var(--muted)">Kết quả</div>
+    <div class="score" id="scoreText">0/0</div>
+    <div id="scoreMsg" style="color:var(--muted)"></div>
+    <div class="startbar" style="margin-top:16px">
+      <button class="primary" id="btnRetry">🔁 Làm lại</button>
+      <button class="secondary" id="btnHome">🏠 Về trang chính</button>
+    </div>
+    <div class="review" id="reviewList"></div>
+  </div>
+
+</div>
+
+<footer>Made for ôn luyện phỏng vấn IT Support · Dữ liệu lưu trên trình duyệt của bạn (localStorage)</footer>
+
+<script>
+const QUESTIONS = [
+// ===== MẠNG MÁY TÍNH =====
+{cat:"Mạng", q:"LAN là gì?", opts:["Mạng nội bộ kết nối các thiết bị trong cùng khu vực","Mạng diện rộng toàn cầu","Một loại virus máy tính","Giao thức truyền email"], a:0, e:"LAN (Local Area Network) là mạng nội bộ, kết nối các thiết bị trong cùng văn phòng/công ty để chia sẻ dữ liệu, tài nguyên."},
+{cat:"Mạng", q:"WAN là gì?", opts:["Mạng nội bộ nhỏ","Mạng diện rộng kết nối nhiều mạng LAN ở các vị trí khác nhau","Một thiết bị mạng","Địa chỉ IP đặc biệt"], a:1, e:"WAN (Wide Area Network) kết nối nhiều LAN ở xa nhau; Internet chính là WAN lớn nhất."},
+{cat:"Mạng", q:"IP Address dùng để làm gì?", opts:["Lưu trữ dữ liệu tạm thời","Định danh thiết bị trên mạng để giao tiếp với nhau","Cấp nguồn cho máy tính","Quét virus"], a:1, e:"IP Address là địa chỉ giúp các thiết bị trên mạng nhận diện và giao tiếp. Ví dụ: 192.168.1.10"},
+{cat:"Mạng", q:"IP tĩnh khác IP động ở điểm nào?", opts:["IP tĩnh do DHCP cấp, IP động đặt bằng tay","IP tĩnh đặt cố định bằng tay, IP động do DHCP cấp tự động và có thể thay đổi","Không có sự khác biệt","IP tĩnh chỉ dùng cho WiFi"], a:1, e:"IP tĩnh: đặt thủ công, không đổi, thường dùng cho Server/máy in. IP động: DHCP cấp tự động, có thể thay đổi, dùng cho máy người dùng."},
+{cat:"Mạng", q:"DHCP có chức năng gì?", opts:["Chuyển tên miền thành IP","Cấp phát địa chỉ IP tự động cho thiết bị trong mạng","Diệt virus","Kết nối máy in qua mạng"], a:1, e:"DHCP (Dynamic Host Configuration Protocol) tự động cấp IP cho thiết bị khi kết nối mạng."},
+{cat:"Mạng", q:"DNS dùng để làm gì?", opts:["Cấp IP tự động","Chuyển đổi tên miền thành địa chỉ IP","Kiểm tra tốc độ mạng","Mã hoá dữ liệu"], a:1, e:"DNS chuyển tên miền (vd google.com) thành địa chỉ IP để máy tính có thể kết nối."},
+{cat:"Mạng", q:"Gateway là gì?", opts:["Địa chỉ MAC của máy tính","Địa chỉ của Router, dùng kết nối mạng nội bộ ra Internet","Một loại virus","Cổng USB trên máy tính"], a:1, e:"Gateway thường là địa chỉ IP của Router — cửa ngõ để mạng LAN ra Internet."},
+{cat:"Mạng", q:"Router có chức năng gì?", opts:["Chỉ kết nối các máy trong LAN, không ra Internet được","Kết nối các mạng với nhau, cấp IP (DHCP/NAT) và định tuyến dữ liệu ra Internet","Lưu trữ dữ liệu người dùng","Diệt virus cho mạng"], a:1, e:"Router định tuyến dữ liệu, có NAT và thường có DHCP để chia sẻ Internet cho các thiết bị."},
+{cat:"Mạng", q:"Switch dùng để làm gì?", opts:["Kết nối các thiết bị trong cùng mạng LAN (PC, máy in, camera...)","Cấp Internet trực tiếp cho toàn công ty","Mã hoá mật khẩu WiFi","Chuyển tên miền thành IP"], a:0, e:"Switch kết nối nhiều thiết bị trong cùng LAN, không có chức năng cấp IP/Internet như Router."},
+{cat:"Mạng", q:"Điểm khác biệt chính giữa Router và Switch là gì?", opts:["Router không có NAT còn Switch có NAT","Router kết nối ra Internet và có DHCP/NAT, Switch chỉ kết nối các máy trong LAN","Switch nhanh hơn Router nên luôn thay thế được Router","Không có gì khác nhau"], a:1, e:"Router: kết nối Internet, có NAT, DHCP, định tuyến. Switch: chỉ chuyển dữ liệu trong nội bộ LAN."},
+{cat:"Mạng", q:"Lệnh 'ping 8.8.8.8' dùng để làm gì?", opts:["Xem địa chỉ IP của máy","Kiểm tra kết nối mạng và đo độ trễ tới địa chỉ đó","Reset router","Đổi DNS"], a:1, e:"Ping gửi gói tin kiểm tra xem thiết bị đích có phản hồi không, đồng thời đo độ trễ (ms)."},
+{cat:"Mạng", q:"Lệnh ipconfig dùng để làm gì?", opts:["Xem địa chỉ IP, Gateway, DNS của máy tính","Cài đặt driver máy in","Quét virus","Format ổ đĩa"], a:0, e:"ipconfig hiển thị thông tin cấu hình mạng cơ bản của máy tính Windows."},
+{cat:"Mạng", q:"ipconfig /all cho biết thêm thông tin gì so với ipconfig thông thường?", opts:["Chỉ IP","Đầy đủ thông tin: IP, MAC, DNS, DHCP, Gateway...", "Danh sách virus", "Tốc độ CPU"], a:1, e:"ipconfig /all hiển thị chi tiết đầy đủ hơn bao gồm MAC Address, DHCP server, DNS..."},
+{cat:"Mạng", q:"Lệnh ipconfig /release và ipconfig /renew dùng để làm gì?", opts:["Thu hồi IP hiện tại và xin cấp IP mới từ DHCP","Xoá toàn bộ mạng","Đổi mật khẩu WiFi","Kiểm tra tốc độ mạng"], a:0, e:"/release thu hồi (giải phóng) IP hiện tại đang thuê từ DHCP, /renew xin cấp IP mới."},
+{cat:"Mạng", q:"MAC Address là gì?", opts:["Địa chỉ IP động","Địa chỉ vật lý (duy nhất) của card mạng","Tên miền website","Mật khẩu WiFi"], a:1, e:"MAC Address là địa chỉ vật lý cố định được nhà sản xuất gán cho card mạng, không đổi như IP."},
+{cat:"Mạng", q:"Máy tính có kết nối mạng nhưng không vào được Internet, quy trình xử lý hợp lý theo thứ tự là gì?", opts:["Ping google.com trước, rồi mới kiểm tra dây mạng","Kiểm tra dây/WiFi → ipconfig xem IP → ping Gateway → ping 8.8.8.8 → ping google.com","Cài lại Windows ngay lập tức","Thay Router mới ngay"], a:1, e:"Nên đi từ vật lý (dây/WiFi) đến IP, rồi kiểm tra từng lớp mạng: Gateway → Internet (8.8.8.8) → DNS (google.com)."},
+{cat:"Mạng", q:"Nếu ping 8.8.8.8 thành công nhưng ping google.com thất bại, nguyên nhân nhiều khả năng là gì?", opts:["Lỗi nguồn điện","Lỗi DNS","Lỗi RAM","Lỗi máy in"], a:1, e:"8.8.8.8 là IP nên ping được nghĩa là có Internet; ping tên miền thất bại → khả năng cao lỗi phân giải DNS."},
+{cat:"Mạng", q:"Subnet Mask dùng để làm gì?", opts:["Xác định phần mạng và phần host trong địa chỉ IP","Mã hoá dữ liệu truyền đi","Cấp phát địa chỉ email","Diệt virus mạng"], a:0, e:"Subnet Mask (vd 255.255.255.0) giúp phân biệt đâu là phần địa chỉ mạng, đâu là phần địa chỉ thiết bị (host)."},
+{cat:"Mạng", q:"Lệnh tracert dùng để làm gì?", opts:["Xem đường đi (các chặng router) mà gói tin đi qua tới đích","Xem danh sách tiến trình đang chạy","Kiểm tra ổ cứng","Xoá cache DNS"], a:0, e:"tracert (traceroute) hiển thị các chặng (hop) mà gói tin đi qua để tới địa chỉ đích, giúp xác định điểm nghẽn mạng."},
+{cat:"Mạng", q:"Lệnh nslookup dùng để làm gì?", opts:["Kiểm tra phân giải tên miền sang IP (DNS)","Xem cấu hình phần cứng","Kiểm tra ổ đĩa lỗi","Xem log sự kiện Windows"], a:0, e:"nslookup tra cứu thông tin DNS, kiểm tra một tên miền được phân giải ra IP nào."},
+{cat:"Mạng", q:"Wi-Fi và LAN có dây khác nhau chủ yếu ở điểm nào?", opts:["Wi-Fi kết nối không dây qua sóng radio, LAN có dây dùng cáp mạng (Ethernet)","Wi-Fi nhanh hơn LAN có dây trong mọi trường hợp","LAN có dây không cần Router","Không có gì khác nhau"], a:0, e:"Wi-Fi truyền dữ liệu không dây qua sóng radio, còn LAN có dây dùng cáp Ethernet — LAN dây thường ổn định và nhanh hơn."},
+{cat:"Mạng", q:"VPN dùng để làm gì?", opts:["Tăng tốc độ CPU","Tạo kết nối riêng, mã hoá qua mạng công cộng để truy cập an toàn vào mạng nội bộ từ xa","Diệt virus","Chia sẻ máy in"], a:1, e:"VPN (Virtual Private Network) tạo đường truyền riêng ảo, mã hoá dữ liệu, giúp truy cập mạng công ty an toàn từ xa."},
+{cat:"Mạng", q:"Firewall có chức năng gì?", opts:["Lưu trữ dữ liệu người dùng","Kiểm soát, lọc lưu lượng mạng ra/vào để bảo vệ hệ thống","Cấp phát IP tự động","Chuyển đổi tên miền"], a:1, e:"Firewall (tường lửa) giám sát và kiểm soát traffic mạng theo quy tắc để ngăn truy cập trái phép."},
+
+// ===== PHẦN CỨNG =====
+{cat:"Phần cứng", q:"CPU có vai trò gì trong máy tính?", opts:["Lưu trữ dữ liệu vĩnh viễn","Bộ xử lý trung tâm, thực hiện phép tính và điều khiển hoạt động hệ thống","Cấp nguồn điện","Kết nối mạng"], a:1, e:"CPU (Central Processing Unit) là bộ não xử lý mọi lệnh và điều khiển toàn bộ hoạt động của máy tính."},
+{cat:"Phần cứng", q:"RAM khác gì với ổ cứng (HDD/SSD)?", opts:["RAM là bộ nhớ tạm, mất dữ liệu khi tắt máy; ổ cứng lưu trữ vĩnh viễn","RAM lưu trữ vĩnh viễn còn ổ cứng thì tạm thời","Cả hai giống nhau hoàn toàn","RAM dùng để tản nhiệt"], a:0, e:"RAM lưu dữ liệu tạm thời của chương trình đang chạy, mất khi tắt máy. Ổ cứng lưu trữ dữ liệu lâu dài."},
+{cat:"Phần cứng", q:"So sánh HDD và SSD, đâu là điểm đúng?", opts:["HDD dùng chip nhớ, SSD dùng đĩa quay","SSD nhanh hơn, bền hơn nhưng đắt hơn HDD","HDD luôn nhanh hơn SSD","SSD dễ hỏng hơn khi va đập so với HDD"], a:1, e:"SSD dùng chip nhớ flash nên nhanh và bền hơn HDD (đĩa quay), nhưng giá thành cao hơn."},
+{cat:"Phần cứng", q:"Mainboard (bo mạch chủ) có vai trò gì?", opts:["Là nơi kết nối CPU, RAM, ổ cứng và các linh kiện để hoạt động cùng nhau","Chỉ dùng để tản nhiệt cho CPU","Là bộ nhớ tạm của máy tính","Là thiết bị lưu trữ chính"], a:0, e:"Mainboard là bảng mạch trung tâm liên kết tất cả các linh kiện phần cứng lại với nhau."},
+{cat:"Phần cứng", q:"PSU là gì?", opts:["Bộ xử lý đồ hoạ","Bộ nguồn cung cấp điện cho toàn bộ máy tính","Bộ nhớ đệm của CPU","Card mạng"], a:1, e:"PSU (Power Supply Unit) chuyển điện AC thành DC để cấp nguồn cho các linh kiện trong máy."},
+{cat:"Phần cứng", q:"Máy tính không lên nguồn, bước kiểm tra đầu tiên nên là gì?", opts:["Cài lại Windows ngay","Kiểm tra ổ điện và dây nguồn trước khi nghi ngờ linh kiện bên trong","Thay Mainboard ngay lập tức","Mua máy mới"], a:1, e:"Nên kiểm tra từ nguyên nhân đơn giản, dễ kiểm tra nhất trước: ổ điện → dây nguồn → PSU → RAM → Mainboard."},
+{cat:"Phần cứng", q:"Máy tính chạy chậm, nên kiểm tra công cụ nào trước tiên?", opts:["Task Manager để xem CPU, RAM, Disk đang sử dụng bao nhiêu %","Device Manager","Print Spooler","Outlook"], a:0, e:"Task Manager giúp xác định nhanh tài nguyên nào (CPU/RAM/Disk) đang bị quá tải gây chậm máy."},
+{cat:"Phần cứng", q:"Công cụ nào giúp xem cấu hình chi tiết phần cứng máy tính?", opts:["msinfo32 hoặc dxdiag", "chkdsk", "gpupdate", "netstat"], a:0, e:"msinfo32 (System Information) và dxdiag (DirectX Diagnostic) đều cho xem thông tin cấu hình máy."},
+{cat:"Phần cứng", q:"DDR3, DDR4, DDR5 là gì?", opts:["Các phiên bản của RAM, thế hệ sau nhanh hơn và tiết kiệm điện hơn","Các loại ổ cứng SSD","Các chuẩn kết nối USB","Các phiên bản Windows"], a:0, e:"DDR (Double Data Rate) là các thế hệ RAM; số càng cao thường tốc độ càng nhanh, điện áp càng thấp."},
+{cat:"Phần cứng", q:"Máy tính không nhận USB, cách xử lý hợp lý là gì?", opts:["Đổi cổng USB khác → kiểm tra Device Manager → cập nhật Driver → thử USB trên máy khác","Format ổ C ngay lập tức","Thay Mainboard","Không cần kiểm tra gì, USB hỏng luôn"], a:0, e:"Nên kiểm tra từ đơn giản đến phức tạp: đổi cổng, kiểm tra driver trong Device Manager, thử thiết bị khác để loại trừ."},
+{cat:"Phần cứng", q:"Vì sao nên nâng cấp từ HDD lên SSD khi máy chạy chậm?", opts:["SSD tốc độ đọc/ghi nhanh hơn nhiều, giúp khởi động và mở ứng dụng nhanh hơn rõ rệt","SSD rẻ hơn HDD nên nên đổi","SSD giúp tăng RAM","Không có sự khác biệt về tốc độ"], a:0, e:"Với máy chậm do ổ cứng là 'điểm nghẽn' (bottleneck), nâng cấp SSD thường cải thiện tốc độ rõ rệt nhất."},
+{cat:"Phần cứng", q:"Card đồ hoạ (VGA/GPU) rời khác gì so với card onboard (tích hợp)?", opts:["Card rời có chip xử lý và bộ nhớ đồ hoạ riêng, hiệu năng cao hơn card onboard dùng chung tài nguyên với CPU","Card onboard luôn mạnh hơn card rời","Không có sự khác biệt","Card rời không cần nguồn điện riêng"], a:0, e:"GPU rời có VRAM và chip xử lý riêng nên xử lý đồ hoạ mạnh hơn card tích hợp (dùng chung RAM hệ thống)."},
+
+// ===== WINDOWS =====
+{cat:"Windows", q:"Safe Mode là gì?", opts:["Chế độ khởi động Windows chỉ tải driver và dịch vụ cơ bản để sửa lỗi","Chế độ tiết kiệm pin","Chế độ chơi game hiệu năng cao","Chế độ khoá màn hình"], a:0, e:"Safe Mode giúp cô lập lỗi bằng cách chỉ chạy các thành phần tối thiểu, thường dùng để gỡ driver/phần mềm gây lỗi."},
+{cat:"Windows", q:"Device Manager dùng để làm gì?", opts:["Quản lý driver và các thiết bị phần cứng đang kết nối với máy","Quản lý tài khoản email","Quản lý mạng LAN","Sao lưu dữ liệu"], a:0, e:"Device Manager liệt kê toàn bộ thiết bị phần cứng và cho phép cập nhật/gỡ/cài lại driver."},
+{cat:"Windows", q:"Driver là gì?", opts:["Phần mềm giúp hệ điều hành giao tiếp với phần cứng","Một loại virus","Ổ đĩa vật lý","Trình duyệt web"], a:0, e:"Driver là phần mềm trung gian giúp Windows nhận diện và điều khiển được thiết bị phần cứng."},
+{cat:"Windows", q:"Task Manager dùng để làm gì?", opts:["Xem CPU, RAM, Disk, tiến trình đang chạy và quản lý ứng dụng khởi động cùng Windows","Cài đặt driver máy in","Reset mật khẩu Windows","Kiểm tra tốc độ mạng"], a:0, e:"Task Manager (Ctrl+Shift+Esc) cho phép theo dõi tài nguyên hệ thống và tắt tiến trình treo."},
+{cat:"Windows", q:"Windows Update dùng để làm gì?", opts:["Cập nhật bản vá bảo mật, sửa lỗi và nâng cấp tính năng cho Windows","Cài đặt máy in","Gỡ virus khỏi máy","Đổi mật khẩu người dùng"], a:0, e:"Windows Update giúp hệ điều hành luôn được vá lỗi bảo mật và cập nhật tính năng mới."},
+{cat:"Windows", q:"Lệnh sfc /scannow dùng để làm gì?", opts:["Kiểm tra và sửa các file hệ thống Windows bị lỗi/hỏng","Quét virus","Kiểm tra ổ cứng vật lý","Xem địa chỉ IP"], a:0, e:"System File Checker quét và tự động khôi phục các file hệ thống Windows bị thiếu hoặc hỏng."},
+{cat:"Windows", q:"Lệnh chkdsk dùng để làm gì?", opts:["Kiểm tra lỗi trên ổ đĩa (bad sector, lỗi hệ thống file)","Kiểm tra RAM","Kiểm tra Driver","Kiểm tra mạng"], a:0, e:"chkdsk (Check Disk) quét và sửa lỗi hệ thống file, đánh dấu các bad sector trên ổ đĩa."},
+{cat:"Windows", q:"gpupdate /force dùng để làm gì?", opts:["Cập nhật ngay lập tức Group Policy (chính sách nhóm) trên máy","Cập nhật driver card đồ hoạ","Ép buộc restart máy","Xoá cache trình duyệt"], a:0, e:"gpupdate /force áp dụng lại toàn bộ Group Policy ngay lập tức, thường dùng trong môi trường doanh nghiệp có Domain."},
+{cat:"Windows", q:"Nếu quên mật khẩu Windows với máy thuộc Domain công ty, cách xử lý phù hợp là gì?", opts:["Cài lại Windows ngay","Liên hệ quản trị viên (Admin AD) để reset mật khẩu","Rút RAM ra cắm lại","Không thể khôi phục được"], a:1, e:"Với máy join Domain, quản trị viên Active Directory có quyền reset mật khẩu cho user trong hệ thống."},
+{cat:"Windows", q:"Restore Point trong Windows dùng để làm gì?", opts:["Khôi phục hệ thống về trạng thái trước đó khi gặp lỗi","Sao lưu dữ liệu cá nhân","Cài đặt phần mềm mới","Reset mật khẩu"], a:0, e:"System Restore dùng Restore Point để đưa hệ thống (cấu hình, driver, registry) về thời điểm ổn định trước đó."},
+{cat:"Windows", q:"Lệnh netstat dùng để làm gì?", opts:["Xem các kết nối mạng đang mở trên máy","Xem driver đang cài","Reset mạng","Kiểm tra ổ đĩa"], a:0, e:"netstat hiển thị danh sách các kết nối mạng (cổng, địa chỉ) đang hoạt động trên máy tính."},
+{cat:"Windows", q:"tasklist và taskkill /PID <PID> /F dùng để làm gì?", opts:["Liệt kê tiến trình đang chạy và buộc kết thúc một tiến trình theo PID","Xem cấu hình mạng","Kiểm tra ổ cứng","Cài đặt phần mềm"], a:0, e:"tasklist liệt kê toàn bộ tiến trình đang chạy; taskkill /PID .../F buộc dừng (force) tiến trình theo mã PID."},
+{cat:"Windows", q:"Khi Windows Explorer bị treo (màn hình desktop/taskbar không phản hồi), cách xử lý nhanh là gì?", opts:["Cài lại Windows","Mở Task Manager, tìm Windows Explorer và chọn Restart","Rút dây nguồn máy tính","Format ổ C"], a:1, e:"Restart tiến trình Windows Explorer trong Task Manager thường khắc phục được lỗi treo desktop/taskbar mà không cần khởi động lại máy."},
+
+// ===== MÁY IN =====
+{cat:"Máy in", q:"Máy in không in được, quy trình xử lý hợp lý là gì?", opts:["Kiểm tra nguồn → kết nối → giấy/mực → hàng đợi in → restart Print Spooler → cài lại driver nếu cần","Format máy tính ngay","Mua máy in mới","Chỉ cần khởi động lại máy tính"], a:0, e:"Nên xử lý theo thứ tự từ đơn giản đến phức tạp, kiểm tra vật lý trước rồi mới đến phần mềm/driver."},
+{cat:"Máy in", q:"Print Spooler là gì?", opts:["Dịch vụ của Windows quản lý hàng đợi in","Một loại driver máy in","Phần mềm diệt virus","Giao thức mạng"], a:0, e:"Print Spooler là dịch vụ hệ thống xử lý và quản lý các lệnh in đang chờ (queue), lỗi dịch vụ này thường gây kẹt lệnh in."},
+{cat:"Máy in", q:"Chia sẻ máy in qua mạng (Share Printer) cho phép điều gì?", opts:["Nhiều máy tính trong mạng LAN có thể dùng chung một máy in","Chỉ một máy duy nhất được in","Máy in tự động tắt khi không dùng","Không liên quan đến mạng"], a:0, e:"Share Printer cho phép các máy tính khác trong cùng mạng gửi lệnh in đến một máy in dùng chung."},
+
+// ===== EMAIL / OUTLOOK =====
+{cat:"Email", q:"Outlook không gửi được mail, nên kiểm tra gì trước?", opts:["Internet, tài khoản/mật khẩu, cấu hình SMTP, dung lượng mailbox","Chỉ cần khởi động lại máy tính","Cài lại Windows","Đổi máy in"], a:0, e:"Lỗi gửi mail thường liên quan kết nối mạng, xác thực tài khoản, cấu hình máy chủ gửi (SMTP) hoặc hộp thư đầy."},
+{cat:"Email", q:"IMAP và POP3 khác nhau chủ yếu ở điểm nào?", opts:["IMAP đồng bộ email trên server (xem được nhiều thiết bị), POP3 tải email về máy và thường xoá khỏi server","Cả hai hoàn toàn giống nhau","POP3 dùng cho gửi mail, IMAP dùng cho nhận mail","IMAP không cần Internet"], a:0, e:"IMAP giữ email đồng bộ trên server nên xem được từ nhiều thiết bị; POP3 tải mail về một thiết bị, có thể xoá bản trên server."},
+{cat:"Email", q:"SMTP dùng để làm gì?", opts:["Giao thức dùng để gửi email đi","Giao thức nhận email","Giao thức mã hoá ổ cứng","Giao thức chia sẻ máy in"], a:0, e:"SMTP (Simple Mail Transfer Protocol) là giao thức chuẩn dùng để gửi email từ client đến server."},
+
+// ===== ACTIVE DIRECTORY / BẢO MẬT =====
+{cat:"AD & Bảo mật", q:"Active Directory là gì?", opts:["Dịch vụ quản lý tài khoản người dùng, máy tính và phân quyền trong doanh nghiệp","Một phần mềm diệt virus","Một loại ổ cứng","Trình duyệt web nội bộ"], a:0, e:"Active Directory (AD) của Microsoft giúp quản lý tập trung user, máy tính, nhóm và chính sách trong mạng doanh nghiệp (Domain)."},
+{cat:"AD & Bảo mật", q:"Trong Active Directory, 'Domain' là gì?", opts:["Một vùng quản trị tập trung chứa các tài khoản, máy tính được quản lý chung","Một loại virus","Một cổng kết nối mạng","Một phần mềm diệt virus"], a:0, e:"Domain là đơn vị quản trị trong AD, nơi các máy tính và người dùng được quản lý tập trung bởi Domain Controller."},
+{cat:"AD & Bảo mật", q:"Virus máy tính có thể gây ra hậu quả gì?", opts:["Làm chậm máy, đánh cắp dữ liệu hoặc phá hoại hệ thống","Luôn làm máy chạy nhanh hơn","Chỉ ảnh hưởng đến máy in","Không gây hại gì"], a:0, e:"Virus/malware có thể làm chậm hệ thống, đánh cắp thông tin nhạy cảm, mã hoá tống tiền (ransomware) hoặc phá hoại dữ liệu."},
+{cat:"AD & Bảo mật", q:"Windows Defender là gì?", opts:["Phần mềm diệt virus tích hợp sẵn trong Windows","Một trình duyệt web","Công cụ quản lý mạng","Công cụ chia sẻ máy in"], a:0, e:"Windows Defender là công cụ bảo mật/diệt virus có sẵn miễn phí trong hệ điều hành Windows."},
+
+// ===== QUY TRÌNH & KỸ NĂNG =====
+{cat:"Quy trình & Kỹ năng", q:"Khi người dùng đang rất khó chịu vì máy lỗi, IT Support nên xử lý thế nào?", opts:["Bình tĩnh lắng nghe, xin lỗi vì bất tiện, xác định nguyên nhân, cập nhật tiến độ xử lý thường xuyên","Tranh cãi để chứng minh mình đúng","Bỏ qua, xử lý sau","Đổ lỗi cho người dùng"], a:0, e:"Kỹ năng giao tiếp - giữ bình tĩnh, đồng cảm và thông báo tiến độ - là yếu tố quan trọng của một IT Support tốt."},
+{cat:"Quy trình & Kỹ năng", q:"Nếu gặp sự cố chưa biết cách sửa, nên làm gì?", opts:["Tự ý xử lý dù không chắc chắn để tiết kiệm thời gian","Kiểm tra tài liệu, hỏi đồng nghiệp có kinh nghiệm, không tự ý xử lý khi chưa chắc","Báo người dùng là không sửa được và bỏ qua","Tắt máy và về"], a:1, e:"Tránh xử lý liều lĩnh khi chưa chắc chắn vì có thể gây hậu quả nghiêm trọng hơn; nên tra cứu và hỏi người có kinh nghiệm."},
+{cat:"Quy trình & Kỹ năng", q:"Trình tự xử lý sự cố IT chuẩn thường theo các bước nào?", opts:["Đoán bừa nguyên nhân rồi sửa ngay","Kiểm tra nguyên nhân đơn giản trước → dùng công cụ chẩn đoán → đưa ra hướng khắc phục → báo cáo/phối hợp nếu chưa xử lý được","Luôn cài lại Windows đầu tiên","Gọi nhà cung cấp thiết bị ngay lập tức"], a:1, e:"Quy trình có hệ thống (từ đơn giản đến phức tạp, dùng công cụ chẩn đoán) thể hiện tư duy làm việc chuyên nghiệp, được nhà tuyển dụng đánh giá cao."},
+{cat:"Quy trình & Kỹ năng", q:"Remote Desktop / TeamViewer thường được IT Support dùng để làm gì?", opts:["Hỗ trợ, điều khiển máy tính người dùng từ xa để xử lý sự cố","Chỉ dùng để chơi game","Diệt virus tự động","Cài đặt máy in vật lý"], a:0, e:"Các công cụ điều khiển từ xa giúp IT Support truy cập và xử lý sự cố trên máy người dùng mà không cần đến trực tiếp."}
+];
+
+let currentSet=[];
+let currentIndex=0;
+let score=0;
+let answered=false;
+let wrongThisRound=[];
+
+const $=id=>document.getElementById(id);
+const LS_BEST='itsupport_best_score';
+const LS_WRONG='itsupport_wrong_bank';
+
+function getWrongBank(){
+  try{ return JSON.parse(localStorage.getItem(LS_WRONG)||'[]'); }catch(e){ return []; }
+}
+function saveWrongBank(list){
+  localStorage.setItem(LS_WRONG, JSON.stringify(list));
+}
+function addToWrongBank(qObj){
+  let bank=getWrongBank();
+  if(!bank.some(q=>q.q===qObj.q)) bank.push(qObj);
+  saveWrongBank(bank);
+}
+function removeFromWrongBank(qText){
+  let bank=getWrongBank().filter(q=>q.q!==qText);
+  saveWrongBank(bank);
+}
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildCategoryFilters(){
+  const cats=[...new Set(QUESTIONS.map(q=>q.cat))];
+  const wrap=$('catFilters');
+  wrap.innerHTML='';
+  const allChip=document.createElement('div');
+  allChip.className='chip active';
+  allChip.textContent='Tất cả ('+QUESTIONS.length+')';
+  allChip.dataset.cat='ALL';
+  wrap.appendChild(allChip);
+  cats.forEach(c=>{
+    const n=QUESTIONS.filter(q=>q.cat===c).length;
+    const chip=document.createElement('div');
+    chip.className='chip';
+    chip.textContent=c+' ('+n+')';
+    chip.dataset.cat=c;
+    wrap.appendChild(chip);
+  });
+  wrap.addEventListener('click',e=>{
+    if(!e.target.classList.contains('chip'))return;
+    [...wrap.children].forEach(c=>c.classList.remove('active'));
+    e.target.classList.add('active');
+  });
+}
+
+function getSelectedCat(){
+  const active=document.querySelector('#catFilters .chip.active');
+  return active ? active.dataset.cat : 'ALL';
+}
+function getSelectedCount(){
+  const active=document.querySelector('#countFilters .chip.active');
+  return active ? parseInt(active.dataset.count) : 20;
+}
+
+$('countFilters').addEventListener('click',e=>{
+  if(!e.target.classList.contains('chip'))return;
+  [...$('countFilters').children].forEach(c=>c.classList.remove('active'));
+  e.target.classList.add('active');
+});
+
+function refreshStats(){
+  $('totalQ').textContent=QUESTIONS.length;
+  const best=localStorage.getItem(LS_BEST);
+  $('bestScore').textContent=best?best+'%':'-';
+  $('wrongSaved').textContent=getWrongBank().length;
+}
+
+function startQuiz(fromWrongBank=false){
+  let pool;
+  if(fromWrongBank){
+    pool=getWrongBank();
+    if(pool.length===0){ alert('Bạn chưa có câu nào sai được lưu lại. Hãy làm bài trước!'); return; }
+  } else {
+    const cat=getSelectedCat();
+    pool = cat==='ALL' ? QUESTIONS : QUESTIONS.filter(q=>q.cat===cat);
+  }
+  const count=getSelectedCount();
+  currentSet=shuffle(pool).slice(0, Math.min(count,pool.length));
+  currentIndex=0; score=0; wrongThisRound=[];
+  $('setupPanel').style.display='none';
+  $('resultArea').style.display='none';
+  $('quizArea').style.display='block';
+  $('qTotal').textContent=currentSet.length;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  answered=false;
+  const q=currentSet[currentIndex];
+  $('qNum').textContent=currentIndex+1;
+  $('qCat').textContent=q.cat;
+  $('qText').textContent=q.q;
+  $('progressFill').style.width=((currentIndex)/currentSet.length*100)+'%';
+  $('qExplain').style.display='none';
+  $('btnNext').disabled=true;
+  $('btnNext').textContent = (currentIndex===currentSet.length-1) ? 'Xem kết quả →' : 'Câu tiếp theo →';
+
+  const optWrap=$('qOptions');
+  optWrap.innerHTML='';
+
+  // shuffle options but keep track of correct answer text
+  const correctText=q.opts[q.a];
+  const shuffledOpts=shuffle(q.opts.map((text,i)=>({text,orig:i})));
+
+  shuffledOpts.forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.textContent=opt.text;
+    btn.addEventListener('click',()=>{
+      if(answered)return;
+      answered=true;
+      const isCorrect = opt.text===correctText;
+      [...optWrap.children].forEach(b=>b.classList.add('disabled'));
+      btn.classList.add(isCorrect?'correct':'wrong');
+      if(!isCorrect){
+        [...optWrap.children].forEach(b=>{ if(b.textContent===correctText) b.classList.add('correct'); });
+        wrongThisRound.push(q);
+        addToWrongBank(q);
+      } else {
+        score++;
+        removeFromWrongBank(q.q);
+      }
+      $('qExplain').style.display='block';
+      $('qExplain').innerHTML='<b>Giải thích:</b> '+q.e;
+      $('btnNext').disabled=false;
+      refreshStats();
+    });
+    optWrap.appendChild(btn);
+  });
+}
+
+$('btnNext').addEventListener('click',()=>{
+  if(currentIndex<currentSet.length-1){
+    currentIndex++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+});
+
+$('btnQuit').addEventListener('click',()=>{
+  if(confirm('Thoát bài làm hiện tại?')){
+    $('quizArea').style.display='none';
+    $('setupPanel').style.display='block';
+  }
+});
+
+function finishQuiz(){
+  $('progressFill').style.width='100%';
+  $('quizArea').style.display='none';
+  $('resultArea').style.display='block';
+  const pct=Math.round(score/currentSet.length*100);
+  $('scoreText').textContent=score+'/'+currentSet.length;
+  let msg='';
+  if(pct>=90) msg='🏆 Xuất sắc! Bạn đã nắm rất chắc kiến thức.';
+  else if(pct>=70) msg='👍 Khá tốt! Ôn lại vài câu sai là ổn.';
+  else if(pct>=50) msg='📚 Cần ôn thêm để tự tin hơn khi phỏng vấn.';
+  else msg='💪 Nên ôn lại kỹ các phần đã sai trước khi phỏng vấn.';
+  $('scoreMsg').textContent=msg;
+
+  const best=parseInt(localStorage.getItem(LS_BEST)||'0');
+  if(pct>best) localStorage.setItem(LS_BEST,pct);
+
+  const reviewList=$('reviewList');
+  reviewList.innerHTML='';
+  if(wrongThisRound.length>0){
+    const title=document.createElement('div');
+    title.style.margin='10px 0';
+    title.style.color='var(--muted)';
+    title.textContent='Các câu bạn trả lời sai (đã lưu vào "câu đã sai" để ôn lại):';
+    reviewList.appendChild(title);
+    wrongThisRound.forEach(q=>{
+      const div=document.createElement('div');
+      div.className='review-item wrong';
+      div.innerHTML='<b>'+q.q+'</b><span class="badge">'+q.cat+'</span><div style="margin-top:6px;color:var(--accent2)">✔ Đáp án đúng: '+q.opts[q.a]+'</div><div style="margin-top:4px;color:var(--muted);font-size:.9em">'+q.e+'</div>';
+      reviewList.appendChild(div);
+    });
+  }
+  refreshStats();
+}
+
+$('btnRetry').addEventListener('click',()=>startQuiz());
+$('btnHome').addEventListener('click',()=>{
+  $('resultArea').style.display='none';
+  $('setupPanel').style.display='block';
+});
+$('btnStart').addEventListener('click',()=>startQuiz(false));
+$('btnReview').addEventListener('click',()=>startQuiz(true));
+
+buildCategoryFilters();
+refreshStats();
+</script>
+</body>
+</html>
