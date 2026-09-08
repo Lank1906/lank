@@ -1,124 +1,1108 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
+
 <head>
-<title>Love</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Love Satisfying Motion</title>
+
 <style>
-:root{
-	color-scheme:light dark;
-}
+
 *{
-	margin:0;
+    margin:0;
     padding:0;
     box-sizing:border-box;
 }
+
+html,
 body{
-	display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
     width:100%;
-    background: light-dark(radial-gradient(#4c0c0c, #000),radial-gradient(#4c0c0c, #f5f4f0));
+    height:100%;
+    overflow:hidden;
 }
-.container{
-	position:relative;
-    height:430px;
-    width:100%;
+
+body{
     display:flex;
     justify-content:center;
     align-items:center;
-    border-radius:1px solid rgba(255,255,255,0.05);
+
+    background:
+        radial-gradient(
+            circle at center,
+            #5b1328 0%,
+            #250812 32%,
+            #09070b 72%,
+            #030305 100%
+        );
 }
+
+
+/* ==================================================
+   SCENE
+================================================== */
+
+.scene{
+
+    position:relative;
+
+    width:100vw;
+    height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    overflow:hidden;
+
+}
+
+
+/* ==================================================
+   CENTRAL GLOW
+================================================== */
+
+.glow{
+
+    position:absolute;
+
+    width:300px;
+    height:300px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,30,85,.35),
+            rgba(255,30,85,.12) 35%,
+            transparent 72%
+        );
+
+    filter:blur(25px);
+
+    animation:
+        glowPulse
+        2.8s
+        cubic-bezier(.7,2,.3,-.25)
+        infinite;
+
+}
+
+
+@keyframes glowPulse{
+
+    0%,
+    100%{
+        transform:scale(.75);
+        opacity:.45;
+    }
+
+    32%{
+        transform:scale(1.05);
+        opacity:.65;
+    }
+
+    45%{
+        transform:scale(1.3);
+        opacity:.9;
+    }
+
+    65%{
+        transform:scale(.95);
+        opacity:.55;
+    }
+
+}
+
+
+/* ==================================================
+   HEART
+================================================== */
+
 .heart{
-	position:relative;
-    z-index:2;
+
+    position:relative;
+
+    z-index:10;
+
+    width:190px;
+    height:190px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    animation:
+        heartBeat
+        2.8s
+        cubic-bezier(.7,2.3,.3,-.25)
+        infinite;
+
 }
-.heart>svg{
-	animation:heart 4s cubic-bezier(0.82,2.42,0.9, -0.04) infinite;
+
+
+.heart svg{
+
+    width:190px;
+    height:190px;
+
+    overflow:visible;
+
+    filter:
+        drop-shadow(
+            0 0 10px
+            rgba(255,30,80,.8)
+        )
+
+        drop-shadow(
+            0 0 30px
+            rgba(255,30,80,.35)
+        );
+
 }
-#heartChild{
+
+
+@keyframes heartBeat{
+
+    0%,
+    100%{
+        transform:
+            scale(1)
+            rotate(0deg);
+    }
+
+    17%{
+        transform:
+            scale(.91)
+            rotate(-2deg);
+    }
+
+    32%{
+        transform:
+            scale(1.18)
+            rotate(2deg);
+    }
+
+    43%{
+        transform:
+            scale(.95)
+            rotate(-1deg);
+    }
+
+    55%{
+        transform:
+            scale(1.08)
+            rotate(1deg);
+    }
+
+    70%{
+        transform:
+            scale(1)
+            rotate(0deg);
+    }
+
+}
+
+
+/* ==================================================
+   PARTICLE LAYER
+================================================== */
+
+#particles{
+
     position:absolute;
+
+    inset:0;
+
+    z-index:5;
+
+    pointer-events:none;
+
 }
+
+
+/* ==================================================
+   FLYING HEART
+
+   QUAN TRỌNG:
+
+   Không dùng before / after nữa.
+
+   Mỗi particle là một SVG heart
+   hoàn chỉnh nên tâm xoay luôn chính xác.
+================================================== */
+
 .fly{
-	position:absolute;
-    rotate:25deg;
-    animation:heartfly 4s cubic-bezier(0.07,1.08,0.44, 0.9);
-}
-.fly:before{
-	content:'';
-    width:20px;
-    height:30px;
+
     position:absolute;
-    background-color:light-dark(pink,#F5F5F5);
-    border-top-left-radius:10px;
-    border-top-right-radius:10px;
-    transform-origin:50% 70%;
-    rotate:315deg;
+
+    left:50%;
+    top:50%;
+
+    width:22px;
+    height:22px;
+
+    margin-left:-11px;
+    margin-top:-11px;
+
+    opacity:0;
+
+    will-change:
+        transform,
+        opacity;
+
+    animation:
+        fly
+        var(--duration)
+        var(--ease)
+        forwards;
+
 }
-.fly:after{
-	content:'';
-    width:20px;
-    height:30px;
+
+
+.fly svg{
+
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    overflow:visible;
+
+    filter:
+        drop-shadow(
+            0 0 5px
+            var(--color)
+        );
+
+}
+
+
+/* ==================================================
+   PARTICLE MOTION
+
+   QUỸ ĐẠO:
+
+   0%
+       nằm đúng tâm
+
+   10%
+       bật ra nhanh
+
+   45%
+       phóng mạnh
+
+   62%
+       overshoot
+
+   78%
+       quay lại một chút
+
+   100%
+       biến mất
+================================================== */
+
+@keyframes fly{
+
+    0%{
+
+        opacity:0;
+
+        transform:
+            translate3d(
+                0,
+                0,
+                0
+            )
+            rotate(0deg)
+            scale(.05);
+
+    }
+
+
+    8%{
+
+        opacity:1;
+
+        transform:
+            translate3d(
+                calc(var(--x) * .06),
+                calc(var(--y) * .06),
+                0
+            )
+            rotate(
+                calc(var(--rotation) * .08)
+            )
+            scale(.55);
+
+    }
+
+
+    35%{
+
+        opacity:1;
+
+        transform:
+            translate3d(
+                calc(var(--x) * .72),
+                calc(var(--y) * .72),
+                0
+            )
+            rotate(
+                calc(var(--rotation) * .65)
+            )
+            scale(
+                var(--scale)
+            );
+
+    }
+
+
+    58%{
+
+        opacity:1;
+
+        transform:
+            translate3d(
+                calc(var(--x) * 1.08),
+                calc(var(--y) * 1.08),
+                0
+            )
+            rotate(
+                var(--rotation)
+            )
+            scale(
+                calc(var(--scale) * 1.08)
+            );
+
+    }
+
+
+    72%{
+
+        opacity:.75;
+
+        transform:
+            translate3d(
+                calc(var(--x) * .96),
+                calc(var(--y) * .96),
+                0
+            )
+            rotate(
+                calc(var(--rotation) * 1.15)
+            )
+            scale(
+                calc(var(--scale) * .8)
+            );
+
+    }
+
+
+    100%{
+
+        opacity:0;
+
+        transform:
+            translate3d(
+                calc(var(--x) * 1.12),
+                calc(var(--y) * 1.12 - 25px),
+                0
+            )
+            rotate(
+                calc(var(--rotation) * 1.45)
+            )
+            scale(.05);
+
+    }
+
+}
+
+
+/* ==================================================
+   SPARK
+================================================== */
+
+.spark{
+
     position:absolute;
-    background-color:light-dark(pink,#F5F5F5);
-    border-top-left-radius:10px;
-    border-top-right-radius:10px;
-    transform-origin:50% 70%;
-    rotate:45deg;
-	border-left:none;
-    border-bottom:none
+
+    left:50%;
+    top:50%;
+
+    width:4px;
+    height:4px;
+
+    margin-left:-2px;
+    margin-top:-2px;
+
+    border-radius:50%;
+
+    background:white;
+
+    box-shadow:
+        0 0 5px white,
+        0 0 12px var(--color);
+
+    animation:
+        spark
+        var(--duration)
+        cubic-bezier(.15,1,.35,1)
+        forwards;
+
 }
-@keyframes heart{
-	0%,100%{
-    	transform:scale(1,1);
+
+
+@keyframes spark{
+
+    0%{
+
+        opacity:0;
+
+        transform:
+            translate3d(0,0,0)
+            scale(.1);
+
     }
-    50%{
-		transform:scale(.7,.7);
+
+    15%{
+
+        opacity:1;
+
     }
+
+    70%{
+
+        opacity:.8;
+
+        transform:
+            translate3d(
+                var(--x),
+                var(--y),
+                0
+            )
+            scale(1);
+
+    }
+
+    100%{
+
+        opacity:0;
+
+        transform:
+            translate3d(
+                calc(var(--x) * 1.15),
+                calc(var(--y) * 1.15),
+                0
+            )
+            scale(.05);
+
+    }
+
 }
-@keyframes heartfly{
-	0%,100%{
-    	transform:translateY(0) rotate(0);
+
+
+/* ==================================================
+   RING
+================================================== */
+
+.ring{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:190px;
+    height:190px;
+
+    margin-left:-95px;
+    margin-top:-95px;
+
+    border:
+        1px solid
+        rgba(255,60,100,.5);
+
+    border-radius:50%;
+
+    opacity:0;
+
+    animation:
+        ring
+        2.8s
+        cubic-bezier(.15,1.6,.35,1)
+        infinite;
+
+}
+
+
+@keyframes ring{
+
+    0%{
+        transform:scale(.5);
         opacity:0;
     }
-    60%{
-    	transform:translateY(var(--height)) rotate(90deg) scale(1.5,1.5);
-        opacity:1;
+
+    30%{
+        opacity:0;
     }
+
+    40%{
+        opacity:.75;
+    }
+
+    72%{
+        transform:scale(1.8);
+        opacity:0;
+    }
+
+    100%{
+        transform:scale(1.8);
+        opacity:0;
+    }
+
 }
+
+
+/* ==================================================
+   TEXT
+================================================== */
+
+.text{
+
+    position:absolute;
+
+    left:50%;
+    bottom:30px;
+
+    transform:
+        translateX(-50%);
+
+    color:
+        rgba(255,255,255,.25);
+
+    font:
+        10px
+        system-ui;
+
+    letter-spacing:5px;
+
+    text-transform:uppercase;
+
+}
+
+
+/* ==================================================
+   HOVER / CLICK
+================================================== */
+
+.scene{
+    cursor:pointer;
+}
+
 </style>
 </head>
+
+
 <body>
-<div class="container">
-	<div class="heart">
-		<svg fill="#000000" height="200px" width="200px"viewBox="0 0 472.7 472.7"><path id="XMLID_810_" d="M433.5,67c-25.3-25.3-59-39.3-94.8-39.3s-69.6,14-94.9,39.4l-7.3,7.3l-7.5-7.5 c-25.4-25.4-59.1-39.4-95-39.4c-35.8,0-69.4,13.9-94.7,39.3C13.9,92.2,0,125.9,0,161.7s14,69.5,39.4,94.8l182.7,182.7 c3.8,3.8,9,6,14.5,6c5.4,0,10.6-2.2,14.5-6l182.2-182.4c25.4-25.4,39.3-59.1,39.4-94.9S458.8,92.4,433.5,67z M132.5,117.2 c-23.9,0-43.4,19.5-43.4,43.4c0,11-8.9,19.9-19.9,19.9s-19.9-8.9-19.9-19.9c0-45.8,37.3-83.1,83.1-83.1c11,0,19.9,8.9,19.9,19.9 C152.4,108.4,143.5,117.2,132.5,117.2z" fill="red"></path> </svg>   
+
+
+<div class="scene">
+
+    <div class="glow"></div>
+
+    <div class="ring"></div>
+
+
+    <div class="heart">
+
+        <svg
+            viewBox="0 0 472.7 472.7"
+        >
+
+            <defs>
+
+                <linearGradient
+                    id="heartGradient"
+                    x1="100"
+                    y1="50"
+                    x2="380"
+                    y2="430"
+                    gradientUnits="userSpaceOnUse"
+                >
+
+                    <stop
+                        offset="0"
+                        stop-color="#ff7da1"
+                    />
+
+                    <stop
+                        offset=".35"
+                        stop-color="#ff315e"
+                    />
+
+                    <stop
+                        offset="1"
+                        stop-color="#c6003c"
+                    />
+
+                </linearGradient>
+
+            </defs>
+
+
+            <path
+                d="
+                M433.5 67
+                C408.2 41.7 374.5 27.7 338.7 27.7
+                S269.1 41.7 243.8 67.1
+                L236.5 74.4
+                L229 66.9
+                C203.6 41.5 169.9 27.5 134 27.5
+                C98.2 27.5 64.6 41.4 39.3 66.8
+                C13.9 92.2 0 125.9 0 161.7
+                S14 231.2 39.4 256.5
+                L222.1 439.2
+                C225.9 443 231.1 445.2 236.6 445.2
+                C242 445.2 247.2 443 251.1 439.2
+                L433.3 256.8
+                C458.7 231.4 472.6 197.7 472.7 161.9
+                S458.8 92.4 433.5 67Z
+                "
+                fill="url(#heartGradient)"
+            />
+
+        </svg>
+
     </div>
-    <div id="heartChild"></div>
+
+
+    <div id="particles"></div>
+
+
+    <div class="text">
+        satisfying motion
+    </div>
+
 </div>
+
+
 <script>
-	heartChild=document.getElementById("heartChild")
-    rotate=0;
-    function gen(){
-    	ae=document.createElement('div');
-        ae.classList.add('fly');
-        heartChild.appendChild(ae);
-        ae.style.setProperty('--height','120px')
-        //default style
-        //rotate=Math.random()*360;
-        //ae.style.rotate=rotate+'deg'
-        //.style.animationDuration=4+Math.random()*4+'s'
-        //ae.style.setProperty('--height',0-Math.random()*200 +'px')
-        
-        //rotate style
-        ae.style.rotate=rotate+'deg'
-        rotate=rotate+6
-        ae.style.setProperty('--height',0-Math.random()*200 +'px')
-        
-        setTimeout(() => {
-            heartChild.removeChild(heartChild.firstChild);
-    }, 5000);
+
+/* ==================================================
+   SETTINGS
+================================================== */
+
+const layer =
+    document.getElementById(
+        "particles"
+    );
+
+
+const MAX_PARTICLES = 65;
+
+let particles = 0;
+
+
+/* ==================================================
+   RANDOM
+================================================== */
+
+function random(min,max){
+
+    return Math.random() *
+        (max - min) +
+        min;
+
+}
+
+
+/* ==================================================
+   HEART SVG
+================================================== */
+
+function createHeart(){
+
+    if(
+        particles >= MAX_PARTICLES
+    ){
+        return;
     }
-    setInterval(gen,30)
+
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+    element.className =
+        "fly";
+
+
+    /*
+        GÓC BAY
+
+        random 360°.
+    */
+
+    const angle =
+        random(
+            0,
+            Math.PI * 2
+        );
+
+
+    /*
+        Khoảng cách.
+
+        Xa vừa đủ để nhìn thấy
+        nhưng không bay khỏi màn hình
+        quá nhanh.
+    */
+
+    const distance =
+        random(
+            80,
+            210
+        );
+
+
+    const x =
+        Math.cos(angle)
+        * distance;
+
+
+    const y =
+        Math.sin(angle)
+        * distance;
+
+
+    element.style.setProperty(
+        "--x",
+        `${x}px`
+    );
+
+
+    element.style.setProperty(
+        "--y",
+        `${y}px`
+    );
+
+
+    /*
+        Mỗi tim xoay khác nhau.
+    */
+
+    element.style.setProperty(
+        "--rotation",
+        `${random(-240,240)}deg`
+    );
+
+
+    /*
+        Kích thước.
+    */
+
+    element.style.setProperty(
+        "--scale",
+        random(.55,1.15)
+    );
+
+
+    /*
+        Timing.
+
+        cubic-bezier có overshoot.
+    */
+
+    element.style.setProperty(
+        "--ease",
+        "cubic-bezier(.16,1.45,.38,1)"
+    );
+
+
+    element.style.setProperty(
+        "--duration",
+        `${random(1.7,2.7)}s`
+    );
+
+
+    const colors = [
+        "#ff174f",
+        "#ff3f70",
+        "#ff6b91",
+        "#ff9db7",
+        "#ffffff"
+    ];
+
+
+    const color =
+        colors[
+            Math.floor(
+                Math.random()
+                * colors.length
+            )
+        ];
+
+
+    element.style.setProperty(
+        "--color",
+        color
+    );
+
+
+    /*
+        SVG HEART
+
+        Dùng path hoàn chỉnh.
+
+        Vì vậy transform/rotate
+        luôn lấy tâm particle làm
+        tâm quay.
+    */
+
+    element.innerHTML = `
+
+        <svg
+            viewBox="0 0 472.7 472.7"
+        >
+
+            <path
+                d="
+                M433.5 67
+                C408.2 41.7 374.5 27.7 338.7 27.7
+                S269.1 41.7 243.8 67.1
+                L236.5 74.4
+                L229 66.9
+                C203.6 41.5 169.9 27.5 134 27.5
+                C98.2 27.5 64.6 41.4 39.3 66.8
+                C13.9 92.2 0 125.9 0 161.7
+                S14 231.2 39.4 256.5
+                L222.1 439.2
+                C225.9 443 231.1 445.2 236.6 445.2
+                C242 445.2 247.2 443 251.1 439.2
+                L433.3 256.8
+                C458.7 231.4 472.6 197.7 472.7 161.9
+                S458.8 92.4 433.5 67Z
+                "
+                fill="${color}"
+            />
+
+        </svg>
+
+    `;
+
+
+    layer.appendChild(
+        element
+    );
+
+
+    particles++;
+
+
+    element.addEventListener(
+        "animationend",
+        () => {
+
+            element.remove();
+
+            particles--;
+
+        },
+        {
+            once:true
+        }
+    );
+
+}
+
+
+/* ==================================================
+   SPARK
+================================================== */
+
+function createSpark(){
+
+    if(
+        particles >= MAX_PARTICLES
+    ){
+        return;
+    }
+
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        "spark";
+
+
+    const angle =
+        random(
+            0,
+            Math.PI * 2
+        );
+
+
+    const distance =
+        random(
+            70,
+            170
+        );
+
+
+    element.style.setProperty(
+        "--x",
+        `${Math.cos(angle) * distance}px`
+    );
+
+
+    element.style.setProperty(
+        "--y",
+        `${Math.sin(angle) * distance}px`
+    );
+
+
+    element.style.setProperty(
+        "--duration",
+        `${random(1,1.7)}s`
+    );
+
+
+    element.style.setProperty(
+        "--color",
+        "#ff4d7d"
+    );
+
+
+    layer.appendChild(
+        element
+    );
+
+
+    particles++;
+
+
+    element.addEventListener(
+        "animationend",
+        () => {
+
+            element.remove();
+
+            particles--;
+
+        },
+        {
+            once:true
+        }
+    );
+
+}
+
+
+/* ==================================================
+   CONTINUOUS EMISSION
+================================================== */
+
+let lastTime = 0;
+
+
+function animationLoop(time){
+
+    /*
+        ~5-6 particles / second.
+
+        Nhẹ hơn rất nhiều so với
+        setInterval(...,30).
+    */
+
+    if(
+        time - lastTime > 180
+    ){
+
+        createHeart();
+
+
+        if(
+            Math.random() > .35
+        ){
+
+            createHeart();
+
+        }
+
+
+        if(
+            Math.random() > .45
+        ){
+
+            createSpark();
+
+        }
+
+
+        lastTime = time;
+
+    }
+
+
+    requestAnimationFrame(
+        animationLoop
+    );
+
+}
+
+
+requestAnimationFrame(
+    animationLoop
+);
+
+
+/* ==================================================
+   CLICK BURST
+================================================== */
+
+document
+    .querySelector(".scene")
+    .addEventListener(
+        "click",
+        () => {
+
+            /*
+                Burst nhỏ.
+
+                Không tạo quá nhiều.
+            */
+
+            for(
+                let i = 0;
+                i < 7;
+                i++
+            ){
+
+                createHeart();
+
+            }
+
+
+            for(
+                let i = 0;
+                i < 4;
+                i++
+            ){
+
+                createSpark();
+
+            }
+
+        }
+    );
+
 </script>
+
 </body>
 </html>
-
