@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Infinite Slinky</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #02030a;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    width: 600px;
+    height: 600px;
+    max-width: 95vw;
+    max-height: 95vh;
+    background: #02030a;
+}
+</style>
+</head>
+
+<body>
+
+<canvas width="600" height="600"></canvas>
+
+<script>
+
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+const W = 600;
+const H = 600;
+
+const cx = W / 2;
+const cy = H / 2;
+
+let time = 0;
+
+
+/* =====================================
+   SETTINGS
+===================================== */
+
+const lines = 18;
+const points = 120;
+
+
+/* =====================================
+   DRAW
+===================================== */
+
+function draw() {
+
+    time += 0.025;
+
+
+    /* =================================
+       BACKGROUND
+    ================================= */
+
+    ctx.fillStyle = "#02030a";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* =================================
+       SLINKY
+    ================================= */
+
+    for (let line = 0; line < lines; line++) {
+
+        ctx.beginPath();
+
+
+        const offset =
+            line * 0.13;
+
+
+        for (let i = 0; i <= points; i++) {
+
+            const t =
+                i / points;
+
+
+            /*
+              Đường đi chính.
+            */
+
+            const x =
+                70 +
+                t * 460;
+
+
+            /*
+              Sóng lớn.
+            */
+
+            const wave1 =
+                Math.sin(
+                    t * Math.PI * 4 +
+                    time * 2 +
+                    offset
+                ) * 80;
+
+
+            /*
+              Sóng nhỏ bên trong.
+            */
+
+            const wave2 =
+                Math.sin(
+                    t * Math.PI * 16 -
+                    time * 3 +
+                    line
+                ) * 18;
+
+
+            /*
+              Co giãn theo thời gian.
+            */
+
+            const squeeze =
+                Math.sin(
+                    time * 1.5
+                );
+
+
+            const y =
+                cy +
+                (wave1 + wave2)
+                * (0.65 + squeeze * .18)
+                +
+                (line - lines / 2) * 3;
+
+
+            /*
+              X cũng hơi cong.
+            */
+
+            const curvedX =
+                x +
+                Math.sin(
+                    t * Math.PI * 2 +
+                    time
+                ) * 25;
+
+
+            if (i === 0) {
+
+                ctx.moveTo(
+                    curvedX,
+                    y
+                );
+
+            } else {
+
+                ctx.lineTo(
+                    curvedX,
+                    y
+                );
+            }
+        }
+
+
+        /* =================================
+           COLOR
+        ================================= */
+
+        const hue =
+            (
+                180 +
+                line * 8 +
+                time * 35
+            ) % 360;
+
+
+        ctx.strokeStyle =
+            `hsla(
+                ${hue},
+                100%,
+                ${55 + line * 1.5}%,
+                ${0.12 + line / lines * .45}
+            )`;
+
+
+        ctx.lineWidth =
+            line === Math.floor(lines / 2)
+                ? 3
+                : 1;
+
+
+        ctx.stroke();
+    }
+
+
+    /* =================================
+       BRIGHT CORE
+    ================================= */
+
+    ctx.beginPath();
+
+    for (let i = 0; i <= points; i++) {
+
+        const t =
+            i / points;
+
+
+        const x =
+            70 +
+            t * 460;
+
+
+        const y =
+            cy +
+            Math.sin(
+                t * Math.PI * 4 +
+                time * 2
+            ) * 80;
+
+
+        if (i === 0)
+            ctx.moveTo(x, y);
+        else
+            ctx.lineTo(x, y);
+    }
+
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.35)";
+
+    ctx.lineWidth = 1;
+
+    ctx.stroke();
+
+
+    /* =================================
+       MOVING DOT
+    ================================= */
+
+    const dotT =
+        (time * .12) % 1;
+
+
+    const dotX =
+        70 +
+        dotT * 460;
+
+
+    const dotY =
+        cy +
+        Math.sin(
+            dotT * Math.PI * 4 +
+            time * 2
+        ) * 80;
+
+
+    ctx.fillStyle =
+        "white";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        dotX,
+        dotY,
+        4,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /* =================================
+       CENTER LINE
+    ================================= */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.04)";
+
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        cy
+    );
+
+    ctx.lineTo(
+        W,
+        cy
+    );
+
+    ctx.stroke();
+
+
+    requestAnimationFrame(draw);
+}
+
+
+draw();
+
+</script>
+
+</body>
+</html>
