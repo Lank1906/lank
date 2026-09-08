@@ -1,164 +1,1983 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <style>
-            * {
-                padding: 0;
-                margin: 0;
-                box-sizing: border-box;
-            }
-            body {
-                display: flex;
-            }
-            #demo {
-                width: 100px;
-                background-color: red;
-                display: flex;
-                gap: 10px;
-                margin: 20px;
-                transition: all 2s;
-                transition-timing-function: var(--ani);
-            }
-            #demo > div {
-                width: 10px;
-                height: 10px;
-                background-color: black;
-                border-radius: 50%;
-                animation: animationTest 4s var(--ani) infinite;
-                animation-delay: calc(var(--index) * 1s);
-            }
-            #demo:hover {
-                width: 200px;
-            }
-            svg {
-                border: 1px solid black;
-                transform: rotate(270deg);
-            }
-            .active:hover {
-                fill: blue;
-                cursor: pointer;
-            }
-            @keyframes animationTest {
-                0% {
-                    margin-top: 0px;
-                }
-                50% {
-                    margin-top: 32px;
-                }
-                100% {
-                    margin-top: 0px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <!--transition-timing-function:cubic-bezier(.29, 1.01, 1, -0.68);-->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-        <svg height="400" width="400">
-            <path id="line" d="M 150 150 C 179 251 250 82 250 250" stroke="blue" stroke-width="1" fill="none" />
-            <circle cx="150" cy="150" r="3" fill="black" />
-            <circle id="dot1" class="active" cx="179" cy="251" r="8" fill="green" />
-            <circle id="dot2" class="active" cx="250" cy="82" r="8" fill="green" />
-            <circle cx="250" cy="250" r="3" fill="red" />
-        </svg>
+<title>Bezier Motion Lab</title>
 
-<div>
-        <h1 style="margin: 4px;">demo</h1>
-
-        <div id="demo" style="margin:24px;--ani:'cubic-bezier(0.27,1.97,0.69, -0.48)">
-            <div style="--index: 1;"></div>
-            <div style="--index: 2;"></div>
-            <div style="--index: 3;"></div>
-            <div style="--index: 4;"></div>
-            <div style="--index: 5;"></div>
-        </div>
-        <h1 style="margin: 4px; cursor: pointer;" onClick="addKeyframes()">keyfames setting</h1>
-        <textarea id="keyfames" rows="20" cols="80">
-#demo{
-position:relative;
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
-#demo > div {
-    width: 10px;
-    height: 10px;
-    background-color: black;
-    transform-origin:150% 150%;
+
+body{
+    min-height:100vh;
+    padding:20px;
+
+    background:
+        radial-gradient(
+            circle at 20% 0%,
+            #17254a,
+            transparent 35%
+        ),
+        #070910;
+
+    color:#fff;
+
+    font-family:
+        Inter,
+        system-ui,
+        sans-serif;
+}
+
+.app{
+    width:min(1200px,100%);
+    margin:auto;
+}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:18px;
+}
+
+h1{
+    font-size:22px;
+}
+
+.subtitle{
+    color:#68748b;
+    font-size:11px;
+    margin-top:4px;
+}
+
+button{
+    border:1px solid rgba(255,255,255,.1);
+
+    background:#111722;
+
+    color:#fff;
+
+    border-radius:9px;
+
+    padding:9px 14px;
+
+    cursor:pointer;
+
+    transition:.15s;
+}
+
+button:hover{
+    background:#1b2433;
+}
+
+.primary{
+    border:0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4ca8ff,
+            #895cff
+        );
+}
+
+.layout{
+    display:grid;
+
+    grid-template-columns:
+        450px 1fr;
+
+    gap:16px;
+}
+
+.panel{
+    background:
+        rgba(15,19,29,.9);
+
+    border:
+        1px solid rgba(255,255,255,.07);
+
+    border-radius:16px;
+
+    overflow:hidden;
+}
+
+.title{
+    padding:13px 16px;
+
+    color:#9ca7bb;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
+}
+
+
+/* ==============================
+   EDITOR
+============================== */
+
+.editor{
+    padding:12px;
+}
+
+.graph{
+    width:100%;
+
+    height:430px;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    background:#080b12;
+}
+
+svg{
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    touch-action:none;
+
+    user-select:none;
+}
+
+
+/* GRID */
+
+.grid{
+    stroke:
+        rgba(255,255,255,.055);
+
+    stroke-width:1;
+}
+
+.axis{
+    stroke:
+        rgba(255,255,255,.13);
+
+    stroke-width:1.5;
+}
+
+.outside{
+    fill:
+        rgba(90,140,255,.025);
+
+    stroke:
+        rgba(90,140,255,.1);
+
+    stroke-dasharray:5 6;
+}
+
+
+/* DIAGONAL */
+
+.diagonal{
+    stroke:
+        rgba(255,255,255,.1);
+
+    stroke-width:1.5;
+
+    stroke-dasharray:6 6;
+}
+
+
+/* CURVE */
+
+#curve{
+    fill:none;
+
+    stroke:#65b8ff;
+
+    stroke-width:4;
+
+    stroke-linecap:round;
+
+    filter:
+        drop-shadow(
+            0 0 8px
+            rgba(80,170,255,.65)
+        );
+}
+
+
+/* CONTROL LINES */
+
+.handle-line{
+    stroke:
+        rgba(100,180,255,.25);
+
+    stroke-width:2;
+
+    stroke-dasharray:5 5;
+}
+
+
+/* POINT */
+
+.handle{
+    fill:#101722;
+
+    stroke:#62b5ff;
+
+    stroke-width:4;
+
+    cursor:grab;
+}
+
+.handle:hover{
+    fill:#254268;
+}
+
+.handle:active{
+    cursor:grabbing;
+}
+
+
+/* LABEL */
+
+.label{
+    fill:#59677e;
+
+    font-size:10px;
+
+    font-family:monospace;
+}
+
+
+/* VALUES */
+
+.values{
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:6px;
+
+    margin-top:9px;
+}
+
+.value{
+    background:#0a0e16;
+
+    padding:8px;
+
+    text-align:center;
+
+    border-radius:8px;
+}
+
+.value span{
+    display:block;
+
+    color:#606c81;
+
+    font-size:9px;
+
+    margin-bottom:3px;
+}
+
+.value b{
+    color:#c9ddff;
+
+    font:12px monospace;
+}
+
+.easing{
+    margin-top:8px;
+
+    padding:10px;
+
+    background:#080b11;
+
+    color:#6fbaff;
+
+    border-radius:8px;
+
+    font:11px monospace;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+
+
+/* ==============================
+   PREVIEWS
+============================== */
+
+.previews{
+    padding:10px;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:9px;
+}
+
+.preview{
+    height:150px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    background:#080b11;
+
+    border-radius:11px;
+
+    border:
+        1px solid rgba(255,255,255,.055);
+}
+
+.preview-name{
     position:absolute;
-    top:0;
-    right:0;
-    border-radius: 50%;
-    animation: animationTest 4s var(--ani) infinite;
-    animation-delay: calc(var(--index) * 1s);
-}
-@keyframes animationTest {
-	0% {
-		transform: rotate(0deg);
-	}
 
-	100% {
-		transform: rotate(360deg);
-	}
+    top:9px;
+    left:10px;
+
+    color:#68748b;
+
+    font-size:9px;
+
+    z-index:5;
 }
-        
-        </textarea>
+
+.stage{
+    position:absolute;
+
+    inset:0;
+
+    display:grid;
+
+    place-items:center;
+}
+
+
+/* SCALE */
+
+.scale{
+    width:40px;
+    height:40px;
+
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #55c8ff,
+            #845cff
+        );
+
+    animation:
+        scale 2s var(--ease) infinite;
+}
+
+@keyframes scale{
+
+    0%{
+        transform:scale(.3);
+    }
+
+    50%{
+        transform:scale(1.7);
+    }
+
+    100%{
+        transform:scale(.3);
+    }
+}
+
+
+/* ROTATE */
+
+.rotate{
+    width:48px;
+    height:48px;
+
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff55a8,
+            #805cff
+        );
+
+    animation:
+        rotate 2s var(--ease) infinite;
+}
+
+@keyframes rotate{
+
+    0%{
+        transform:
+            rotate(-80deg)
+            scale(.5);
+    }
+
+    50%{
+        transform:
+            rotate(220deg)
+            scale(1.3);
+    }
+
+    100%{
+        transform:
+            rotate(0deg)
+            scale(.5);
+    }
+}
+
+
+/* MOVE */
+
+.move{
+    width:38px;
+    height:38px;
+
+    border-radius:50%;
+
+    background:#55baff;
+
+    animation:
+        move 2s var(--ease) infinite;
+}
+
+@keyframes move{
+
+    0%{
+        transform:
+            translateX(-90px)
+            scale(.6);
+    }
+
+    50%{
+        transform:
+            translateX(100px)
+            scale(1.3);
+    }
+
+    100%{
+        transform:
+            translateX(-90px)
+            scale(.6);
+    }
+}
+
+
+/* BOUNCE */
+
+.bounce-stage{
+    align-items:end;
+
+    padding-bottom:27px;
+}
+
+.ball{
+    width:34px;
+    height:34px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle at 30% 25%,
+            white,
+            #4bbaff 25%,
+            #665cff
+        );
+
+    animation:
+        bounce 2s var(--ease) infinite;
+}
+
+@keyframes bounce{
+
+    0%{
+        transform:
+            translateY(0)
+            scaleY(.65);
+    }
+
+    40%{
+        transform:
+            translateY(-75px)
+            scaleY(1.1);
+    }
+
+    60%{
+        transform:
+            translateY(0)
+            scaleY(.6);
+    }
+
+    80%{
+        transform:
+            translateY(-28px)
+            scaleY(1);
+    }
+
+    100%{
+        transform:
+            translateY(0)
+            scaleY(.65);
+    }
+}
+
+
+/* SKEW */
+
+.skew{
+    width:60px;
+    height:45px;
+
+    border-radius:8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #55e3b1,
+            #4aaaff
+        );
+
+    animation:
+        skew 2s var(--ease) infinite;
+}
+
+@keyframes skew{
+
+    0%{
+        transform:
+            skewX(-30deg)
+            scale(.75);
+    }
+
+    50%{
+        transform:
+            skewX(35deg)
+            scale(1.2);
+    }
+
+    100%{
+        transform:
+            skewX(-30deg)
+            scale(.75);
+    }
+}
+
+
+/* SPRING */
+
+.spring{
+    width:42px;
+    height:42px;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffd65c,
+            #ff5f9a
+        );
+
+    animation:
+        spring 2s var(--ease) infinite;
+}
+
+@keyframes spring{
+
+    0%{
+        transform:
+            translateX(-80px)
+            scale(.7);
+    }
+
+    40%{
+        transform:
+            translateX(60px)
+            scale(1.3);
+    }
+
+    60%{
+        transform:
+            translateX(-30px)
+            scale(.85);
+    }
+
+    80%{
+        transform:
+            translateX(12px)
+            scale(1.08);
+    }
+
+    100%{
+        transform:
+            translateX(0)
+            scale(1);
+    }
+}
+
+
+/* BLUR */
+
+.blur{
+    width:65px;
+    height:45px;
+
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #8c5cff,
+            #ff55c8
+        );
+
+    animation:
+        blur 2s var(--ease) infinite;
+}
+
+@keyframes blur{
+
+    0%{
+        filter:blur(10px);
+
+        transform:scale(.7);
+    }
+
+    50%{
+        filter:blur(0);
+
+        transform:scale(1.2);
+    }
+
+    100%{
+        filter:blur(10px);
+
+        transform:scale(.7);
+    }
+}
+
+
+/* 3D */
+
+.stage3d{
+    perspective:500px;
+}
+
+.three{
+    width:55px;
+    height:55px;
+
+    border-radius:11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5bcaff,
+            #805cff
+        );
+
+    animation:
+        three 2s var(--ease) infinite;
+}
+
+@keyframes three{
+
+    0%{
+        transform:
+            rotateX(-55deg)
+            rotateY(-55deg)
+            scale(.65);
+    }
+
+    50%{
+        transform:
+            rotateX(25deg)
+            rotateY(45deg)
+            scale(1.25);
+    }
+
+    100%{
+        transform:
+            rotateX(-55deg)
+            rotateY(-55deg)
+            scale(.65);
+    }
+}
+
+
+/* ==============================
+   OUTPUT
+============================== */
+
+.output{
+    padding:10px;
+
+    border-top:
+        1px solid rgba(255,255,255,.06);
+}
+
+.row{
+    display:flex;
+
+    gap:7px;
+}
+
+.code{
+    flex:1;
+
+    min-width:0;
+
+    padding:10px;
+
+    border-radius:8px;
+
+    background:#080b11;
+
+    color:#8bc8ff;
+
+    font:12px monospace;
+
+    overflow:hidden;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
+}
+
+.bottom{
+    margin-top:16px;
+}
+
+textarea{
+    width:100%;
+
+    height:210px;
+
+    display:block;
+
+    padding:14px;
+
+    border:0;
+
+    outline:0;
+
+    resize:vertical;
+
+    background:#080b11;
+
+    color:#c8d8ff;
+
+    font:12px/1.6 monospace;
+}
+
+.actions{
+    padding:9px;
+
+    display:flex;
+
+    gap:7px;
+
+    border-top:
+        1px solid rgba(255,255,255,.06);
+}
+
+
+@media(max-width:900px){
+
+    .layout{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:600px){
+
+    body{
+        padding:10px;
+    }
+
+    .previews{
+        grid-template-columns:1fr;
+    }
+
+    .values{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+<header>
+
+    <div>
+        <h1>Bezier Motion Lab</h1>
+
+        <div class="subtitle">
+            Kéo control point tự do • Overshoot • Anticipation
+        </div>
+    </div>
+
+    <button id="reset">
+        ↻ Reset
+    </button>
+
+</header>
+
+
+<div class="layout">
+
+
+<!-- =========================================
+     EDITOR
+========================================= -->
+
+<section class="panel">
+
+<div class="title">
+    CUBIC BEZIER
 </div>
-        <script>
-            dot1 = document.getElementById("dot1");
-            dot2 = document.getElementById("dot2");
-            line = document.getElementById("line");
-            demo = document.getElementById("demo");
-            x1 = 179;
-            y1 = 251;
-            x2 = 250;
-            y2 = 82;
-            check1 = false;
-            check2 = false;
-            dot1.addEventListener("mousedown", function () {
-                check1 = true;
-            });
-            dot1.addEventListener("mouseup", function () {
-                check1 = false;
-                demodisplay(x1, y1, x2, y2);
-            });
-            dot1.addEventListener("mousemove", function (event) {
-                if (check1) {
-                    dot1.style.cx = event.offsetX;
-                    dot1.style.cy = event.offsetY;
-                    x1 = event.offsetX;
-                    y1 = event.offsetY;
 
-                    line.setAttribute("d", "M 150 150 C" + x1 + " " + y1 + " " + x2 + " " + y2 + " 250 250");
-                }
-            });
-            dot2.addEventListener("mousedown", function () {
-                check2 = true;
-            });
-            dot2.addEventListener("mouseup", function () {
-                check2 = false;
-                demodisplay(x1, y1, x2, y2);
-            });
-            dot2.addEventListener("mousemove", function (event) {
-                if (check2) {
-                    dot2.style.cx = event.offsetX;
-                    dot2.style.cy = event.offsetY;
-                    x2 = event.offsetX;
-                    y2 = event.offsetY;
-                    line.setAttribute("d", "M 150 150 C" + x1 + " " + y1 + " " + x2 + " " + y2 + " 250 250");
-                }
-            });
-            demodisplay = (x1, y1, x2, y2) => {
-                demo.style.setProperty("--ani", "cubic-bezier(" + (x1 - 150) / 100 + "," + (y1 - 150) / 100 + "," + (x2 - 150) / 100 + ", " + (y2 - 150) / 100 + ")");
-            };
+<div class="editor">
 
-            keyfames = document.getElementById("keyfames");
-            function addKeyframes() {
-                const style = document.createElement("style");
-                style.type = "text/css";
+<div class="graph">
 
-                const keyframes = keyfames.value;
-                style.innerHTML = keyframes;
+<svg
+    id="svg"
+    viewBox="-100 -100 600 600"
+    preserveAspectRatio="none"
+>
 
-                document.head.appendChild(style);
-            }
-        </script>
-    </body>
+<defs>
+
+<linearGradient
+    id="curveGradient"
+    x1="0"
+    y1="1"
+    x2="1"
+    y2="0"
+>
+
+<stop
+    offset="0"
+    stop-color="#55c8ff"
+/>
+
+<stop
+    offset="1"
+    stop-color="#a05cff"
+/>
+
+</linearGradient>
+
+</defs>
+
+
+<!-- ==========================
+     OUTSIDE AREA
+========================== -->
+
+<rect
+    class="outside"
+    x="50"
+    y="50"
+    width="300"
+    height="300"
+/>
+
+
+<!-- ==========================
+     GRID
+========================== -->
+
+<g class="grid">
+
+<line x1="50" y1="50" x2="50" y2="350"/>
+<line x1="100" y1="50" x2="100" y2="350"/>
+<line x1="150" y1="50" x2="150" y2="350"/>
+<line x1="200" y1="50" x2="200" y2="350"/>
+<line x1="250" y1="50" x2="250" y2="350"/>
+<line x1="300" y1="50" x2="300" y2="350"/>
+<line x1="350" y1="50" x2="350" y2="350"/>
+
+<line x1="50" y1="50" x2="350" y2="50"/>
+<line x1="50" y1="100" x2="350" y2="100"/>
+<line x1="50" y1="150" x2="350" y2="150"/>
+<line x1="50" y1="200" x2="350" y2="200"/>
+<line x1="50" y1="250" x2="350" y2="250"/>
+<line x1="50" y1="300" x2="350" y2="300"/>
+<line x1="50" y1="350" x2="350" y2="350"/>
+
+</g>
+
+
+<!-- AXIS -->
+
+<line
+    class="axis"
+    x1="50"
+    y1="350"
+    x2="350"
+    y2="350"
+/>
+
+<line
+    class="axis"
+    x1="50"
+    y1="350"
+    x2="50"
+    y2="50"
+/>
+
+
+<!-- NORMAL DIAGONAL -->
+
+<line
+    class="diagonal"
+    x1="50"
+    y1="350"
+    x2="350"
+    y2="50"
+/>
+
+
+<!-- LABELS -->
+
+<text
+    class="label"
+    x="42"
+    y="365"
+>
+    0
+</text>
+
+<text
+    class="label"
+    x="345"
+    y="365"
+>
+    1
+</text>
+
+<text
+    class="label"
+    x="30"
+    y="55"
+>
+    1
+</text>
+
+
+<!-- CONTROL LINES -->
+
+<line
+    id="line1"
+    class="handle-line"
+    x1="50"
+    y1="350"
+    x2="120"
+    y2="250"
+/>
+
+<line
+    id="line2"
+    class="handle-line"
+    x1="350"
+    y1="50"
+    x2="280"
+    y2="150"
+/>
+
+
+<!-- CURVE -->
+
+<path
+    id="curve"
+    d="
+        M50 350
+        C120 250
+        280 150
+        350 50
+    "
+/>
+
+
+<!-- POINTS -->
+
+<circle
+    id="dot1"
+    class="handle"
+    cx="120"
+    cy="250"
+    r="11"
+/>
+
+<circle
+    id="dot2"
+    class="handle"
+    cx="280"
+    cy="150"
+    r="11"
+/>
+
+</svg>
+
+</div>
+
+
+<div class="values">
+
+<div class="value">
+<span>X1</span>
+<b id="x1">.23</b>
+</div>
+
+<div class="value">
+<span>Y1</span>
+<b id="y1">.33</b>
+</div>
+
+<div class="value">
+<span>X2</span>
+<b id="x2">.77</b>
+</div>
+
+<div class="value">
+<span>Y2</span>
+<b id="y2">.67</b>
+</div>
+
+</div>
+
+
+<div
+    id="easing"
+    class="easing"
+>
+cubic-bezier(.23,.33,.77,.67)
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================================
+     PREVIEW
+========================================= -->
+
+<section class="panel">
+
+<div class="title">
+    LIVE PREVIEW
+</div>
+
+
+<div class="previews">
+
+
+<div class="preview">
+
+<div class="preview-name">
+Scale
+</div>
+
+<div class="stage">
+
+<div class="scale"></div>
+
+</div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-name">
+Rotate
+</div>
+
+<div class="stage">
+
+<div class="rotate"></div>
+
+</div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-name">
+Move
+</div>
+
+<div class="stage">
+
+<div class="move"></div>
+
+</div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-name">
+Bounce
+</div>
+
+<div class="stage bounce-stage">
+
+<div class="ball"></div>
+
+</div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-name">
+Skew
+</div>
+
+<div class="stage">
+
+<div class="skew"></div>
+
+</div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-name">
+Spring
+</div>
+
+<div class="stage">
+
+<div class="spring"></div>
+
+</div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-name">
+Blur
+</div>
+
+<div class="stage">
+
+<div class="blur"></div>
+
+</div>
+
+</div>
+
+
+<div class="preview">
+
+<div class="preview-name">
+3D
+</div>
+
+<div class="stage stage3d">
+
+<div class="three"></div>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="output">
+
+<div class="row">
+
+<div
+    id="code"
+    class="code"
+>
+cubic-bezier(.23,.33,.77,.67)
+</div>
+
+<button
+    id="copy"
+    class="primary"
+>
+Copy
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+
+<!-- =========================================
+     CSS OUTPUT
+========================================= -->
+
+<section class="panel bottom">
+
+<div class="title">
+    GENERATED CSS
+</div>
+
+<textarea
+    id="output"
+    readonly
+></textarea>
+
+<div class="actions">
+
+<button
+    id="copyFull"
+    class="primary"
+>
+Copy CSS
+</button>
+
+<button
+    id="random"
+>
+✦ Random
+</button>
+
+</div>
+
+</section>
+
+
+<div
+    style="
+        text-align:center;
+        color:#515d73;
+        font-size:10px;
+        padding:12px;
+    "
+>
+Kéo point xanh vượt cả khung graph để tạo motion overshoot
+</div>
+
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let p1 = {
+    x:120,
+    y:250
+};
+
+let p2 = {
+    x:280,
+    y:150
+};
+
+let active = null;
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const svg =
+    document.getElementById("svg");
+
+const dot1 =
+    document.getElementById("dot1");
+
+const dot2 =
+    document.getElementById("dot2");
+
+const line1 =
+    document.getElementById("line1");
+
+const line2 =
+    document.getElementById("line2");
+
+const curve =
+    document.getElementById("curve");
+
+
+/* =====================================================
+   CONVERT MOUSE → SVG
+
+   ViewBox:
+
+   -100 → 500 X
+   -100 → 500 Y
+
+   Graph:
+
+   50 → 350
+
+   Vì vậy có thêm 150px mỗi phía
+   để kéo control point vượt graph.
+===================================================== */
+
+function getPoint(event){
+
+    const rect =
+        svg.getBoundingClientRect();
+
+    const x =
+        -100 +
+        (
+            (event.clientX - rect.left)
+            /
+            rect.width
+        ) * 600;
+
+    const y =
+        -100 +
+        (
+            (event.clientY - rect.top)
+            /
+            rect.height
+        ) * 600;
+
+    return {
+        x,
+        y
+    };
+}
+
+
+/* =====================================================
+   FORMAT
+===================================================== */
+
+function fmt(n){
+
+    if(
+        Math.abs(n) < 0.005
+    ){
+        return "0";
+    }
+
+    return n.toFixed(2);
+}
+
+
+/* =====================================================
+   UPDATE
+===================================================== */
+
+function update(){
+
+    /*
+        X:
+
+        50 = 0
+        350 = 1
+
+        Nhưng cho phép:
+        -100 → 500
+
+        => -0.5 → 1.5
+    */
+
+    const x1 =
+        (p1.x - 50) / 300;
+
+    const x2 =
+        (p2.x - 50) / 300;
+
+
+    /*
+        Y:
+
+        350 = 0
+        50 = 1
+
+        và cũng cho phép vượt.
+    */
+
+    const y1 =
+        (350 - p1.y) / 300;
+
+    const y2 =
+        (350 - p2.y) / 300;
+
+
+    /* ===================================
+       DRAW CURVE
+    =================================== */
+
+    curve.setAttribute(
+        "d",
+        `
+        M50 350
+        C
+        ${p1.x} ${p1.y}
+        ${p2.x} ${p2.y}
+        350 50
+        `
+    );
+
+
+    /* ===================================
+       POINTS
+    =================================== */
+
+    dot1.setAttribute(
+        "cx",
+        p1.x
+    );
+
+    dot1.setAttribute(
+        "cy",
+        p1.y
+    );
+
+    dot2.setAttribute(
+        "cx",
+        p2.x
+    );
+
+    dot2.setAttribute(
+        "cy",
+        p2.y
+    );
+
+
+    /* ===================================
+       HANDLE LINES
+    =================================== */
+
+    line1.setAttribute(
+        "x2",
+        p1.x
+    );
+
+    line1.setAttribute(
+        "y2",
+        p1.y
+    );
+
+    line2.setAttribute(
+        "x2",
+        p2.x
+    );
+
+    line2.setAttribute(
+        "y2",
+        p2.y
+    );
+
+
+    /* ===================================
+       DISPLAY VALUES
+    =================================== */
+
+    document.getElementById("x1")
+        .textContent =
+        fmt(x1);
+
+    document.getElementById("y1")
+        .textContent =
+        fmt(y1);
+
+    document.getElementById("x2")
+        .textContent =
+        fmt(x2);
+
+    document.getElementById("y2")
+        .textContent =
+        fmt(y2);
+
+
+    /*
+        QUAN TRỌNG:
+
+        CSS cubic-bezier chuẩn không cho
+        x1/x2 ngoài 0..1.
+
+        Vì vậy nếu X vượt trục,
+        ta vẫn HIỂN THỊ curve tự do.
+
+        Còn preview CSS dùng phiên bản
+        clamp X để animation không lỗi.
+    */
+
+    const cssX1 =
+        Math.max(
+            0,
+            Math.min(
+                1,
+                x1
+            )
+        );
+
+    const cssX2 =
+        Math.max(
+            0,
+            Math.min(
+                1,
+                x2
+            )
+        );
+
+
+    const easing =
+        `cubic-bezier(` +
+        `${fmt(cssX1)}, ` +
+        `${fmt(y1)}, ` +
+        `${fmt(cssX2)}, ` +
+        `${fmt(y2)}` +
+        `)`;
+
+
+    document.documentElement
+        .style
+        .setProperty(
+            "--ease",
+            easing
+        );
+
+
+    document.getElementById("easing")
+        .textContent =
+        `Curve: cubic-bezier(${fmt(x1)}, ${fmt(y1)}, ${fmt(x2)}, ${fmt(y2)})
+Preview: ${easing}`;
+
+
+    document.getElementById("code")
+        .textContent =
+        easing;
+
+
+    document.getElementById("output")
+        .value =
+
+`/* Bezier Motion */
+
+:root {
+    --ease: ${easing};
+}
+
+/* Preview animations */
+
+.scale {
+    animation: scale 2s var(--ease) infinite;
+}
+
+.rotate {
+    animation: rotate 2s var(--ease) infinite;
+}
+
+.move {
+    animation: move 2s var(--ease) infinite;
+}
+
+.ball {
+    animation: bounce 2s var(--ease) infinite;
+}
+
+.skew {
+    animation: skew 2s var(--ease) infinite;
+}
+
+.spring {
+    animation: spring 2s var(--ease) infinite;
+}
+
+.blur {
+    animation: blur 2s var(--ease) infinite;
+}
+
+.three {
+    animation: three 2s var(--ease) infinite;
+}`;
+}
+
+
+/* =====================================================
+   DRAG FUNCTION
+===================================================== */
+
+function startDrag(
+    point,
+    event
+){
+
+    active = point;
+
+    event.preventDefault();
+
+    event.stopPropagation();
+}
+
+
+/* =====================================================
+   POINTER DOWN
+===================================================== */
+
+dot1.addEventListener(
+    "pointerdown",
+    e => {
+
+        startDrag(
+            p1,
+            e
+        );
+
+        dot1.setPointerCapture(
+            e.pointerId
+        );
+
+    }
+);
+
+
+dot2.addEventListener(
+    "pointerdown",
+    e => {
+
+        startDrag(
+            p2,
+            e
+        );
+
+        dot2.setPointerCapture(
+            e.pointerId
+        );
+
+    }
+);
+
+
+/* =====================================================
+   POINTER MOVE
+
+   ĐÂY LÀ CHỖ QUAN TRỌNG NHẤT.
+
+   Không clamp vào 50 → 350.
+
+   Cho phép:
+
+   X = -100 → 500
+   Y = -100 → 500
+===================================================== */
+
+svg.addEventListener(
+    "pointermove",
+    event => {
+
+        if(!active)
+            return;
+
+
+        const point =
+            getPoint(event);
+
+
+        active.x =
+            Math.max(
+                -100,
+                Math.min(
+                    500,
+                    point.x
+                )
+            );
+
+
+        active.y =
+            Math.max(
+                -100,
+                Math.min(
+                    500,
+                    point.y
+                )
+            );
+
+
+        update();
+
+    }
+);
+
+
+/* =====================================================
+   RELEASE
+===================================================== */
+
+window.addEventListener(
+    "pointerup",
+    () => {
+
+        active = null;
+
+    }
+);
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+document
+.getElementById("reset")
+.addEventListener(
+    "click",
+    () => {
+
+        p1 = {
+            x:120,
+            y:250
+        };
+
+        p2 = {
+            x:280,
+            y:150
+        };
+
+        update();
+
+        restart();
+
+    }
+);
+
+
+/* =====================================================
+   RESTART
+===================================================== */
+
+function restart(){
+
+    const elements =
+        document.querySelectorAll(
+            `
+            .scale,
+            .rotate,
+            .move,
+            .ball,
+            .skew,
+            .spring,
+            .blur,
+            .three
+            `
+        );
+
+
+    elements.forEach(
+        element => {
+
+            element.style.animation =
+                "none";
+
+            void element.offsetWidth;
+
+            element.style.animation =
+                "";
+
+        }
+    );
+}
+
+
+/* =====================================================
+   RANDOM
+===================================================== */
+
+document
+.getElementById("random")
+.addEventListener(
+    "click",
+    () => {
+
+        p1 = {
+
+            x:
+                -50 +
+                Math.random()*450,
+
+            y:
+                -80 +
+                Math.random()*500
+
+        };
+
+
+        p2 = {
+
+            x:
+                -50 +
+                Math.random()*450,
+
+            y:
+                -80 +
+                Math.random()*500
+
+        };
+
+
+        update();
+
+        restart();
+
+    }
+);
+
+
+/* =====================================================
+   COPY
+===================================================== */
+
+async function copy(
+    text,
+    button
+){
+
+    try{
+
+        await navigator
+            .clipboard
+            .writeText(text);
+
+    }catch{
+
+        const textarea =
+            document.createElement(
+                "textarea"
+            );
+
+        textarea.value =
+            text;
+
+        document.body
+            .appendChild(
+                textarea
+            );
+
+        textarea.select();
+
+        document.execCommand(
+            "copy"
+        );
+
+        textarea.remove();
+
+    }
+
+
+    const old =
+        button.textContent;
+
+    button.textContent =
+        "✓ Copied";
+
+    setTimeout(
+        () => {
+
+            button.textContent =
+                old;
+
+        },
+        1000
+    );
+}
+
+
+/* COPY BEZIER */
+
+document
+.getElementById("copy")
+.addEventListener(
+    "click",
+    () => {
+
+        copy(
+            document.getElementById(
+                "code"
+            ).textContent,
+
+            document.getElementById(
+                "copy"
+            )
+        );
+
+    }
+);
+
+
+/* COPY FULL */
+
+document
+.getElementById("copyFull")
+.addEventListener(
+    "click",
+    () => {
+
+        copy(
+            document.getElementById(
+                "output"
+            ).value,
+
+            document.getElementById(
+                "copyFull"
+            )
+        );
+
+    }
+);
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+update();
+
+</script>
+
+</body>
 </html>
