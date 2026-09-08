@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Liquid Metal</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #08090d;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    width: 600px;
+    height: 600px;
+    max-width: 95vw;
+    max-height: 95vh;
+    background: #08090d;
+}
+</style>
+</head>
+
+<body>
+
+<canvas width="600" height="600"></canvas>
+
+<script>
+
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+const W = 600;
+const H = 600;
+
+const cx = W / 2;
+const cy = H / 2;
+
+let time = 0;
+
+let mouseX = cx;
+let mouseY = cy;
+let mouseActive = false;
+
+
+/* =========================================
+   MOUSE
+========================================= */
+
+canvas.addEventListener("mousemove", e => {
+
+    const rect = canvas.getBoundingClientRect();
+
+    mouseX =
+        (e.clientX - rect.left)
+        * W / rect.width;
+
+    mouseY =
+        (e.clientY - rect.top)
+        * H / rect.height;
+
+    mouseActive = true;
+});
+
+canvas.addEventListener("mouseleave", () => {
+    mouseActive = false;
+});
+
+
+/* =========================================
+   LIQUID SETTINGS
+========================================= */
+
+const points = 100;
+
+const baseRadius = 180;
+
+
+/* =========================================
+   DRAW
+========================================= */
+
+function draw() {
+
+    time += 0.025;
+
+
+    /* =====================================
+       BACKGROUND
+    ===================================== */
+
+    ctx.fillStyle = "#08090d";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* =====================================
+       SHADOW
+    ===================================== */
+
+    ctx.fillStyle =
+        "rgba(0,0,0,.5)";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        cx,
+        cy + 200,
+        190,
+        30,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /* =====================================
+       LIQUID
+    ===================================== */
+
+    ctx.beginPath();
+
+
+    for (let i = 0; i <= points; i++) {
+
+        const angle =
+            i / points *
+            Math.PI * 2;
+
+
+        /* ================================
+           NHIỀU LỚP SÓNG
+        ================================= */
+
+        let wave =
+            Math.sin(
+                angle * 3 +
+                time * 1.8
+            ) * 15;
+
+
+        wave +=
+            Math.sin(
+                angle * 7 -
+                time * 2.2
+            ) * 8;
+
+
+        wave +=
+            Math.cos(
+                angle * 11 +
+                time * 1.1
+            ) * 5;
+
+
+        /* ================================
+           MOUSE DISTORTION
+        ================================= */
+
+        if (mouseActive) {
+
+            const dx =
+                mouseX - cx;
+
+            const dy =
+                mouseY - cy;
+
+            const mouseAngle =
+                Math.atan2(dy, dx);
+
+            let diff =
+                angle - mouseAngle;
+
+            // chuẩn hóa góc
+            while (diff > Math.PI)
+                diff -= Math.PI * 2;
+
+            while (diff < -Math.PI)
+                diff += Math.PI * 2;
+
+
+            const influence =
+                Math.max(
+                    0,
+                    1 - Math.abs(diff) / .8
+                );
+
+
+            const mouseDistance =
+                Math.sqrt(
+                    dx * dx +
+                    dy * dy
+                );
+
+
+            if (mouseDistance < 300) {
+
+                wave +=
+                    influence *
+                    (300 - mouseDistance) *
+                    .35;
+            }
+        }
+
+
+        const radius =
+            baseRadius + wave;
+
+
+        const x =
+            cx +
+            Math.cos(angle) * radius;
+
+
+        const y =
+            cy +
+            Math.sin(angle) * radius;
+
+
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+
+
+    ctx.closePath();
+
+
+    /* =====================================
+       METAL GRADIENT
+    ===================================== */
+
+    const gradient =
+        ctx.createRadialGradient(
+            cx - 70,
+            cy - 80,
+            20,
+            cx,
+            cy,
+            260
+        );
+
+
+    gradient.addColorStop(
+        0,
+        "#ffffff"
+    );
+
+    gradient.addColorStop(
+        .18,
+        "#cbd3dc"
+    );
+
+    gradient.addColorStop(
+        .42,
+        "#68717c"
+    );
+
+    gradient.addColorStop(
+        .65,
+        "#20252b"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#080a0d"
+    );
+
+
+    ctx.fillStyle = gradient;
+
+    ctx.fill();
+
+
+    /* =====================================
+       HIGHLIGHT
+    ===================================== */
+
+    ctx.save();
+
+    ctx.globalAlpha = .45;
+
+    const shine =
+        ctx.createLinearGradient(
+            100,
+            100,
+            500,
+            500
+        );
+
+    shine.addColorStop(
+        0,
+        "rgba(255,255,255,.8)"
+    );
+
+    shine.addColorStop(
+        .3,
+        "rgba(255,255,255,.05)"
+    );
+
+    shine.addColorStop(
+        .55,
+        "rgba(255,255,255,.0)"
+    );
+
+    shine.addColorStop(
+        .75,
+        "rgba(150,200,255,.25)"
+    );
+
+    shine.addColorStop(
+        1,
+        "rgba(255,255,255,0)"
+    );
+
+
+    ctx.fillStyle = shine;
+
+    ctx.fill();
+
+    ctx.restore();
+
+
+    /* =====================================
+       LIQUID RIM
+    ===================================== */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.22)";
+
+    ctx.lineWidth = 2;
+
+    ctx.stroke();
+
+
+    /* =====================================
+       SMALL RIPPLE
+    ===================================== */
+
+    const ripple =
+        185 +
+        Math.sin(time * 2) * 5;
+
+
+    ctx.strokeStyle =
+        "rgba(150,200,255,.08)";
+
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        ripple,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.stroke();
+
+
+    requestAnimationFrame(draw);
+}
+
+
+draw();
+
+</script>
+
+</body>
+</html>
