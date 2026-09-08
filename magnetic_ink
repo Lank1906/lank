@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Magnetic Ink</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050507;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    width: 600px;
+    height: 600px;
+    max-width: 95vw;
+    max-height: 95vh;
+    background: #050507;
+}
+</style>
+</head>
+
+<body>
+
+<canvas width="600" height="600"></canvas>
+
+<script>
+
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+const W = 600;
+const H = 600;
+
+let time = 0;
+
+const drops = [];
+
+
+/* =========================================
+   TẠO GIỌT MỰC
+========================================= */
+
+for (let i = 0; i < 28; i++) {
+
+    const angle =
+        Math.random() * Math.PI * 2;
+
+    const distance =
+        80 + Math.random() * 180;
+
+    drops.push({
+
+        x:
+            W / 2 +
+            Math.cos(angle) * distance,
+
+        y:
+            H / 2 +
+            Math.sin(angle) * distance,
+
+        angle:
+            Math.random() * Math.PI * 2,
+
+        radius:
+            3 + Math.random() * 5,
+
+        speed:
+            .3 + Math.random() * .6,
+
+        hue:
+            180 + Math.random() * 160
+    });
+}
+
+
+/* =========================================
+   UPDATE
+========================================= */
+
+function update() {
+
+    for (let i = 0; i < drops.length; i++) {
+
+        const d = drops[i];
+
+
+        /*
+          Chuyển động xoáy.
+        */
+
+        const dx =
+            d.x - W / 2;
+
+        const dy =
+            d.y - H / 2;
+
+        const distance =
+            Math.sqrt(dx * dx + dy * dy);
+
+
+        /*
+          Xoay quanh tâm.
+        */
+
+        d.angle +=
+            .002 +
+            d.speed * .002;
+
+
+        /*
+          Hút nhẹ về quỹ đạo.
+        */
+
+        const targetRadius =
+            120 +
+            Math.sin(
+                time * .8 +
+                i
+            ) * 70;
+
+
+        const force =
+            (targetRadius - distance)
+            * .002;
+
+
+        d.x +=
+            Math.cos(d.angle) *
+            d.speed;
+
+        d.y +=
+            Math.sin(d.angle) *
+            d.speed;
+
+
+        d.x +=
+            dx / (distance || 1) *
+            force;
+
+        d.y +=
+            dy / (distance || 1) *
+            force;
+
+
+        /*
+          Mực rung nhẹ.
+        */
+
+        d.x +=
+            Math.sin(
+                time * 2 +
+                i
+            ) * .25;
+
+        d.y +=
+            Math.cos(
+                time * 1.7 +
+                i
+            ) * .25;
+
+
+        /*
+          Đổi màu từ từ.
+        */
+
+        d.hue += .15;
+    }
+}
+
+
+/* =========================================
+   NỐI MỰC
+========================================= */
+
+function drawConnections() {
+
+    for (let i = 0; i < drops.length; i++) {
+
+        for (let j = i + 1; j < drops.length; j++) {
+
+            const a = drops[i];
+            const b = drops[j];
+
+            const dx =
+                b.x - a.x;
+
+            const dy =
+                b.y - a.y;
+
+            const dist =
+                Math.sqrt(dx * dx + dy * dy);
+
+
+            /*
+              Chỉ nối khi gần nhau.
+            */
+
+            if (dist > 75) continue;
+
+
+            const alpha =
+                1 - dist / 75;
+
+
+            const hue =
+                (a.hue + b.hue) / 2;
+
+
+            ctx.strokeStyle =
+                `hsla(
+                    ${hue},
+                    100%,
+                    65%,
+                    ${alpha * .22}
+                )`;
+
+
+            ctx.lineWidth =
+                alpha * 7;
+
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                a.x,
+                a.y
+            );
+
+            ctx.lineTo(
+                b.x,
+                b.y
+            );
+
+            ctx.stroke();
+        }
+    }
+}
+
+
+/* =========================================
+   VẼ GIỌT
+========================================= */
+
+function drawDrops() {
+
+    for (let i = 0; i < drops.length; i++) {
+
+        const d = drops[i];
+
+
+        const pulse =
+            1 +
+            Math.sin(
+                time * 3 +
+                i
+            ) * .2;
+
+
+        const r =
+            d.radius * pulse;
+
+
+        /*
+          Màu.
+        */
+
+        const hue =
+            d.hue % 360;
+
+
+        /*
+          Giọt chính.
+        */
+
+        ctx.fillStyle =
+            `hsl(
+                ${hue},
+                90%,
+                60%
+            )`;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            d.x,
+            d.y,
+            r,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        /*
+          Highlight nhỏ.
+        */
+
+        ctx.fillStyle =
+            "rgba(255,255,255,.65)";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            d.x - r * .3,
+            d.y - r * .3,
+            r * .25,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+}
+
+
+/* =========================================
+   TÂM MỰC
+========================================= */
+
+function drawCenter() {
+
+    const pulse =
+        45 +
+        Math.sin(time * 2) * 8;
+
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,.06)";
+
+    ctx.lineWidth = 1;
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        W / 2,
+        H / 2,
+        pulse,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.stroke();
+}
+
+
+/* =========================================
+   LOOP
+========================================= */
+
+function loop() {
+
+    time += .02;
+
+
+    /*
+      Clear hoàn toàn.
+      Không tạo trail nặng.
+    */
+
+    ctx.fillStyle = "#050507";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    update();
+
+    drawConnections();
+
+    drawDrops();
+
+    drawCenter();
+
+
+    requestAnimationFrame(loop);
+}
+
+
+loop();
+
+</script>
+
+</body>
+</html>
