@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Satisfying Ripple</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+
+    overflow: hidden;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: #03040a;
+}
+
+canvas {
+    width: 600px;
+    height: 600px;
+
+    max-width: 95vw;
+    max-height: 95vh;
+
+    background: #03040a;
+
+    border-radius: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<canvas width="600" height="600"></canvas>
+
+<script>
+
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+const W = canvas.width;
+const H = canvas.height;
+
+const cx = W / 2;
+const cy = H / 2;
+
+let time = 0;
+
+
+/* =====================================
+   CẤU HÌNH
+===================================== */
+
+const RINGS = 55;
+const POINTS = 100;
+
+
+/* =====================================
+   VẼ
+===================================== */
+
+function draw() {
+
+    time += 0.018;
+
+
+    /* =================================
+       BACKGROUND
+    ================================= */
+
+    ctx.fillStyle = "rgba(3,4,10,.22)";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* =================================
+       RIPPLES
+    ================================= */
+
+    for (let r = 0; r < RINGS; r++) {
+
+        const baseRadius =
+            15 + r * 5.2;
+
+        /*
+          Sóng chuyển động từ tâm ra ngoài.
+        */
+
+        const wave =
+            Math.sin(
+                time * 2.5 -
+                r * .25
+            ) * 5;
+
+
+        const radius =
+            baseRadius + wave;
+
+
+        /*
+          Màu rainbow rất nhẹ.
+        */
+
+        const hue =
+            (
+                185 +
+                r * 3.5 +
+                time * 25
+            ) % 360;
+
+
+        const alpha =
+            .04 +
+            (1 - r / RINGS) * .12;
+
+
+        ctx.beginPath();
+
+
+        /* =================================
+           TẠO ĐƯỜNG CONG
+        ================================= */
+
+        for (let i = 0; i <= POINTS; i++) {
+
+            const angle =
+                i / POINTS * Math.PI * 2;
+
+
+            /*
+              Noise giả bằng sin/cos.
+
+              Mỗi vòng có hình dạng
+              hơi khác nhau.
+            */
+
+            const n1 =
+                Math.sin(
+                    angle * 5 +
+                    time * 1.7 +
+                    r * .4
+                ) * 3;
+
+
+            const n2 =
+                Math.sin(
+                    angle * 9 -
+                    time * 1.2 +
+                    r
+                ) * 2;
+
+
+            const n3 =
+                Math.cos(
+                    angle * 3 +
+                    time
+                ) * 4;
+
+
+            const distortion =
+                n1 + n2 + n3;
+
+
+            const rad =
+                radius + distortion;
+
+
+            const x =
+                cx +
+                Math.cos(angle) * rad;
+
+
+            const y =
+                cy +
+                Math.sin(angle) * rad;
+
+
+            if (i === 0) {
+
+                ctx.moveTo(x, y);
+
+            } else {
+
+                ctx.lineTo(x, y);
+            }
+        }
+
+
+        ctx.closePath();
+
+
+        ctx.strokeStyle =
+            `hsla(
+                ${hue},
+                100%,
+                65%,
+                ${alpha}
+            )`;
+
+        ctx.lineWidth =
+            r % 5 === 0
+                ? 1.5
+                : .7;
+
+
+        ctx.stroke();
+    }
+
+
+    /* =================================
+       TÂM
+    ================================= */
+
+    const pulse =
+        35 +
+        Math.sin(time * 3) * 5;
+
+
+    const gradient =
+        ctx.createRadialGradient(
+            cx,
+            cy,
+            0,
+            cx,
+            cy,
+            pulse
+        );
+
+
+    gradient.addColorStop(
+        0,
+        "rgba(255,255,255,.35)"
+    );
+
+    gradient.addColorStop(
+        .2,
+        "rgba(80,220,255,.12)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+
+    ctx.fillStyle = gradient;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        pulse,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    requestAnimationFrame(draw);
+}
+
+
+draw();
+
+</script>
+
+</body>
+</html>
