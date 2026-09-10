@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Morphing Curves</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #050509;
+        overflow: hidden;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    canvas {
+        width: 600px;
+        height: 600px;
+        display: block;
+        background: #050509;
+    }
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas" width="600" height="600"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const W = canvas.width;
+const H = canvas.height;
+
+const TAU = Math.PI * 2;
+
+
+// ============================================================
+// CONFIG
+// ============================================================
+
+const COLORS = [
+    "#ff3b81",
+    "#ff4f9a",
+    "#ff6bb5",
+    "#ff2d55",
+    "#ff5577",
+    "#ff8fab",
+
+    "#b84cff",
+    "#c85cff",
+    "#9b5cff",
+    "#7c4dff",
+
+    "#4d8dff",
+    "#4fc3ff",
+    "#38bdf8",
+
+    "#25e0c0",
+    "#35e6a8",
+
+    "#ffe066",
+    "#ffb84d",
+    "#ff8c42"
+];
+
+
+// Number of flowing curves
+const CURVE_COUNT = 12;
+
+// Shapes per curve
+const SHAPES_PER_CURVE = 6;
+
+// Total moving shapes
+const TOTAL_SHAPES = CURVE_COUNT * SHAPES_PER_CURVE;
+
+
+// ============================================================
+// UTILITIES
+// ============================================================
+
+function clamp(v, a, b) {
+    return Math.max(a, Math.min(b, v));
+}
+
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+
+function easeInOut(t) {
+    return t < 0.5
+        ? 2 * t * t
+        : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+function smoothstep(t) {
+    t = clamp(t, 0, 1);
+    return t * t * (3 - 2 * t);
+}
+
+function randomRange(a, b) {
+    return a + Math.random() * (b - a);
+}
+
+function choose(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+
+// ============================================================
+// NOISE
+// ============================================================
+
+function hash(x, y) {
+    let n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+    return n - Math.floor(n);
+}
+
+function noise(x, y) {
+
+    const x0 = Math.floor(x);
+    const y0 = Math.floor(y);
+
+    const x1 = x0 + 1;
+    const y1 = y0 + 1;
+
+    const sx = x - x0;
+    const sy = y - y0;
+
+    const u = smoothstep(sx);
+    const v = smoothstep(sy);
+
+    const n00 = hash(x0, y0);
+    const n10 = hash(x1, y0);
+    const n01 = hash(x0, y1);
+    const n11 = hash(x1, y1);
+
+    const nx0 = lerp(n00, n10, u);
+    const nx1 = lerp(n01, n11, u);
+
+    return lerp(nx0, nx1, v);
+}
+
+
+// ============================================================
+// HEART PARAMETRIC CURVE
+// ============================================================
+
+function heartPoint(t, scale = 1) {
+
+    const a = t * TAU;
+
+    const x = 16 * Math.pow(Math.sin(a), 3);
+
+    const y =
+        13 * Math.cos(a)
+        - 5 * Math.cos(2 * a)
+        - 2 * Math.cos(3 * a)
+        - Math.cos(4 * a);
+
+    return {
+        x: x * scale,
+        y: -y * scale
+    };
+}
+
+
+// ============================================================
+// FREE FLOW CURVE
+// ============================================================
+
+function freeCurvePoint(curve, t, time) {
+
+    const a = t * TAU;
+
+    const wave1 =
+        Math.sin(a * curve.freq1 + time * curve.speed1 + curve.phase1);
+
+    const wave2 =
+        Math.sin(a * curve.freq2 - time * curve.speed2 + curve.phase2);
+
+    const wave3 =
+        Math.cos(a * 2.7 + time * 0.4 + curve.phase3);
+
+    let x =
+        Math.cos(a + curve.rotation)
+        * curve.radiusX;
+
+    let y =
+        Math.sin(a + curve.rotation)
+        * curve.radiusY;
+
+    x += wave1 * curve.wobbleX;
+    y += wave2 * curve.wobbleY;
+
+    x += wave3 * 18;
+
+    return {
+        x,
+        y
+    };
+}
+
+
+// ============================================================
+// MORPHED CURVE
+// ============================================================
+
+function getCurvePoint(curve, t, time) {
+
+    /*
+        IMPORTANT:
+
+        We NEVER switch from one shape to another.
+
+        The free curve continuously morphs toward
+        the heart equation.
+
+        So the heart is created by the SAME moving
+        geometry rather than appearing as a new object.
+    */
+
+    const pFree = freeCurvePoint(curve, t, time);
+
+    const heart = heartPoint(
+        t + curve.heartOffset,
+        curve.heartScale
+    );
+
+    // Subtle movement applied to heart itself
+    const heartWave =
+        Math.sin(time * 1.3 + t * TAU * 3 + curve.phase1) * 4;
+
+    const hx =
+        heart.x + Math.cos(t * TAU * 2 + curve.phase2) * heartWave;
+
+    const hy =
+        heart.y + Math.sin(t * TAU * 2 + curve.phase3) * heartWave;
+
+    /*
+        Global morph amount.
+
+        It cycles smoothly:
+
+        free flow
+            ↓
+        increasingly heart-like
+            ↓
+        heart silhouette
+            ↓
+        breaks apart
+            ↓
+        free flow again
+    */
+
+    const cycle = (time * 0.075 + curve.offset) % 1;
+
+    let morph;
+
+    if (cycle < 0.25) {
+
+        // Free → heart
+        morph = smoothstep(cycle / 0.25);
+
+    } else if (cycle < 0.52) {
+
+        // Hold / flow around heart
+        morph = 1;
+
+    } else if (cycle < 0.78) {
+
+        // Heart → free
+        morph = 1 - smoothstep((cycle - 0.52) / 0.26);
+
+    } else {
+
+        // Free flow
+        morph = 0;
+    }
+
+    /*
+        Each curve gets a slightly different timing,
+        so the whole heart does not appear simultaneously.
+    */
+
+    morph *= curve.morphStrength;
+
+    let x = lerp(pFree.x, hx, morph);
+    let y = lerp(pFree.y, hy, morph);
+
+    // Extra breathing
+    const breathing =
+        Math.sin(time * 1.1 + curve.phase1) * 3 * morph;
+
+    x += Math.cos(t * TAU + curve.phase2) * breathing;
+    y += Math.sin(t * TAU + curve.phase3) * breathing;
+
+    return {
+        x,
+        y,
+        morph
+    };
+}
+
+
+// ============================================================
+// CURVE CLASS
+// ============================================================
+
+class FlowCurve {
+
+    constructor(index) {
+
+        this.index = index;
+
+        this.radiusX = randomRange(145, 270);
+        this.radiusY = randomRange(120, 250);
+
+        this.rotation = randomRange(0, TAU);
+
+        this.wobbleX = randomRange(20, 80);
+        this.wobbleY = randomRange(20, 80);
+
+        this.freq1 = randomRange(1.2, 3.5);
+        this.freq2 = randomRange(1.1, 3.2);
+
+        this.speed1 = randomRange(0.15, 0.45);
+        this.speed2 = randomRange(0.1, 0.35);
+
+        this.phase1 = randomRange(0, TAU);
+        this.phase2 = randomRange(0, TAU);
+        this.phase3 = randomRange(0, TAU);
+
+        this.heartOffset =
+            randomRange(-0.035, 0.035);
+
+        this.heartScale =
+            randomRange(9.2, 12.8);
+
+        /*
+            Different curves morph at different times.
+            This prevents the "sudden heart" feeling.
+        */
+
+        this.offset =
+            index / CURVE_COUNT * 0.42
+            + randomRange(-0.08, 0.08);
+
+        this.morphStrength =
+            randomRange(0.82, 1.0);
+
+        this.opacity =
+            randomRange(0.22, 0.58);
+
+        this.width =
+            randomRange(0.5, 1.5);
+    }
+
+
+    point(t, time) {
+
+        const p = getCurvePoint(
+            this,
+            t,
+            time
+        );
+
+        /*
+            Slight global movement.
+        */
+
+        const driftX =
+            Math.sin(time * 0.17 + this.phase1) * 12;
+
+        const driftY =
+            Math.cos(time * 0.15 + this.phase2) * 10;
+
+        return {
+            x: W / 2 + p.x + driftX,
+            y: H / 2 + p.y + driftY,
+            morph: p.morph
+        };
+    }
+}
+
+
+// ============================================================
+// CREATE CURVES
+// ============================================================
+
+const curves = [];
+
+for (let i = 0; i < CURVE_COUNT; i++) {
+    curves.push(new FlowCurve(i));
+}
+
+
+// ============================================================
+// SHAPES
+// ============================================================
+
+const shapeTypes = [
+    "circle",
+    "diamond",
+    "triangle",
+    "square",
+    "heart"
+];
+
+
+class FlowShape {
+
+    constructor(curveIndex, shapeIndex) {
+
+        this.curveIndex = curveIndex;
+
+        this.shapeIndex = shapeIndex;
+
+        this.offset =
+            shapeIndex / SHAPES_PER_CURVE;
+
+        this.speed =
+            randomRange(0.018, 0.045);
+
+        this.phase =
+            randomRange(0, TAU);
+
+        this.size =
+            randomRange(1.5, 4.0);
+
+        this.type =
+            choose(shapeTypes);
+
+        this.color =
+            choose(COLORS);
+
+        this.alpha =
+            randomRange(0.45, 0.95);
+
+        this.rotation =
+            randomRange(0, TAU);
+
+        this.rotSpeed =
+            randomRange(-0.035, 0.035);
+
+        this.twinkle =
+            randomRange(0.8, 2.0);
+    }
+
+
+    draw(time) {
+
+        const curve =
+            curves[this.curveIndex];
+
+        /*
+            Shapes travel continuously along
+            the curve.
+        */
+
+        let t =
+            (this.offset
+            + time * this.speed
+            + this.phase / TAU)
+            % 1;
+
+        const p =
+            curve.point(t, time);
+
+        /*
+            Find a nearby point to determine
+            the direction of travel.
+        */
+
+        const p2 =
+            curve.point(
+                (t + 0.003) % 1,
+                time
+            );
+
+        const angle =
+            Math.atan2(
+                p2.y - p.y,
+                p2.x - p.x
+            );
+
+        /*
+            Slight normal movement.
+        */
+
+        const normal =
+            angle + Math.PI / 2;
+
+        const wave =
+            Math.sin(
+                time * 1.8
+                + this.phase
+                + t * TAU * 4
+            );
+
+        const offset =
+            wave * 2.5;
+
+        const x =
+            p.x + Math.cos(normal) * offset;
+
+        const y =
+            p.y + Math.sin(normal) * offset;
+
+        /*
+            When the curve becomes heart-like,
+            shapes become slightly brighter.
+
+            But we never turn them on/off.
+        */
+
+        const morphBoost =
+            1 + p.morph * 0.35;
+
+        const alpha =
+            this.alpha *
+            morphBoost *
+            (0.75 +
+            Math.sin(
+                time * this.twinkle
+                + this.phase
+            ) * 0.25);
+
+        ctx.save();
+
+        ctx.translate(x, y);
+
+        ctx.rotate(
+            angle
+            + this.rotation
+            + time * this.rotSpeed
+        );
+
+        ctx.globalAlpha =
+            clamp(alpha, 0, 1);
+
+        ctx.fillStyle =
+            this.color;
+
+        ctx.strokeStyle =
+            this.color;
+
+        ctx.shadowColor =
+            this.color;
+
+        ctx.shadowBlur =
+            8;
+
+        const s =
+            this.size *
+            (1 + p.morph * 0.12);
+
+        drawShape(
+            this.type,
+            s
+        );
+
+        ctx.restore();
+    }
+}
+
+
+// ============================================================
+// DRAW SHAPES
+// ============================================================
+
+function drawShape(type, s) {
+
+    ctx.beginPath();
+
+    if (type === "circle") {
+
+        ctx.arc(
+            0,
+            0,
+            s,
+            0,
+            TAU
+        );
+
+        ctx.fill();
+
+    }
+
+    else if (type === "square") {
+
+        ctx.rect(
+            -s,
+            -s,
+            s * 2,
+            s * 2
+        );
+
+        ctx.fill();
+
+    }
+
+    else if (type === "diamond") {
+
+        ctx.moveTo(0, -s * 1.4);
+        ctx.lineTo(s * 1.1, 0);
+        ctx.lineTo(0, s * 1.4);
+        ctx.lineTo(-s * 1.1, 0);
+        ctx.closePath();
+
+        ctx.fill();
+
+    }
+
+    else if (type === "triangle") {
+
+        ctx.moveTo(
+            0,
+            -s * 1.5
+        );
+
+        ctx.lineTo(
+            s * 1.25,
+            s
+        );
+
+        ctx.lineTo(
+            -s * 1.25,
+            s
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+    }
+
+    else if (type === "heart") {
+
+        const scale = s / 14;
+
+        ctx.moveTo(
+            0,
+            5 * scale
+        );
+
+        ctx.bezierCurveTo(
+            -12 * scale,
+            -5 * scale,
+            -8 * scale,
+            -13 * scale,
+            -2 * scale,
+            -10 * scale
+        );
+
+        ctx.bezierCurveTo(
+            0,
+            -9 * scale,
+            0,
+            -6 * scale,
+            0,
+            -6 * scale
+        );
+
+        ctx.bezierCurveTo(
+            0,
+            -6 * scale,
+            0,
+            -9 * scale,
+            2 * scale,
+            -10 * scale
+        );
+
+        ctx.bezierCurveTo(
+            8 * scale,
+            -13 * scale,
+            12 * scale,
+            -5 * scale,
+            0,
+            5 * scale
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+    }
+}
+
+
+// ============================================================
+// CREATE SHAPES
+// ============================================================
+
+const shapes = [];
+
+for (let c = 0; c < CURVE_COUNT; c++) {
+
+    for (
+        let s = 0;
+        s < SHAPES_PER_CURVE;
+        s++
+    ) {
+
+        shapes.push(
+            new FlowShape(c, s)
+        );
+    }
+}
+
+
+// ============================================================
+// BACKGROUND STARS
+// ============================================================
+
+const stars = [];
+
+for (let i = 0; i < 180; i++) {
+
+    stars.push({
+        x: randomRange(0, W),
+        y: randomRange(0, H),
+
+        size: randomRange(0.3, 1.4),
+
+        alpha: randomRange(0.08, 0.35),
+
+        phase: randomRange(0, TAU),
+
+        color: choose(COLORS)
+    });
+}
+
+
+function drawStars(time) {
+
+    for (const star of stars) {
+
+        const a =
+            star.alpha *
+            (
+                0.55 +
+                Math.sin(
+                    time * 1.2
+                    + star.phase
+                ) * 0.45
+            );
+
+        ctx.globalAlpha = a;
+
+        ctx.fillStyle =
+            star.color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            star.x,
+            star.y,
+            star.size,
+            0,
+            TAU
+        );
+
+        ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+}
+
+
+// ============================================================
+// FLOWING CURVE TRAILS
+// ============================================================
+
+function drawCurves(time) {
+
+    for (const curve of curves) {
+
+        ctx.beginPath();
+
+        const steps = 180;
+
+        for (let i = 0; i <= steps; i++) {
+
+            const t = i / steps;
+
+            const p =
+                curve.point(
+                    t,
+                    time
+                );
+
+            if (i === 0) {
+
+                ctx.moveTo(
+                    p.x,
+                    p.y
+                );
+
+            } else {
+
+                ctx.lineTo(
+                    p.x,
+                    p.y
+                );
+            }
+        }
+
+        /*
+            The curves themselves remain subtle.
+
+            They are not the heart.
+            They are the flowing geometry
+            that gradually creates the heart.
+        */
+
+        const alpha =
+            curve.opacity
+            * 0.20;
+
+        ctx.globalAlpha =
+            alpha;
+
+        ctx.strokeStyle =
+            COLORS[
+                curve.index %
+                COLORS.length
+            ];
+
+        ctx.lineWidth =
+            curve.width;
+
+        ctx.shadowColor =
+            ctx.strokeStyle;
+
+        ctx.shadowBlur =
+            8;
+
+        ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+}
+
+
+// ============================================================
+// EXTRA FLOWING LIGHT
+// ============================================================
+
+const lightStreams = [];
+
+for (let i = 0; i < 1; i++) {
+
+    lightStreams.push({
+        curve:
+            Math.floor(
+                Math.random() *
+                CURVE_COUNT
+            ),
+
+        offset:
+            Math.random(),
+
+        speed:
+            randomRange(
+                0.008,
+                0.025
+            ),
+
+        size:
+            randomRange(
+                0.5,
+                1.8
+            ),
+
+        color:
+            choose(COLORS),
+
+        phase:
+            randomRange(
+                0,
+                TAU
+            )
+    });
+}
+
+
+function drawLightStreams(time) {
+
+    for (const light of lightStreams) {
+
+        const curve =
+            curves[light.curve];
+
+        const t =
+            (
+                light.offset
+                + time * light.speed
+            ) % 1;
+
+        const p =
+            curve.point(
+                t,
+                time
+            );
+
+        const p2 =
+            curve.point(
+                (t + 0.004) % 1,
+                time
+            );
+
+        const angle =
+            Math.atan2(
+                p2.y - p.y,
+                p2.x - p.x
+            );
+
+        /*
+            Small lateral wave.
+        */
+
+        const side =
+            Math.sin(
+                time * 2
+                + light.phase
+                + t * TAU * 5
+            ) * 5;
+
+        const x =
+            p.x +
+            Math.cos(
+                angle + Math.PI / 2
+            ) * side;
+
+        const y =
+            p.y +
+            Math.sin(
+                angle + Math.PI / 2
+            ) * side;
+
+        ctx.save();
+
+        ctx.globalAlpha =
+            0.25 +
+            p.morph * 0.3;
+
+        ctx.fillStyle =
+            light.color;
+
+        ctx.shadowColor =
+            light.color;
+
+        ctx.shadowBlur =
+            12;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            light.size,
+            0,
+            TAU
+        );
+
+        ctx.fill();
+
+        ctx.restore();
+    }
+}
+
+
+// ============================================================
+// CENTRAL SOFT GLOW
+// ============================================================
+
+function drawCenterGlow(time) {
+
+    /*
+        Very subtle.
+
+        This does NOT create a heart.
+    */
+
+    const pulse =
+        0.5 +
+        Math.sin(time * 1.8) * 0.5;
+
+    const gradient =
+        ctx.createRadialGradient(
+            W / 2,
+            H / 2,
+            0,
+            W / 2,
+            H / 2,
+            190
+        );
+
+    gradient.addColorStop(
+        0,
+        `rgba(255,80,160,${0.035 + pulse * 0.025})`
+    );
+
+    gradient.addColorStop(
+        0.5,
+        `rgba(140,70,255,${0.018 + pulse * 0.012})`
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+    ctx.fillStyle =
+        gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+}
+
+
+// ============================================================
+// ANIMATION
+// ============================================================
+
+let startTime =
+    performance.now();
+
+function render(now) {
+
+    const time =
+        (now - startTime) / 1000;
+
+
+    // --------------------------------------------------------
+    // TRAIL
+    // --------------------------------------------------------
+
+    /*
+        Low alpha black creates smooth trails
+        instead of hard clearing.
+    */
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+    ctx.fillStyle =
+        "rgba(5,5,9,0.13)";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    // --------------------------------------------------------
+    // CENTER GLOW
+    // --------------------------------------------------------
+
+    drawCenterGlow(time);
+
+
+    // --------------------------------------------------------
+    // STARS
+    // --------------------------------------------------------
+
+    drawStars(time);
+
+
+    // --------------------------------------------------------
+    // CURVES
+    // --------------------------------------------------------
+
+    ctx.globalCompositeOperation =
+        "lighter";
+
+    drawCurves(time);
+
+
+    // --------------------------------------------------------
+    // LIGHT STREAMS
+    // --------------------------------------------------------
+
+    drawLightStreams(time);
+
+
+    // --------------------------------------------------------
+    // SHAPES
+    // --------------------------------------------------------
+
+    for (const shape of shapes) {
+        shape.draw(time);
+    }
+
+
+    // --------------------------------------------------------
+    // RESET
+    // --------------------------------------------------------
+
+    ctx.globalCompositeOperation =
+        "source-over";
+
+    ctx.globalAlpha = 1;
+
+    ctx.shadowBlur = 0;
+
+
+    requestAnimationFrame(render);
+}
+
+
+// ============================================================
+// START
+// ============================================================
+
+ctx.fillStyle =
+    "#050509";
+
+ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+);
+
+requestAnimationFrame(render);
+
+
+// ============================================================
+// CLICK = RESTART
+// ============================================================
+
+canvas.addEventListener(
+    "click",
+    () => {
+
+        startTime =
+            performance.now();
+
+        ctx.fillStyle =
+            "#050509";
+
+        ctx.fillRect(
+            0,
+            0,
+            W,
+            H
+        );
+    }
+);
+
+</script>
+
+</body>
+</html>
