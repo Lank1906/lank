@@ -1,0 +1,1015 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Silk Flow — Fibonacci × SinCos</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #070910;
+    cursor: none;
+}
+
+canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#cursor {
+    position: fixed;
+
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(230, 235, 255, 0.45);
+
+    transform: translate(-50%, -50%);
+
+    pointer-events: none;
+
+    transition:
+        width .25s ease,
+        height .25s ease,
+        border-color .25s ease;
+}
+
+#hint {
+    position: fixed;
+
+    left: 50%;
+    bottom: 20px;
+
+    transform: translateX(-50%);
+
+    color: rgba(220, 225, 245, .22);
+
+    font-family: monospace;
+    font-size: 10px;
+
+    letter-spacing: .15em;
+
+    pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas></canvas>
+
+<div id="cursor"></div>
+
+<div id="hint">
+    MOVE SLOWLY · HOLD TO STIR · RELEASE
+</div>
+
+<script>
+
+////////////////////////////////////////////////////////////
+// CANVAS
+////////////////////////////////////////////////////////////
+
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+let W;
+let H;
+let DPR;
+
+function resize() {
+
+    W = window.innerWidth;
+    H = window.innerHeight;
+
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+
+    ctx.setTransform(
+        DPR,
+        0,
+        0,
+        DPR,
+        0,
+        0
+    );
+
+    ctx.fillStyle = "#070910";
+    ctx.fillRect(0, 0, W, H);
+}
+
+window.addEventListener("resize", resize);
+
+resize();
+
+
+////////////////////////////////////////////////////////////
+// CONSTANTS
+////////////////////////////////////////////////////////////
+
+const PI2 = Math.PI * 2;
+
+const GOLDEN_ANGLE =
+    Math.PI * (3 - Math.sqrt(5));
+
+
+////////////////////////////////////////////////////////////
+// MOUSE
+////////////////////////////////////////////////////////////
+
+const mouse = {
+
+    x: W / 2,
+    y: H / 2,
+
+    previousX: W / 2,
+    previousY: H / 2,
+
+    smoothX: W / 2,
+    smoothY: H / 2,
+
+    velocityX: 0,
+    velocityY: 0,
+
+    down: false,
+    active: false
+};
+
+
+window.addEventListener(
+    "pointermove",
+    event => {
+
+        mouse.previousX = mouse.x;
+        mouse.previousY = mouse.y;
+
+        mouse.x = event.clientX;
+        mouse.y = event.clientY;
+
+        mouse.active = true;
+
+        updateCursor();
+    }
+);
+
+
+window.addEventListener(
+    "pointerdown",
+    () => {
+
+        mouse.down = true;
+
+        const cursor =
+            document.querySelector("#cursor");
+
+        cursor.style.width = "34px";
+        cursor.style.height = "34px";
+        cursor.style.borderColor =
+            "rgba(220,230,255,.65)";
+    }
+);
+
+
+window.addEventListener(
+    "pointerup",
+    () => {
+
+        mouse.down = false;
+
+        const cursor =
+            document.querySelector("#cursor");
+
+        cursor.style.width = "18px";
+        cursor.style.height = "18px";
+        cursor.style.borderColor =
+            "rgba(230,235,255,.45)";
+    }
+);
+
+
+function updateCursor() {
+
+    const cursor =
+        document.querySelector("#cursor");
+
+    cursor.style.left =
+        mouse.x + "px";
+
+    cursor.style.top =
+        mouse.y + "px";
+}
+
+
+////////////////////////////////////////////////////////////
+// NOISE
+////////////////////////////////////////////////////////////
+
+function hash(x, y) {
+
+    let h =
+        Math.imul(x, 374761393) +
+        Math.imul(y, 668265263) +
+        1337;
+
+    h =
+        Math.imul(
+            h ^ (h >>> 13),
+            1274126177
+        );
+
+    return (
+        (h ^ (h >>> 16))
+        >>> 0
+    ) / 4294967295;
+}
+
+
+function noise2D(x, y) {
+
+    const x0 = Math.floor(x);
+    const y0 = Math.floor(y);
+
+    const x1 = x0 + 1;
+    const y1 = y0 + 1;
+
+    const fx = x - x0;
+    const fy = y - y0;
+
+
+    function fade(t) {
+
+        return (
+            t * t * t *
+            (t * (t * 6 - 15) + 10)
+        );
+    }
+
+
+    function lerp(a, b, t) {
+
+        return a + (b - a) * t;
+    }
+
+
+    const sx = fade(fx);
+    const sy = fade(fy);
+
+
+    const n00 = hash(x0, y0);
+    const n10 = hash(x1, y0);
+    const n01 = hash(x0, y1);
+    const n11 = hash(x1, y1);
+
+
+    const ix0 =
+        lerp(n00, n10, sx);
+
+    const ix1 =
+        lerp(n01, n11, sx);
+
+
+    return lerp(ix0, ix1, sy) * 2 - 1;
+}
+
+
+////////////////////////////////////////////////////////////
+// COLOR
+////////////////////////////////////////////////////////////
+
+/*
+    Bảng màu:
+
+    cyan
+    blue
+    violet
+    magenta
+    pink
+
+    Mỗi particle có hue riêng.
+    Vì vậy các dòng lụa không bị một màu duy nhất.
+*/
+
+const COLOR_HUES = [
+    188,
+    205,
+    225,
+    250,
+    275,
+    300,
+    325
+];
+
+
+////////////////////////////////////////////////////////////
+// SILK PARTICLE
+////////////////////////////////////////////////////////////
+
+class SilkParticle {
+
+    constructor(index) {
+
+        this.index = index;
+
+        this.reset();
+    }
+
+
+    reset() {
+
+        const angle =
+            this.index *
+            GOLDEN_ANGLE;
+
+
+        const radius =
+            Math.sqrt(
+                this.index / PARTICLE_COUNT
+            ) *
+            Math.min(W, H) *
+            .43;
+
+
+        this.x =
+            W / 2 +
+            Math.cos(angle) * radius;
+
+
+        this.y =
+            H / 2 +
+            Math.sin(angle) * radius;
+
+
+        this.previousX = this.x;
+        this.previousY = this.y;
+
+
+        this.velocityX = 0;
+        this.velocityY = 0;
+
+
+        this.phase =
+            this.index *
+            GOLDEN_ANGLE;
+
+
+        /*
+            Màu riêng cho từng dải.
+        */
+
+        this.hue =
+            COLOR_HUES[
+                this.index %
+                COLOR_HUES.length
+            ];
+
+
+        /*
+            Độ dài ribbon.
+        */
+
+        this.length =
+            0.7 +
+            Math.random() * 1.5;
+
+
+        /*
+            Độ sáng riêng.
+        */
+
+        this.light =
+            50 +
+            Math.random() * 15;
+    }
+
+
+    update(time) {
+
+        this.previousX = this.x;
+        this.previousY = this.y;
+
+
+        //////////////////////////////////////////////////
+        // SIN / COS FLOW FIELD
+        //////////////////////////////////////////////////
+
+        const sx =
+            this.x * 0.0022;
+
+        const sy =
+            this.y * 0.0022;
+
+
+        let angle =
+
+            Math.sin(
+                sy * 2.0 +
+                time * 0.00035
+            ) * 0.72
+
+            +
+
+            Math.cos(
+                sx * 1.5 -
+                time * 0.00032
+            ) * 0.58
+
+            +
+
+            Math.sin(
+                (sx - sy) * 1.25 +
+                time * 0.00020
+            ) * 0.34;
+
+
+        //////////////////////////////////////////////////
+        // FIBONACCI PHASE
+        //////////////////////////////////////////////////
+
+        angle +=
+
+            Math.sin(
+                this.phase * 0.014 +
+                time * 0.00042
+            ) * 0.16;
+
+
+        //////////////////////////////////////////////////
+        // NOISE
+        //////////////////////////////////////////////////
+
+        angle +=
+
+            noise2D(
+                this.x * 0.0045,
+                this.y * 0.0045
+            ) * 0.13;
+
+
+        //////////////////////////////////////////////////
+        // FLOW FORCE
+        //////////////////////////////////////////////////
+
+        let forceX =
+            Math.cos(angle) * 0.032;
+
+        let forceY =
+            Math.sin(angle) * 0.032;
+
+
+        //////////////////////////////////////////////////
+        // MOUSE
+        //////////////////////////////////////////////////
+
+        const dx =
+            mouse.smoothX - this.x;
+
+        const dy =
+            mouse.smoothY - this.y;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            ) + 0.001;
+
+
+        /*
+            Vùng ảnh hưởng rộng hơn
+            nhưng lực yếu hơn.
+
+            Điều này giúp tránh các
+            đường chéo đâm nhau.
+        */
+
+        const interactionRadius = 210;
+
+
+        let influence =
+            1 -
+            distance / interactionRadius;
+
+
+        influence =
+            Math.max(0, influence);
+
+
+        /*
+            Smooth falloff.
+        */
+
+        influence =
+            influence *
+            influence *
+            influence;
+
+
+        if (
+            mouse.active &&
+            influence > 0
+        ) {
+
+            //////////////////////////////////////////////////
+            // SOFT VORTEX
+            //////////////////////////////////////////////////
+
+            const swirlStrength =
+                mouse.down
+                ? 0.72
+                : 0.30;
+
+
+            forceX +=
+                -dy /
+                distance *
+                influence *
+                swirlStrength;
+
+
+            forceY +=
+                dx /
+                distance *
+                influence *
+                swirlStrength;
+
+
+            //////////////////////////////////////////////////
+            // MOUSE DRAG
+            //////////////////////////////////////////////////
+
+            forceX +=
+                mouse.velocityX *
+                0.018 *
+                influence;
+
+
+            forceY +=
+                mouse.velocityY *
+                0.018 *
+                influence;
+
+
+            //////////////////////////////////////////////////
+            // HOLD
+            //////////////////////////////////////////////////
+
+            if (mouse.down) {
+
+                /*
+                    Giữ chuột:
+                    hút rất nhẹ vào tâm.
+                */
+
+                forceX +=
+                    dx /
+                    distance *
+                    influence *
+                    0.10;
+
+
+                forceY +=
+                    dy /
+                    distance *
+                    influence *
+                    0.10;
+
+            } else {
+
+                /*
+                    Không giữ:
+                    đẩy cực nhẹ.
+                */
+
+                forceX -=
+                    dx /
+                    distance *
+                    influence *
+                    0.025;
+
+
+                forceY -=
+                    dy /
+                    distance *
+                    influence *
+                    0.025;
+            }
+        }
+
+
+        //////////////////////////////////////////////////
+        // VELOCITY
+        //////////////////////////////////////////////////
+
+        this.velocityX += forceX;
+        this.velocityY += forceY;
+
+
+        /*
+            Damping cao = chuyển động mềm.
+        */
+
+        this.velocityX *= 0.955;
+        this.velocityY *= 0.955;
+
+
+        //////////////////////////////////////////////////
+        // SPEED LIMIT
+        //////////////////////////////////////////////////
+
+        const speed =
+            Math.sqrt(
+                this.velocityX *
+                this.velocityX +
+                this.velocityY *
+                this.velocityY
+            );
+
+
+        const maxSpeed =
+            mouse.down
+            ? 2.8
+            : 1.65;
+
+
+        if (speed > maxSpeed) {
+
+            this.velocityX =
+                this.velocityX /
+                speed *
+                maxSpeed;
+
+
+            this.velocityY =
+                this.velocityY /
+                speed *
+                maxSpeed;
+        }
+
+
+        //////////////////////////////////////////////////
+        // MOVE
+        //////////////////////////////////////////////////
+
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+
+
+        //////////////////////////////////////////////////
+        // WRAP
+        //////////////////////////////////////////////////
+
+        const padding = 100;
+
+
+        if (this.x < -padding)
+            this.x = W + padding;
+
+        if (this.x > W + padding)
+            this.x = -padding;
+
+
+        if (this.y < -padding)
+            this.y = H + padding;
+
+        if (this.y > H + padding)
+            this.y = -padding;
+    }
+
+
+    draw() {
+
+        const speed =
+            Math.sqrt(
+                this.velocityX *
+                this.velocityX +
+                this.velocityY *
+                this.velocityY
+            );
+
+
+        //////////////////////////////////////////////////
+        // COLOR
+        //////////////////////////////////////////////////
+
+        /*
+            Hue thay đổi nhẹ theo thời gian
+            tạo cảm giác màu "sống".
+        */
+
+        let hue =
+            this.hue +
+            Math.sin(
+                this.phase * 0.01
+            ) * 12;
+
+
+        /*
+            Tốc độ càng cao:
+            màu càng sáng.
+        */
+
+        const light =
+            this.light +
+            Math.min(speed * 5, 10);
+
+
+        const saturation =
+            48 +
+            Math.min(speed * 8, 15);
+
+
+        const alpha =
+            0.045 +
+            Math.min(
+                speed * 0.022,
+                0.065
+            );
+
+
+        ctx.strokeStyle =
+            `hsla(
+                ${hue},
+                ${saturation}%,
+                ${light}%,
+                ${alpha}
+            )`;
+
+
+        ctx.lineWidth =
+            0.45 +
+            this.length * 0.28;
+
+
+        //////////////////////////////////////////////////
+        // SOFT CURVE
+        //////////////////////////////////////////////////
+
+        /*
+            Thay vì:
+
+                previous -> current
+
+            ta dùng một control point.
+
+            Vì vậy đường không còn là
+            hàng nghìn đoạn thẳng chéo.
+        */
+
+
+        const midX =
+            (this.previousX + this.x) * 0.5;
+
+        const midY =
+            (this.previousY + this.y) * 0.5;
+
+
+        /*
+            Control point lệch nhẹ
+            theo velocity.
+
+            Lệch nhỏ để tạo cảm giác
+            sợi lụa cong nhưng không loạn.
+        */
+
+        const bend =
+            2.5 +
+            speed * 1.8;
+
+
+        const controlX =
+            midX -
+            this.velocityY * bend;
+
+
+        const controlY =
+            midY +
+            this.velocityX * bend;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            this.previousX,
+            this.previousY
+        );
+
+
+        ctx.quadraticCurveTo(
+            controlX,
+            controlY,
+            this.x,
+            this.y
+        );
+
+
+        ctx.stroke();
+    }
+}
+
+
+////////////////////////////////////////////////////////////
+// PARTICLES
+////////////////////////////////////////////////////////////
+
+const PARTICLE_COUNT = 1100;
+
+const particles = [];
+
+
+for (
+    let i = 0;
+    i < PARTICLE_COUNT;
+    i++
+) {
+
+    particles.push(
+        new SilkParticle(i)
+    );
+}
+
+
+////////////////////////////////////////////////////////////
+// ANIMATION
+////////////////////////////////////////////////////////////
+
+function animate(time) {
+
+    //////////////////////////////////////////////////////
+    // MOUSE VELOCITY
+    //////////////////////////////////////////////////////
+
+    const targetVelocityX =
+        mouse.x -
+        mouse.previousX;
+
+
+    const targetVelocityY =
+        mouse.y -
+        mouse.previousY;
+
+
+    mouse.velocityX +=
+        (
+            targetVelocityX -
+            mouse.velocityX
+        ) * 0.10;
+
+
+    mouse.velocityY +=
+        (
+            targetVelocityY -
+            mouse.velocityY
+        ) * 0.10;
+
+
+    mouse.velocityX *= 0.78;
+    mouse.velocityY *= 0.78;
+
+
+    //////////////////////////////////////////////////////
+    // SMOOTH MOUSE
+    //////////////////////////////////////////////////////
+
+    mouse.smoothX +=
+        (
+            mouse.x -
+            mouse.smoothX
+        ) * 0.09;
+
+
+    mouse.smoothY +=
+        (
+            mouse.y -
+            mouse.smoothY
+        ) * 0.09;
+
+
+    //////////////////////////////////////////////////////
+    // TRAIL
+    //////////////////////////////////////////////////////
+
+    /*
+        Fade nhanh hơn một chút
+        để màu không tích tụ thành
+        mớ đường chéo.
+    */
+
+    ctx.fillStyle =
+        "rgba(7,9,16,0.055)";
+
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    //////////////////////////////////////////////////////
+    // PARTICLES
+    //////////////////////////////////////////////////////
+
+    for (
+        const particle of particles
+    ) {
+
+        particle.update(time);
+
+        particle.draw();
+    }
+
+
+    //////////////////////////////////////////////////////
+    // VERY SOFT MOUSE FIELD
+    //////////////////////////////////////////////////////
+
+    /*
+        Không vẽ vòng tròn nữa.
+
+        Chỉ tạo một điểm sáng cực nhẹ
+        khi giữ chuột.
+    */
+
+    if (
+        mouse.active &&
+        mouse.down
+    ) {
+
+        const gradient =
+            ctx.createRadialGradient(
+                mouse.smoothX,
+                mouse.smoothY,
+                0,
+                mouse.smoothX,
+                mouse.smoothY,
+                100
+            );
+
+
+        gradient.addColorStop(
+            0,
+            "rgba(180,210,255,0.035)"
+        );
+
+
+        gradient.addColorStop(
+            1,
+            "rgba(100,120,255,0)"
+        );
+
+
+        ctx.fillStyle = gradient;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            mouse.smoothX,
+            mouse.smoothY,
+            100,
+            0,
+            PI2
+        );
+
+        ctx.fill();
+    }
+
+
+    //////////////////////////////////////////////////////
+    // LOOP
+    //////////////////////////////////////////////////////
+
+    requestAnimationFrame(animate);
+}
+
+
+requestAnimationFrame(animate);
+
+</script>
+
+</body>
+</html>
+```
