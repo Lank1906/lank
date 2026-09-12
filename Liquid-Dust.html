@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+The content of the body element is displayed in your browser.
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liquid Dust</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#050507;
+    cursor:none;
+}
+
+canvas{
+    position:fixed;
+    inset:0;
+}
+
+.ui{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.title{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-family:Arial,sans-serif;
+    font-size:clamp(80px,16vw,240px);
+    font-weight:900;
+    letter-spacing:-.09em;
+    color:rgba(255,255,255,.025);
+    user-select:none;
+}
+
+.cursor{
+    position:fixed;
+    width:24px;
+    height:24px;
+    border:1px solid rgba(255,255,255,.7);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    z-index:10;
+    transition:
+        width .18s ease,
+        height .18s ease,
+        border-color .18s ease;
+}
+
+.cursor::after{
+    content:"";
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:white;
+    border-radius:50%;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+}
+
+body.down .cursor{
+    width:70px;
+    height:70px;
+    border-color:rgba(255,180,80,.9);
+}
+
+body.down .title{
+    color:rgba(255,255,255,.05);
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="ui">
+    <div class="title" id="title">Lạnk</div>
+</div>
+
+<div class="cursor" id="cursor"></div>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const title = document.getElementById("title");
+const cursor = document.getElementById("cursor");
+
+let W,H,DPR;
+
+function resize(){
+
+    W = innerWidth;
+    H = innerHeight;
+
+    DPR = Math.min(devicePixelRatio || 1,2);
+
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+
+    canvas.style.width = W+"px";
+    canvas.style.height = H+"px";
+
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+
+    createTextMap();
+}
+
+addEventListener("resize",resize);
+
+
+/* =========================================
+   MOUSE
+========================================= */
+
+const mouse = {
+    x:-1000,
+    y:-1000,
+    px:-1000,
+    py:-1000,
+    vx:0,
+    vy:0,
+    down:false
+};
+
+addEventListener("mousemove",e=>{
+
+    mouse.x=e.clientX;
+    mouse.y=e.clientY;
+
+    cursor.style.left=mouse.x+"px";
+    cursor.style.top=mouse.y+"px";
+});
+
+addEventListener("mousedown",()=>{
+
+    mouse.down=true;
+    document.body.classList.add("down");
+
+    createShockwave(
+        mouse.x,
+        mouse.y
+    );
+});
+
+addEventListener("mouseup",()=>{
+
+    mouse.down=false;
+    document.body.classList.remove("down");
+});
+
+addEventListener("mouseleave",()=>{
+
+    mouse.x=-1000;
+    mouse.y=-1000;
+});
+
+addEventListener("dblclick",()=>{
+
+    particles.forEach(p=>{
+
+        p.x =
+            Math.random()*W;
+
+        p.y =
+            Math.random()*H;
+
+        p.vx =
+            (Math.random()-.5)*12;
+
+        p.vy =
+            (Math.random()-.5)*12;
+    });
+});
+
+
+/* =========================================
+   TEXT MAP
+========================================= */
+
+let targets=[];
+
+function createTextMap(){
+
+    const off=document.createElement("canvas");
+    const o=off.getContext("2d");
+
+    off.width=W;
+    off.height=H;
+
+    const size=
+        Math.min(
+            W*.25,
+            H*.38
+        );
+
+    o.fillStyle="#fff";
+    o.textAlign="center";
+    o.textBaseline="middle";
+    o.font=`900 ${size}px Arial`;
+
+    o.fillText(
+        title.textContent,
+        W/2,
+        H/2
+    );
+
+    const image=
+        o.getImageData(
+            0,
+            0,
+            W,
+            H
+        ).data;
+
+    targets=[];
+
+    const gap=5;
+
+    for(
+        let y=0;
+        y<H;
+        y+=gap
+    ){
+
+        for(
+            let x=0;
+            x<W;
+            x+=gap
+        ){
+
+            const index=
+                (y*W+x)*4+3;
+
+            if(image[index]>120){
+
+                targets.push({
+                    x,
+                    y
+                });
+            }
+        }
+    }
+}
+
+
+/* =========================================
+   PARTICLES
+========================================= */
+
+const particles=[];
+const COUNT=17000;
+
+function createParticles(){
+
+    particles.length=0;
+
+    for(let i=0;i<COUNT;i++){
+
+        const target=
+            targets[
+                Math.floor(
+                    Math.random()*targets.length
+                )
+            ];
+
+        const spread=220;
+
+        particles.push({
+
+            x:
+                target.x+
+                (Math.random()-.5)*spread,
+
+            y:
+                target.y+
+                (Math.random()-.5)*spread,
+
+            tx:target.x,
+            ty:target.y,
+
+            vx:0,
+            vy:0,
+
+            size:
+                Math.random()<.88
+                ? Math.random()*1.25+.25
+                : Math.random()*2.8+.8,
+
+            life:
+                Math.random(),
+
+            seed:
+                Math.random()*1000,
+
+            hue:
+                25+
+                Math.random()*35
+        });
+    }
+}
+
+
+/* =========================================
+   SHOCKWAVES
+========================================= */
+
+const waves=[];
+
+function createShockwave(x,y){
+
+    waves.push({
+
+        x,
+        y,
+
+        r:0,
+
+        strength:
+            mouse.down ? 35 : 20
+    });
+
+    if(waves.length>12)
+        waves.shift();
+}
+
+
+/* =========================================
+   PARTICLE PHYSICS
+========================================= */
+
+function updateParticles(time){
+
+    mouse.vx=
+        mouse.x-mouse.px;
+
+    mouse.vy=
+        mouse.y-mouse.py;
+
+    mouse.px=mouse.x;
+    mouse.py=mouse.y;
+
+
+    for(const p of particles){
+
+        /*
+            Soft elastic return
+        */
+
+        const dx=p.tx-p.x;
+        const dy=p.ty-p.y;
+
+        p.vx += dx*.006;
+        p.vy += dy*.006;
+
+
+        /*
+            Organic vibration
+        */
+
+        const wobble=
+            Math.sin(
+                time*.0014+
+                p.seed
+            )*.025;
+
+        const wobble2=
+            Math.cos(
+                time*.0011+
+                p.seed*1.7
+            )*.025;
+
+        p.vx+=wobble;
+        p.vy+=wobble2;
+
+
+        /*
+            Mouse interaction
+        */
+
+        const mx=
+            p.x-mouse.x;
+
+        const my=
+            p.y-mouse.y;
+
+        const dist=
+            Math.sqrt(mx*mx+my*my);
+
+        const radius=
+            mouse.down ? 145 : 100;
+
+
+        if(dist<radius){
+
+            const force=
+                1-dist/radius;
+
+            /*
+                Dragging creates
+                a fluid vortex.
+            */
+
+            const nx=
+                mx/(dist||1);
+
+            const ny=
+                my/(dist||1);
+
+            const tangentX=-ny;
+            const tangentY=nx;
+
+
+            p.vx +=
+                tangentX*
+                force*
+                .75;
+
+            p.vy +=
+                tangentY*
+                force*
+                .75;
+
+
+            /*
+                Mouse movement transfers energy
+            */
+
+            p.vx +=
+                mouse.vx*
+                force*
+                .045;
+
+            p.vy +=
+                mouse.vy*
+                force*
+                .045;
+
+
+            /*
+                Holding pulls the
+                particles toward cursor
+            */
+
+            if(mouse.down){
+
+                p.vx +=
+                    -nx*
+                    force*
+                    .55;
+
+                p.vy +=
+                    -ny*
+                    force*
+                    .55;
+            }
+        }
+
+
+        /*
+            Shockwave
+        */
+
+        for(const wave of waves){
+
+            const wx=p.x-wave.x;
+            const wy=p.y-wave.y;
+
+            const d=
+                Math.sqrt(wx*wx+wy*wy);
+
+            const ring=
+                Math.abs(d-wave.r);
+
+            if(ring<28){
+
+                const power=
+                    (1-ring/28)*
+                    wave.strength;
+
+                p.vx +=
+                    wx/(d||1)*
+                    power*.08;
+
+                p.vy +=
+                    wy/(d||1)*
+                    power*.08;
+            }
+        }
+
+
+        /*
+            Fluid damping
+        */
+
+        p.vx*=.91;
+        p.vy*=.91;
+
+
+        /*
+            Position
+        */
+
+        p.x+=p.vx;
+        p.y+=p.vy;
+    }
+}
+
+
+/* =========================================
+   DRAW PARTICLES
+========================================= */
+
+function drawParticles(time){
+
+    ctx.globalCompositeOperation=
+        "lighter";
+
+    for(const p of particles){
+
+        /*
+            Energy based brightness
+        */
+
+        const speed=
+            Math.sqrt(
+                p.vx*p.vx+
+                p.vy*p.vy
+            );
+
+        const alpha=
+            Math.min(
+                .9,
+                .18+
+                speed*.045
+            );
+
+
+        /*
+            Warm gold / ivory material
+        */
+
+        const hue=
+            p.hue+
+            Math.sin(
+                time*.0003+
+                p.seed
+            )*12;
+
+        ctx.fillStyle=
+            `hsla(
+                ${hue},
+                85%,
+                ${62+Math.min(speed*5,25)}%,
+                ${alpha}
+            )`;
+
+        ctx.fillRect(
+            p.x,
+            p.y,
+            p.size,
+            p.size
+        );
+    }
+
+    ctx.globalCompositeOperation=
+        "source-over";
+}
+
+
+/* =========================================
+   DRAW TRAILS
+========================================= */
+
+function drawTrails(){
+
+    ctx.globalCompositeOperation=
+        "lighter";
+
+    for(const p of particles){
+
+        const speed=
+            Math.sqrt(
+                p.vx*p.vx+
+                p.vy*p.vy
+            );
+
+        if(speed<2)
+            continue;
+
+        const length=
+            Math.min(
+                speed*2.4,
+                18
+            );
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            p.x,
+            p.y
+        );
+
+        ctx.lineTo(
+            p.x-p.vx/ speed*length,
+            p.y-p.vy/ speed*length
+        );
+
+        ctx.strokeStyle=
+            `rgba(
+                255,
+                190,
+                100,
+                ${Math.min(speed*.018,.15)}
+            )`;
+
+        ctx.lineWidth=.45;
+
+        ctx.stroke();
+    }
+
+    ctx.globalCompositeOperation=
+        "source-over";
+}
+
+
+/* =========================================
+   WAVES
+========================================= */
+
+function updateWaves(){
+
+    for(const wave of waves){
+
+        wave.r+=
+            mouse.down
+            ? 5.5
+            : 3.2;
+
+        wave.strength*=.965;
+    }
+
+    while(
+        waves.length &&
+        (
+            waves[0].r>
+            Math.max(W,H)*.8 ||
+            waves[0].strength<1
+        )
+    ){
+        waves.shift();
+    }
+}
+
+
+function drawWaves(){
+
+    for(const wave of waves){
+
+        const alpha=
+            Math.max(
+                0,
+                wave.strength/35
+            );
+
+        ctx.beginPath();
+
+        ctx.arc(
+            wave.x,
+            wave.y,
+            wave.r,
+            0,
+            Math.PI*2
+        );
+
+        ctx.strokeStyle=
+            `rgba(
+                255,
+                210,
+                130,
+                ${alpha*.22}
+            )`;
+
+        ctx.lineWidth=
+            1+
+            alpha*2;
+
+        ctx.stroke();
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            wave.x,
+            wave.y,
+            wave.r*.94,
+            0,
+            Math.PI*2
+        );
+
+        ctx.strokeStyle=
+            `rgba(
+                255,
+                140,
+                70,
+                ${alpha*.07}
+            )`;
+
+        ctx.stroke();
+    }
+}
+
+
+/* =========================================
+   DUST CLOUD
+========================================= */
+
+function drawAtmosphere(time){
+
+    const gradient=
+        ctx.createRadialGradient(
+            W/2,
+            H/2,
+            20,
+            W/2,
+            H/2,
+            Math.max(W,H)*.6
+        );
+
+    gradient.addColorStop(
+        0,
+        "rgba(255,150,70,.045)"
+    );
+
+    gradient.addColorStop(
+        .35,
+        "rgba(130,70,180,.025)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+    ctx.fillStyle=gradient;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+}
+
+
+/* =========================================
+   ANIMATION
+========================================= */
+
+function animate(time){
+
+    ctx.fillStyle=
+        "rgba(5,5,7,.17)";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+    drawAtmosphere(time);
+
+    updateParticles(time);
+
+    updateWaves();
+
+    drawTrails();
+
+    drawParticles(time);
+
+    drawWaves();
+
+    requestAnimationFrame(animate);
+}
+
+
+/* =========================================
+   INIT
+========================================= */
+
+resize();
+createParticles();
+
+requestAnimationFrame(animate);
+
+</script>
+
+</body>
+</html>
