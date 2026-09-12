@@ -1,85 +1,1422 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <style>
-      body{
-        padding:0;
-        margin:0;
-        box-sizing:border-box;
-        background-color:#408E91;
-        color:#D5B4B4;
-        diplay:flex;
-        min-height:100vh;
-        justify-content:center;
-        align-items:center;
-        font-size: 1.5rem
-      }
-      p{
-        display:inline-block;
-        margin:8px;
-      }
-      button{
-        background-color:transparent;
-        padding:10px 20px;
-        
-      }
-      button:active{
-        background-color:#E49393;
-      }
-    </style>
-  </head>
-  <body>
-    <p>b?n ch?n: </p>
-    <span id="user"></span><br>
-    <p>máy ch?n: </p>
-    <span id="computer"></span><br>
-    <p>k?t qu?: </p>
-    <span id="result"></span><br>
-    <button id="but">kéo</button>
-	  <button id="but">búa</button>
-    <button id="but">bao</button>
-    <script>
-      let you;
-      let com;
-      let re;
-	    var a=['kéo','búa','bao'];
-      let choose=document.getElementsByTagName("button");
-      for(var i=0;i<3;i++){
-        choose[i].addEventListener('click',(e)=>{
-          you=e.target.innerText;
-          comchoose();
-          results();
-	      	document.getElementById("user").innerHTML=you;
-        	document.getElementById("computer").innerHTML=com;
-          document.getElementById("result").innerHTML=re;
-        })
-      }
-      let comchoose=()=>{
-        com=a[Math.floor(Math.random()*3)];
-      }
-      let results=()=>{
-        if(you==com){
-			      re= "Hòa";
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kéo Búa Bao</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+}
+
+body{
+    overflow:hidden;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-family:Arial,sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            #64b5b7,
+            #408e91 42%,
+            #245e62 100%
+        );
+
+    color:#fff;
+
+    transition:
+        background .5s ease;
+}
+
+/* =================================
+   BACKGROUND
+================================= */
+
+body.win{
+    background:
+        radial-gradient(
+            circle at center,
+            #8acfa9 0%,
+            #408e91 38%,
+            #173f42 100%
+        );
+}
+
+body.lose{
+    background:
+        radial-gradient(
+            circle at center,
+            #bd7777 0%,
+            #703f46 40%,
+            #251b22 100%
+        );
+}
+
+body.draw{
+    background:
+        radial-gradient(
+            circle at center,
+            #8e9e9d 0%,
+            #536d70 42%,
+            #202d30 100%
+        );
+}
+
+
+/* =================================
+   GAME
+================================= */
+
+.game{
+    position:relative;
+    z-index:5;
+
+    width:min(92%,520px);
+
+    padding:38px 28px 32px;
+
+    border-radius:30px;
+
+    background:
+        rgba(255,255,255,.11);
+
+    border:
+        1px solid rgba(255,255,255,.2);
+
+    backdrop-filter:blur(20px);
+
+    box-shadow:
+        0 30px 90px rgba(0,0,0,.22);
+
+    text-align:center;
+
+    transition:
+        transform .2s ease;
+}
+
+.game.win{
+    animation:
+        winImpact .7s cubic-bezier(.15,1.5,.3,1);
+}
+
+.game.lose{
+    animation:
+        loseImpact .55s ease;
+}
+
+.game.draw{
+    animation:
+        drawImpact .8s ease;
+}
+
+
+@keyframes winImpact{
+
+    0%{
+        transform:scale(1);
+    }
+
+    20%{
+        transform:scale(1.08);
+    }
+
+    40%{
+        transform:scale(.96);
+    }
+
+    60%{
+        transform:scale(1.035);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+}
+
+
+@keyframes loseImpact{
+
+    0%,100%{
+        transform:translateX(0);
+    }
+
+    15%{
+        transform:translateX(-10px);
+    }
+
+    30%{
+        transform:translateX(9px);
+    }
+
+    45%{
+        transform:translateX(-7px);
+    }
+
+    60%{
+        transform:translateX(5px);
+    }
+
+    75%{
+        transform:translateX(-2px);
+    }
+}
+
+
+@keyframes drawImpact{
+
+    0%{
+        transform:scale(1);
+    }
+
+    35%{
+        transform:scale(1.035);
+    }
+
+    70%{
+        transform:scale(.985);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+}
+
+
+/* =================================
+   TITLE
+================================= */
+
+h1{
+    font-size:clamp(27px,7vw,44px);
+
+    letter-spacing:.08em;
+
+    margin-bottom:30px;
+
+    text-shadow:
+        0 5px 25px rgba(0,0,0,.2);
+}
+
+
+/* =================================
+   INFO
+================================= */
+
+.info{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr;
+
+    gap:10px;
+
+    margin-bottom:32px;
+}
+
+.box{
+    min-height:78px;
+
+    display:flex;
+    flex-direction:column;
+
+    justify-content:center;
+
+    border-radius:18px;
+
+    background:
+        rgba(0,0,0,.12);
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    transition:
+        transform .3s cubic-bezier(.2,1.6,.3,1);
+}
+
+.box.pop{
+    animation:
+        pop .45s cubic-bezier(.2,1.7,.3,1);
+}
+
+@keyframes pop{
+
+    0%{
+        transform:scale(1);
+    }
+
+    40%{
+        transform:scale(1.13);
+    }
+
+    70%{
+        transform:scale(.95);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+}
+
+.label{
+    font-size:10px;
+
+    opacity:.55;
+
+    letter-spacing:.12em;
+
+    text-transform:uppercase;
+
+    margin-bottom:8px;
+}
+
+.value{
+    font-size:16px;
+    font-weight:bold;
+}
+
+
+/* =================================
+   RESULT
+================================= */
+
+#result{
+    transition:
+        transform .4s cubic-bezier(.15,1.7,.3,1),
+        color .3s ease,
+        text-shadow .3s ease;
+}
+
+.winResult{
+    color:#b8ffcb;
+
+    transform:scale(1.3);
+
+    text-shadow:
+        0 0 8px #fff,
+        0 0 25px #7dff9e,
+        0 0 50px #4cff82;
+}
+
+.loseResult{
+    color:#ff9a9a;
+
+    transform:scale(1.2);
+
+    text-shadow:
+        0 0 10px #ff5b5b,
+        0 0 30px #ff2222;
+}
+
+.drawResult{
+    color:#fff2ae;
+
+    transform:scale(1.22);
+
+    text-shadow:
+        0 0 15px #ffe36b,
+        0 0 35px #fff0a0;
+}
+
+
+/* =================================
+   BUTTONS
+================================= */
+
+.buttons{
+    display:flex;
+
+    justify-content:center;
+
+    gap:14px;
+}
+
+button{
+    position:relative;
+
+    overflow:hidden;
+
+    width:105px;
+    height:105px;
+
+    border-radius:24px;
+
+    border:
+        1px solid rgba(255,255,255,.2);
+
+    background:
+        rgba(255,255,255,.1);
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:
+        transform .15s cubic-bezier(.2,1.6,.3,1),
+        background .2s ease;
+}
+
+button:hover{
+    transform:
+        translateY(-7px)
+        scale(1.05);
+
+    background:
+        rgba(255,255,255,.2);
+}
+
+button:active{
+    transform:
+        scale(.86);
+}
+
+button.selected{
+    animation:
+        selected .55s cubic-bezier(.2,1.7,.3,1);
+}
+
+@keyframes selected{
+
+    0%{
+        transform:scale(1);
+    }
+
+    25%{
+        transform:scale(1.2)
+                   rotate(-4deg);
+    }
+
+    50%{
+        transform:scale(.84)
+                   rotate(4deg);
+    }
+
+    75%{
+        transform:scale(1.08);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+}
+
+.icon{
+    display:block;
+
+    font-size:34px;
+
+    margin-bottom:8px;
+}
+
+
+/* =================================
+   RESULT OVERLAY
+================================= */
+
+.resultOverlay{
+    position:fixed;
+
+    inset:0;
+
+    z-index:20;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    pointer-events:none;
+
+    opacity:0;
+}
+
+.resultOverlay.show{
+    animation:
+        overlayIn .9s ease forwards;
+}
+
+@keyframes overlayIn{
+
+    0%{
+        opacity:0;
+    }
+
+    20%{
+        opacity:1;
+    }
+
+    75%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:0;
+    }
+}
+
+
+.resultText{
+    position:relative;
+
+    font-size:
+        clamp(70px,18vw,190px);
+
+    font-weight:900;
+
+    letter-spacing:-.08em;
+
+    transform:scale(.3);
+
+    opacity:0;
+}
+
+.resultOverlay.show
+.resultText{
+    animation:
+        resultText .9s cubic-bezier(.15,1.5,.3,1);
+}
+
+@keyframes resultText{
+
+    0%{
+        opacity:0;
+        transform:
+            scale(.25)
+            rotate(-8deg);
+    }
+
+    25%{
+        opacity:1;
+        transform:
+            scale(1.18)
+            rotate(2deg);
+    }
+
+    45%{
+        transform:
+            scale(.92)
+            rotate(-1deg);
+    }
+
+    65%{
+        transform:
+            scale(1.04);
+    }
+
+    100%{
+        opacity:0;
+        transform:scale(1);
+    }
+}
+
+
+/* =================================
+   WIN TEXT
+================================= */
+
+.resultOverlay.win .resultText{
+
+    color:#caffd7;
+
+    text-shadow:
+        0 0 8px white,
+        0 0 25px #7dff9e,
+        0 0 60px #27ff68,
+        0 0 120px #27ff68;
+}
+
+
+/* =================================
+   LOSE TEXT
+================================= */
+
+.resultOverlay.lose .resultText{
+
+    color:#ff8d8d;
+
+    text-shadow:
+        5px 0 #ff3030,
+        -5px 0 #8b2020,
+        0 0 25px #ff3030,
+        0 0 60px #ff0000;
+
+    animation:
+        loseText .7s steps(8) forwards;
+}
+
+@keyframes loseText{
+
+    0%{
+        opacity:0;
+        transform:scale(1.3);
+    }
+
+    15%{
+        opacity:1;
+        transform:translateX(-8px);
+    }
+
+    30%{
+        transform:translateX(9px);
+    }
+
+    45%{
+        transform:translateX(-6px);
+    }
+
+    60%{
+        transform:translateX(5px);
+    }
+
+    100%{
+        opacity:0;
+        transform:
+            translateY(40px)
+            scale(.8);
+    }
+}
+
+
+/* =================================
+   DRAW TEXT
+================================= */
+
+.resultOverlay.draw .resultText{
+
+    color:#fff2ad;
+
+    text-shadow:
+        0 0 10px #fff,
+        0 0 35px #ffe66d,
+        0 0 80px #ffcc33;
+}
+
+
+/* =================================
+   RINGS
+================================= */
+
+.ring{
+    position:fixed;
+
+    left:50%;
+    top:50%;
+
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+
+    border:2px solid white;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.1);
+
+    pointer-events:none;
+
+    z-index:10;
+
+    opacity:0;
+}
+
+.ring.go{
+    animation:
+        ring .9s cubic-bezier(.1,.7,.2,1);
+}
+
+@keyframes ring{
+
+    0%{
+        opacity:.8;
+        transform:
+            translate(-50%,-50%)
+            scale(.1);
+    }
+
+    100%{
+        opacity:0;
+        transform:
+            translate(-50%,-50%)
+            scale(14);
+    }
+}
+
+
+/* =================================
+   PARTICLES
+================================= */
+
+.particle{
+    position:fixed;
+
+    width:7px;
+    height:7px;
+
+    border-radius:2px;
+
+    pointer-events:none;
+
+    z-index:30;
+
+    animation:
+        particle .9s cubic-bezier(.1,.7,.2,1)
+        forwards;
+}
+
+@keyframes particle{
+
+    0%{
+        opacity:1;
+
+        transform:
+            translate(0,0)
+            rotate(0)
+            scale(1.2);
+    }
+
+    65%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:0;
+
+        transform:
+            translate(
+                var(--x),
+                var(--y)
+            )
+            rotate(
+                var(--r)
+            )
+            scale(.05);
+    }
+}
+
+
+/* =================================
+   SCREEN FLASH
+================================= */
+
+.flash{
+    position:fixed;
+
+    inset:0;
+
+    z-index:50;
+
+    pointer-events:none;
+
+    background:white;
+
+    animation:
+        flash .35s ease forwards;
+}
+
+@keyframes flash{
+
+    0%{
+        opacity:.22;
+    }
+
+    100%{
+        opacity:0;
+    }
+}
+
+
+/* =================================
+   MOBILE
+================================= */
+
+@media(max-width:450px){
+
+    .game{
+        padding:28px 15px;
+    }
+
+    button{
+        width:88px;
+        height:92px;
+    }
+
+    .icon{
+        font-size:28px;
+    }
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="game" id="game">
+
+    <h1>✦ KÉO BÚA BAO ✦</h1>
+
+    <div class="info">
+
+        <div class="box" id="userBox">
+            <span class="label">
+                Bạn chọn
+            </span>
+
+            <span class="value" id="user">
+                —
+            </span>
+        </div>
+
+
+        <div class="box" id="computerBox">
+            <span class="label">
+                Máy chọn
+            </span>
+
+            <span class="value" id="computer">
+                —
+            </span>
+        </div>
+
+
+        <div class="box" id="resultBox">
+
+            <span class="label">
+                Kết quả
+            </span>
+
+            <span class="value" id="result">
+                —
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="buttons">
+
+        <button data-choice="kéo">
+            <span class="icon">✂</span>
+            Kéo
+        </button>
+
+        <button data-choice="búa">
+            <span class="icon">●</span>
+            Búa
+        </button>
+
+        <button data-choice="bao">
+            <span class="icon">✋</span>
+            Bao
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const game =
+    document.getElementById("game");
+
+const user =
+    document.getElementById("user");
+
+const computer =
+    document.getElementById("computer");
+
+const result =
+    document.getElementById("result");
+
+const userBox =
+    document.getElementById("userBox");
+
+const computerBox =
+    document.getElementById("computerBox");
+
+const resultBox =
+    document.getElementById("resultBox");
+
+const buttons =
+    document.querySelectorAll("button");
+
+const choices =
+    ["kéo","búa","bao"];
+
+
+/* =================================
+   ICON
+================================= */
+
+function icon(choice){
+
+    if(choice==="kéo")
+        return "✂ Kéo";
+
+    if(choice==="búa")
+        return "● Búa";
+
+    if(choice==="bao")
+        return "✋ Bao";
+
+    return "—";
+}
+
+
+/* =================================
+   GAME
+================================= */
+
+function computerChoose(){
+
+    return choices[
+        Math.floor(
+            Math.random()*3
+        )
+    ];
+}
+
+
+function getResult(a,b){
+
+    if(a===b)
+        return "Hòa";
+
+    if(
+        (a==="kéo" && b==="bao") ||
+        (a==="búa" && b==="kéo") ||
+        (a==="bao" && b==="búa")
+    ){
+        return "Thắng";
+    }
+
+    return "Thua";
+}
+
+
+/* =================================
+   RING
+================================= */
+
+function createRing(){
+
+    for(let i=0;i<3;i++){
+
+        setTimeout(()=>{
+
+            const ring =
+                document.createElement("div");
+
+            ring.className="ring";
+
+            document.body.appendChild(ring);
+
+            requestAnimationFrame(()=>{
+                ring.classList.add("go");
+            });
+
+            setTimeout(()=>{
+                ring.remove();
+            },1000);
+
+        },i*100);
+    }
+}
+
+
+/* =================================
+   PARTICLES
+================================= */
+
+function particles(x,y,type){
+
+    let colors;
+
+    if(type==="win"){
+
+        colors=[
+            "#ffffff",
+            "#9dffb6",
+            "#55ff88",
+            "#ffe66d",
+            "#b8ffd0"
+        ];
+
+    }else if(type==="lose"){
+
+        colors=[
+            "#ffffff",
+            "#ff8b8b",
+            "#ff4545",
+            "#9c3030"
+        ];
+
+    }else{
+
+        colors=[
+            "#ffffff",
+            "#ffe98a",
+            "#9ffaff",
+            "#d8d8d8"
+        ];
+    }
+
+
+    const amount =
+        type==="win"
+        ? 110
+        : type==="lose"
+        ? 75
+        : 90;
+
+
+    for(let i=0;i<amount;i++){
+
+        const p =
+            document.createElement("div");
+
+        p.className="particle";
+
+
+        const angle =
+            Math.random()*Math.PI*2;
+
+
+        let force;
+
+        if(type==="win"){
+
+            force =
+                50+
+                Math.random()*260;
+
+        }else if(type==="lose"){
+
+            force =
+                30+
+                Math.random()*170;
+
+        }else{
+
+            force =
+                80+
+                Math.random()*190;
         }
-        else if(you=="kéo" && com=="bao"){
-            re="Thắng";
+
+
+        p.style.left=x+"px";
+        p.style.top=y+"px";
+
+
+        p.style.setProperty(
+            "--x",
+            Math.cos(angle)*force+"px"
+        );
+
+        p.style.setProperty(
+            "--y",
+            Math.sin(angle)*force+"px"
+        );
+
+        p.style.setProperty(
+            "--r",
+            (Math.random()*1000-500)+"deg"
+        );
+
+
+        p.style.background =
+            colors[
+                Math.floor(
+                    Math.random()*colors.length
+                )
+            ];
+
+
+        p.style.width =
+            (3+
+            Math.random()*7)+"px";
+
+        p.style.height =
+            (3+
+            Math.random()*7)+"px";
+
+
+        document.body.appendChild(p);
+
+
+        setTimeout(()=>{
+            p.remove();
+        },1000);
+    }
+}
+
+
+/* =================================
+   CONFETTI
+================================= */
+
+function confetti(){
+
+    const colors=[
+        "#ffffff",
+        "#7dff9e",
+        "#ffe66d",
+        "#54eaff",
+        "#ff8bd8"
+    ];
+
+
+    for(let i=0;i<80;i++){
+
+        const p =
+            document.createElement("div");
+
+        p.className="particle";
+
+        p.style.left =
+            (innerWidth/2+
+            (Math.random()-.5)*120)+"px";
+
+        p.style.top =
+            (innerHeight/2+
+            (Math.random()-.5)*60)+"px";
+
+
+        const angle =
+            Math.random()*Math.PI*2;
+
+        const force =
+            100+
+            Math.random()*400;
+
+
+        p.style.setProperty(
+            "--x",
+            Math.cos(angle)*force+"px"
+        );
+
+        p.style.setProperty(
+            "--y",
+            Math.sin(angle)*force+"px"
+        );
+
+        p.style.setProperty(
+            "--r",
+            Math.random()*1200+"deg"
+        );
+
+
+        p.style.background =
+            colors[
+                Math.floor(
+                    Math.random()*colors.length
+                )
+            ];
+
+
+        p.style.width =
+            4+Math.random()*7+"px";
+
+        p.style.height =
+            8+Math.random()*13+"px";
+
+
+        document.body.appendChild(p);
+
+
+        setTimeout(()=>{
+            p.remove();
+        },1100);
+    }
+}
+
+
+/* =================================
+   RESULT OVERLAY
+================================= */
+
+function showResult(type,text){
+
+    const old =
+        document.querySelector(
+            ".resultOverlay"
+        );
+
+    if(old)
+        old.remove();
+
+
+    const overlay =
+        document.createElement("div");
+
+    overlay.className =
+        "resultOverlay "+type;
+
+
+    const resultText =
+        document.createElement("div");
+
+    resultText.className =
+        "resultText";
+
+    resultText.textContent =
+        text;
+
+
+    overlay.appendChild(resultText);
+
+    document.body.appendChild(overlay);
+
+
+    requestAnimationFrame(()=>{
+        overlay.classList.add("show");
+    });
+
+
+    setTimeout(()=>{
+        overlay.remove();
+    },1000);
+}
+
+
+/* =================================
+   FLASH
+================================= */
+
+function flash(){
+
+    const f =
+        document.createElement("div");
+
+    f.className="flash";
+
+    document.body.appendChild(f);
+
+    setTimeout(()=>{
+        f.remove();
+    },400);
+}
+
+
+/* =================================
+   POP
+================================= */
+
+function pop(el){
+
+    el.classList.remove("pop");
+
+    void el.offsetWidth;
+
+    el.classList.add("pop");
+}
+
+
+/* =================================
+   PLAY RESULT EFFECT
+================================= */
+
+function playEffect(type,x,y){
+
+    document.body.className="";
+    game.className="game";
+
+    void document.body.offsetWidth;
+
+    document.body.classList.add(type);
+    game.classList.add(type);
+
+
+    /* Overlay */
+
+    if(type==="win"){
+
+        showResult(
+            "win",
+            "THẮNG!"
+        );
+
+        flash();
+
+        createRing();
+
+        particles(
+            x,
+            y,
+            "win"
+        );
+
+        setTimeout(()=>{
+            confetti();
+        },120);
+
+    }
+
+
+    if(type==="lose"){
+
+        showResult(
+            "lose",
+            "THUA"
+        );
+
+        particles(
+            x,
+            y,
+            "lose"
+        );
+
+        createRing();
+
+    }
+
+
+    if(type==="draw"){
+
+        showResult(
+            "draw",
+            "HÒA"
+        );
+
+        createRing();
+
+        setTimeout(()=>{
+            createRing();
+        },180);
+
+        particles(
+            x,
+            y,
+            "draw"
+        );
+    }
+}
+
+
+/* =================================
+   BUTTON CLICK
+================================= */
+
+buttons.forEach(button=>{
+
+    button.addEventListener(
+        "click",
+        ()=>{
+
+            const choice =
+                button.dataset.choice;
+
+            const comp =
+                computerChoose();
+
+            const outcome =
+                getResult(
+                    choice,
+                    comp
+                );
+
+
+            /* TEXT */
+
+            user.textContent =
+                icon(choice);
+
+            computer.textContent =
+                icon(comp);
+
+            result.textContent =
+                outcome;
+
+
+            /* RESULT CLASS */
+
+            result.className="value";
+
+            if(outcome==="Thắng")
+                result.classList.add(
+                    "winResult"
+                );
+
+            else if(outcome==="Thua")
+                result.classList.add(
+                    "loseResult"
+                );
+
+            else
+                result.classList.add(
+                    "drawResult"
+                );
+
+
+            /* BOX POP */
+
+            pop(userBox);
+            pop(computerBox);
+            pop(resultBox);
+
+
+            /* BUTTON */
+
+            buttons.forEach(b=>{
+                b.classList.remove(
+                    "selected"
+                );
+            });
+
+            void button.offsetWidth;
+
+            button.classList.add(
+                "selected"
+            );
+
+
+            /* POSITION */
+
+            const rect =
+                button.getBoundingClientRect();
+
+            const x =
+                rect.left+
+                rect.width/2;
+
+            const y =
+                rect.top+
+                rect.height/2;
+
+
+            /* MAIN EFFECT */
+
+            playEffect(
+                outcome==="Thắng"
+                    ? "win"
+                    : outcome==="Thua"
+                    ? "lose"
+                    : "draw",
+
+                x,
+                y
+            );
+
         }
-		    else if(you=="bao" && com=="búa"){
-		        re="Thắng";
-		    }
-	      else if(you=="búa" && com=="kéo"){
-	          re="Th?ng";
-        }
-        else if(you=="kéo" && com=="búa"){
-            re="Thua";
-        }
-        else if(you=="búa" && com=="bao"){
-            re="Thua";
-        }
-        else if(you=="bao" && com=="kéo"){
-            re="Thua";
-        }
-      }
-    </script>
-  </body>
+    );
+
+});
+
+</script>
+
+</body>
 </html>
