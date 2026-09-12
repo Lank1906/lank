@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mouse Particle Flow</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#03050a;
+  cursor:none;
+}
+
+canvas{
+  display:block;
+}
+
+.cursor{
+  position:fixed;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.8);
+  box-shadow:
+    0 0 12px #7df9ff,
+    0 0 30px rgba(125,249,255,.5);
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  z-index:10;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+<div class="cursor"></div>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const cursor = document.querySelector(".cursor");
+
+let W = canvas.width = innerWidth;
+let H = canvas.height = innerHeight;
+
+addEventListener("resize",()=>{
+  W = canvas.width = innerWidth;
+  H = canvas.height = innerHeight;
+});
+
+/* =========================
+   MOUSE
+========================= */
+
+const mouse = {
+  x: W/2,
+  y: H/2,
+  px: W/2,
+  py: H/2,
+  vx:0,
+  vy:0,
+  speed:0
+};
+
+addEventListener("mousemove",e=>{
+
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+
+  cursor.style.left = mouse.x+"px";
+  cursor.style.top  = mouse.y+"px";
+});
+
+
+/* =========================
+   PARTICLE
+========================= */
+
+const particles = [];
+
+const COUNT = 100;
+
+const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+
+for(let i=0;i<COUNT;i++){
+
+  const a = i * GOLDEN;
+
+  // Fibonacci radius
+  const r = Math.sqrt(i / COUNT) * 260;
+
+  particles.push({
+
+    x: mouse.x + Math.cos(a)*r,
+    y: mouse.y + Math.sin(a)*r,
+
+    vx:0,
+    vy:0,
+
+    ox: Math.cos(a),
+    oy: Math.sin(a),
+
+    radius: Math.random()*2.4 + .4,
+
+    life: Math.random(),
+
+    seed: Math.random()*1000,
+
+    hue: 175 + Math.random()*100
+  });
+}
+
+
+/* =========================
+   PARTICLE UPDATE
+========================= */
+
+function updateParticle(p,t){
+
+  const dx = mouse.x - p.x;
+  const dy = mouse.y - p.y;
+
+  const dist = Math.sqrt(dx*dx + dy*dy) + .001;
+
+  /*
+    tốc độ chuột
+  */
+  const mouseSpeed = mouse.speed;
+
+  /*
+    SIN FLOW
+  */
+
+  const wave1 =
+    Math.sin(
+      t*.004 +
+      p.seed +
+      dist*.018
+    );
+
+  /*
+    COS FLOW
+  */
+
+  const wave2 =
+    Math.cos(
+      t*.003 +
+      p.seed*.7 +
+      dist*.014
+    );
+
+  /*
+    TAN được giới hạn
+    để không explode
+  */
+
+  let tanWave =
+    Math.tan(
+      Math.sin(t*.001 + p.seed)*.65
+    );
+
+  tanWave = Math.max(-2,Math.min(2,tanWave));
+
+
+  /*
+    VECTOR HƯỚNG VỀ CHUỘT
+  */
+
+  const nx = dx/dist;
+  const ny = dy/dist;
+
+  /*
+    VECTOR XOÁY
+  */
+
+  const tx = -ny;
+  const ty = nx;
+
+
+  /*
+    lực hút
+  */
+
+  const attraction =
+    Math.min(dist*.00075, .75);
+
+
+  /*
+    mouse speed càng cao
+    particle càng bung
+  */
+
+  const burst =
+    Math.min(mouseSpeed*.018, 8);
+
+
+  /*
+    SIN / COS FLOW
+  */
+
+  p.vx += nx * attraction;
+  p.vy += ny * attraction;
+
+  p.vx += tx * wave1 * .055;
+  p.vy += ty * wave1 * .055;
+
+  p.vx += nx * wave2 * .025;
+  p.vy += ny * wave2 * .025;
+
+
+  /*
+    TAN distortion
+  */
+
+  p.vx += tx * tanWave * .008;
+  p.vy += ty * tanWave * .008;
+
+
+  /*
+    Fibonacci spiral
+  */
+
+  const spiral =
+    Math.sin(
+      dist*.025 -
+      t*.002 +
+      p.seed
+    );
+
+  p.vx += tx * spiral * .018;
+  p.vy += ty * spiral * .018;
+
+
+  /*
+    mouse burst
+  */
+
+  if(mouseSpeed > 2){
+
+    p.vx -= nx * burst * .008;
+    p.vy -= ny * burst * .008;
+
+  }
+
+
+  /*
+    friction
+  */
+
+  p.vx *= .94;
+  p.vy *= .94;
+
+
+  p.x += p.vx;
+  p.y += p.vy;
+
+
+  /*
+    Nếu quá xa → teleport về vòng Fibonacci
+  */
+
+  if(dist > 500){
+
+    const angle =
+      p.seed +
+      t*.0003;
+
+    const radius =
+      100 + Math.random()*180;
+
+    p.x =
+      mouse.x +
+      Math.cos(angle)*radius;
+
+    p.y =
+      mouse.y +
+      Math.sin(angle)*radius;
+
+    p.vx *= .3;
+    p.vy *= .3;
+  }
+
+}
+
+
+/* =========================
+   DRAW
+========================= */
+
+function drawParticle(p,t){
+
+  const dx = p.x - mouse.x;
+  const dy = p.y - mouse.y;
+
+  const dist =
+    Math.sqrt(dx*dx+dy*dy);
+
+  /*
+    gradient màu theo khoảng cách
+  */
+
+  const hue =
+    p.hue +
+    Math.sin(t*.001+p.seed)*35 +
+    dist*.12;
+
+  const alpha =
+    Math.max(
+      .08,
+      1 - dist/520
+    );
+
+
+  /*
+    size pulse
+  */
+
+  const size =
+    p.radius *
+    (
+      1 +
+      Math.sin(
+        t*.006+p.seed
+      )*.45
+    );
+
+
+  ctx.beginPath();
+
+  ctx.fillStyle =
+    `hsla(${hue},100%,70%,${alpha})`;
+
+  ctx.shadowBlur =
+    12 + mouse.speed*2;
+
+  ctx.shadowColor =
+    `hsla(${hue},100%,65%,${alpha})`;
+
+  ctx.arc(
+    p.x,
+    p.y,
+    size,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+}
+
+
+/* =========================
+   TRAIL
+========================= */
+
+function drawTrail(p){
+
+  if(Math.abs(p.vx)+Math.abs(p.vy)<.15)
+    return;
+
+  const speed =
+    Math.sqrt(
+      p.vx*p.vx +
+      p.vy*p.vy
+    );
+
+  const len =
+    Math.min(speed*7,35);
+
+  const angle =
+    Math.atan2(p.vy,p.vx);
+
+  ctx.beginPath();
+
+  ctx.moveTo(p.x,p.y);
+
+  ctx.lineTo(
+    p.x-Math.cos(angle)*len,
+    p.y-Math.sin(angle)*len
+  );
+
+  ctx.strokeStyle =
+    `hsla(${p.hue},100%,70%,${Math.min(.4,speed*.04)})`;
+
+  ctx.lineWidth =
+    Math.min(p.radius,1.5);
+
+  ctx.stroke();
+}
+
+
+/* =========================
+   CENTER ENERGY
+========================= */
+
+function drawEnergy(t){
+
+  const pulse =
+    25 +
+    Math.sin(t*.004)*7 +
+    mouse.speed*2;
+
+  const g =
+    ctx.createRadialGradient(
+      mouse.x,
+      mouse.y,
+      0,
+      mouse.x,
+      mouse.y,
+      pulse
+    );
+
+  g.addColorStop(
+    0,
+    "rgba(255,255,255,.75)"
+  );
+
+  g.addColorStop(
+    .15,
+    "rgba(100,240,255,.35)"
+  );
+
+  g.addColorStop(
+    .5,
+    "rgba(130,80,255,.12)"
+  );
+
+  g.addColorStop(
+    1,
+    "rgba(0,0,0,0)"
+  );
+
+  ctx.fillStyle = g;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    mouse.x,
+    mouse.y,
+    pulse,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+}
+
+
+/* =========================
+   MAIN LOOP
+========================= */
+
+let time = 0;
+
+function animate(){
+
+  time++;
+
+  /*
+    mouse velocity
+  */
+
+  mouse.vx =
+    mouse.x - mouse.px;
+
+  mouse.vy =
+    mouse.y - mouse.py;
+
+  mouse.px = mouse.x;
+  mouse.py = mouse.y;
+
+  const rawSpeed =
+    Math.sqrt(
+      mouse.vx*mouse.vx +
+      mouse.vy*mouse.vy
+    );
+
+  mouse.speed +=
+    (rawSpeed-mouse.speed)*.18;
+
+
+  /*
+    background trail
+  */
+
+  ctx.fillStyle =
+    "rgba(3,5,10,.18)";
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  /*
+    particles
+  */
+
+  for(const p of particles){
+
+    updateParticle(
+      p,
+      time
+    );
+
+    drawTrail(p);
+    drawParticle(p,time);
+  }
+
+
+  drawEnergy(time);
+
+
+  /*
+    reset shadow
+  */
+
+  ctx.shadowBlur = 0;
+
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
