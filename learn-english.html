@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro English Kids - Học Từ Vựng Thông Minh</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner { transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { backface-visibility: hidden; }
+        .flip-card-back { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="bg-indigo-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl">🌟</span>
+            <h1 class="text-2xl font-black text-indigo-600">Pro English Kids</h1>
+        </div>
+        <div class="flex space-x-2 overflow-x-auto">
+            <button onclick="switchTab('learn')" id="btn-tab-learn" class="px-3.5 py-2 rounded-xl font-bold bg-indigo-600 text-white shadow-md transition hover:bg-indigo-700 text-sm whitespace-nowrap">🎮 Khu Vực Học</button>
+            <button onclick="switchTab('stats')" id="btn-tab-stats" class="px-3.5 py-2 rounded-xl font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition text-sm whitespace-nowrap">📊 Thống Kê</button>
+            <button onclick="switchTab('parent')" id="btn-tab-parent" class="px-3.5 py-2 rounded-xl font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition text-sm whitespace-nowrap">👨‍👩‍👧 Quản Lý Từ</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto p-4 max-w-4xl">
+
+        <!-- TAB 1: KHU VỰC HỌC -->
+        <section id="tab-learn" class="space-y-6">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold text-slate-600 text-sm">Chế độ học:</span>
+                    <select id="mode-select" onchange="changeGameMode()" class="px-3 py-2 rounded-xl border border-slate-300 font-bold text-indigo-600 bg-indigo-50 focus:outline-none text-sm">
+                        <option value="flashcard">🔄 Lật thẻ Flashcard</option>
+                        <option value="quiz">🎯 Trắc nghiệm nghĩa</option>
+                        <option value="pos">🏷️ Nhận diện Từ loại</option>
+                        <option value="scramble">🧩 Sắp xếp chữ cái</option>
+                        <option value="fillblank">✍️ Điền từ vào câu</option>
+                    </select>
+                </div>
+                <div class="text-sm font-bold text-slate-500">
+                    Kho từ: <span id="learning-total-count" class="text-indigo-600">0</span> từ
+                </div>
+            </div>
+
+            <div id="no-words-notice" class="hidden text-center py-16 bg-white rounded-3xl shadow-sm border border-dashed border-slate-300">
+                <p class="text-xl text-slate-500 mb-4">Chưa có từ vựng nào trong kho học tập!</p>
+                <button onclick="switchTab('parent')" class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow hover:bg-indigo-700">Thêm từ mới ngay</button>
+            </div>
+
+            <!-- Flashcard -->
+            <div id="game-flashcard" class="game-container flex flex-col items-center">
+                <div class="w-full max-w-md h-80 flip-card cursor-pointer mb-6" onclick="toggleCardFlip()">
+                    <div class="flip-card-inner relative w-full h-full text-center shadow-xl rounded-3xl bg-white border-2 border-indigo-100">
+                        <div class="flip-card-front absolute w-full h-full flex flex-col justify-between p-6 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                            <div class="flex justify-between items-center">
+                                <span id="fc-pos" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Noun</span>
+                                <span class="text-xs opacity-80">Chạm lật thẻ 🔄</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center space-y-2">
+                                <span id="fc-image" class="text-6xl mb-1">🏠</span>
+                                <h2 id="fc-word" class="text-4xl font-black tracking-wide">Home</h2>
+                                <p id="fc-phonetic" class="text-indigo-200 text-lg italic">/hoʊm/</p>
+                            </div>
+                            <div>
+                                <button onclick="event.stopPropagation(); speakCurrentWord();" class="bg-white text-indigo-600 px-4 py-2 rounded-full font-bold shadow hover:bg-indigo-50 transition mx-auto flex items-center space-x-1 text-sm">
+                                    <span>🔊 Nghe phát âm</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flip-card-back absolute w-full h-full flex flex-col justify-between p-6 rounded-3xl bg-white text-slate-800">
+                            <div class="flex justify-between items-center text-slate-400">
+                                <span class="text-xs font-bold uppercase">Ý nghĩa & Ví dụ</span>
+                                <span class="text-xs">Chạm xem lại 🔄</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center space-y-3">
+                                <h3 id="fc-meaning" class="text-3xl font-black text-indigo-600">Nhà, mái ấm</h3>
+                                <div class="bg-indigo-50 p-3 rounded-2xl w-full text-center">
+                                    <p id="fc-example" class="text-slate-700 font-semibold text-sm">"I love my home."</p>
+                                    <p id="fc-example-vi" class="text-slate-500 text-xs mt-1">"Tôi yêu ngôi nhà của mình."</p>
+                                </div>
+                            </div>
+                            <div class="text-slate-400 text-xs">Chuyển thẻ tiếp theo bên dưới nhé!</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="prevCard()" class="px-5 py-2.5 bg-white border border-slate-300 font-bold rounded-xl shadow-sm hover:bg-slate-50">⬅️ Từ trước</button>
+                    <span id="fc-counter" class="font-bold text-slate-600 text-lg">1 / 10</span>
+                    <button onclick="nextCard()" class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-xl shadow hover:bg-indigo-700">Từ tiếp ➡️</button>
+                </div>
+            </div>
+
+            <!-- Quiz -->
+            <div id="game-quiz" class="game-container hidden bg-white p-8 rounded-3xl shadow-sm border border-slate-100 max-w-xl mx-auto text-center space-y-6">
+                <div class="flex justify-between items-center text-sm font-bold text-slate-400">
+                    <span id="quiz-progress">Câu 1/5</span>
+                    <span id="quiz-score" class="text-emerald-600">Điểm: 0</span>
+                </div>
+                <div>
+                    <span id="quiz-image" class="text-6xl block mb-2">🏠</span>
+                    <h3 id="quiz-word" class="text-4xl font-black text-indigo-600 mb-1">Home</h3>
+                    <button onclick="speakText(currentQuizWord.word)" class="text-xs bg-indigo-50 text-indigo-600 font-bold px-3 py-1 rounded-full inline-flex items-center space-x-1 hover:bg-indigo-100">
+                        <span>🔊 Nghe từ</span>
+                    </button>
+                    <p class="text-slate-500 text-sm mt-2">Từ này có ý nghĩa gì?</p>
+                </div>
+                <div id="quiz-options" class="grid grid-cols-1 gap-3"></div>
+                <div id="quiz-feedback" class="text-lg font-bold min-h-[30px]"></div>
+                <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow hover:bg-indigo-700 transition">Câu tiếp theo ➡️</button>
+            </div>
+
+            <!-- Pos -->
+            <div id="game-pos" class="game-container hidden bg-white p-8 rounded-3xl shadow-sm border border-slate-100 max-w-xl mx-auto text-center space-y-6">
+                <div class="flex justify-between items-center text-sm font-bold text-slate-400">
+                    <span>Trò chơi: Nhận diện Từ loại</span>
+                    <span id="pos-progress">Câu 1/5</span>
+                </div>
+                <div class="bg-indigo-50 p-6 rounded-2xl">
+                    <span id="pos-image" class="text-5xl block mb-2">🏃</span>
+                    <h3 id="pos-word" class="text-3xl font-black text-indigo-600 mb-1">Run</h3>
+                    <p id="pos-meaning-hint" class="text-slate-600 font-semibold text-sm">Nghĩa: Chạy</p>
+                    <p class="text-slate-400 text-xs mt-2">Từ này thuộc từ loại nào dưới đây?</p>
+                </div>
+                <div id="pos-options" class="grid grid-cols-2 gap-3"></div>
+                <div id="pos-feedback" class="text-lg font-bold min-h-[30px]"></div>
+            </div>
+
+            <!-- Scramble -->
+            <div id="game-scramble" class="game-container hidden bg-white p-8 rounded-3xl shadow-sm border border-slate-100 max-w-xl mx-auto text-center space-y-6">
+                <div class="flex justify-between items-center text-sm font-bold text-slate-400">
+                    <span>Sắp xếp chữ cái thành từ đúng</span>
+                </div>
+                <div>
+                    <span id="scramble-image" class="text-6xl block mb-2">🏠</span>
+                    <p id="scramble-meaning" class="text-lg font-bold text-indigo-600 mb-3">Ý nghĩa: Nhà</p>
+                    <div id="scramble-letters" class="flex justify-center gap-2 flex-wrap mb-4"></div>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl">
+                    <p class="text-xs text-slate-400 mb-1">Khu vực từ của bé:</p>
+                    <div id="user-answer-slots" class="flex justify-center gap-2 min-h-[48px] items-center flex-wrap"></div>
+                </div>
+                <div id="scramble-feedback" class="text-sm font-bold min-h-[24px]"></div>
+                <div class="flex space-x-3">
+                    <button onclick="resetScrambleAnswer()" class="w-1/2 py-3 bg-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-300">Xóa chọn lại 🔄</button>
+                    <button onclick="checkScrambleAnswer()" class="w-1/2 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow hover:bg-indigo-700">Kiểm tra ✅</button>
+                </div>
+            </div>
+
+            <!-- Fill Blank -->
+            <div id="game-fillblank" class="game-container hidden bg-white p-8 rounded-3xl shadow-sm border border-slate-100 max-w-xl mx-auto text-center space-y-6">
+                <div class="flex justify-between items-center text-sm font-bold text-slate-400">
+                    <span>Điền từ thích hợp vào chỗ trống</span>
+                </div>
+                <div class="bg-indigo-50 p-6 rounded-2xl space-y-2">
+                    <p id="fill-sentence" class="text-xl font-bold text-slate-800">I go to [ ... ] every day.</p>
+                    <p id="fill-sentence-vi" class="text-sm text-slate-500 italic">"Tôi đi về nhà mỗi ngày."</p>
+                </div>
+                <div id="fill-feedback" class="text-sm font-bold min-h-[24px]"></div>
+                <div id="fill-options" class="grid grid-cols-2 gap-3"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: THỐNG KÊ & BÁO CÁO PHỤ HUYNH -->
+        <section id="tab-stats" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                        <h3 class="text-xl font-black text-indigo-600">📊 Báo Cáo Học Tập Của Bé</h3>
+                        <p class="text-sm text-slate-500">Tổng hợp kết quả tương tác và số liệu luyện tập chi tiết.</p>
+                    </div>
+                    <button onclick="resetStatsData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition">Làm mới số liệu</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 flex items-center space-x-4">
+                        <span class="text-3xl">📚</span>
+                        <div>
+                            <p class="text-xs text-indigo-600 font-bold uppercase">Tổng từ vựng kho</p>
+                            <h4 id="stat-total-words" class="text-2xl font-black text-indigo-700">0</h4>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-100 flex items-center space-x-4">
+                        <span class="text-3xl">🎯</span>
+                        <div>
+                            <p class="text-xs text-emerald-600 font-bold uppercase">Số bài trắc nghiệm đã làm</p>
+                            <h4 id="stat-total-quiz" class="text-2xl font-black text-emerald-700">0</h4>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50 p-5 rounded-2xl border border-amber-100 flex items-center space-x-4">
+                        <span class="text-3xl">⭐</span>
+                        <div>
+                            <p class="text-xs text-amber-600 font-bold uppercase">Tỉ lệ trả lời đúng</p>
+                            <h4 id="stat-accuracy" class="text-2xl font-black text-amber-700">0%</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-5 rounded-2xl space-y-3">
+                    <h4 class="font-bold text-slate-700 text-sm">💡 Lời khuyên dành cho phụ huynh:</h4>
+                    <p id="stat-advice" class="text-sm text-slate-600 italic">"Bé đang chăm chỉ học tập! Hãy thưởng cho bé thêm các từ vựng mới thuộc chủ đề yêu thích nhé."</p>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button onclick="window.print()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow transition text-sm flex items-center space-x-1.5">
+                        <span>🖨️ In Báo Cáo Cho Phụ Huynh</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: PHỤ HUYNH QUẢN LÝ & THÊM TỪ -->
+        <section id="tab-parent" class="hidden space-y-8">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <h3 id="form-title" class="text-xl font-black text-indigo-600 mb-2">✨ Thêm Từ Vựng Tự Động 100%</h3>
+                <p class="text-sm text-slate-500 mb-4">Gõ từ tiếng Anh và bấm nút bên dưới, hệ thống sẽ tự động tra cứu phiên âm IPA chuẩn từ từ điển, dịch nghĩa, lấy câu ví dụ thực tế và biểu tượng cho bé!</p>
+                
+                <form id="word-form" onsubmit="saveWord(event)" class="space-y-4">
+                    <input type="hidden" id="edit-index" value="">
+                    
+                    <div class="flex gap-2 items-end">
+                        <div class="flex-grow">
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Từ tiếng Anh <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-word" required placeholder="Ví dụ: Space, Elephant, Happy..." class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold text-lg">
+                        </div>
+                        <button type="button" onclick="autoFetchWordData()" id="btn-auto-fetch" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow transition flex items-center space-x-1.5 whitespace-nowrap">
+                            <span>⚡ Tự Động Tra Điền</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Ý nghĩa tiếng Việt <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-meaning" required placeholder="Ví dụ: Không gian" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Từ loại (POS)</label>
+                            <select id="input-pos" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 font-bold text-indigo-600 bg-indigo-50 focus:outline-none">
+                                <option value="Noun">Danh từ (Noun)</option>
+                                <option value="Verb">Động từ (Verb)</option>
+                                <option value="Adjective">Tính từ (Adj)</option>
+                                <option value="Adverb">Trạng từ (Adv)</option>
+                                <option value="Other">Khác</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Biểu tượng (Emoji)</label>
+                            <input type="text" id="input-image" placeholder="Ví dụ: 🌌" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Phiên âm</label>
+                            <input type="text" id="input-phonetic" placeholder="Ví dụ: /speɪs/" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Câu ví dụ tiếng Anh</label>
+                            <input type="text" id="input-example" placeholder="Ví dụ từ từ điển hoặc tự nhiên" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Dịch nghĩa câu ví dụ</label>
+                            <input type="text" id="input-example-vi" placeholder="Ví dụ: Bản dịch câu ví dụ" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" id="btn-cancel-edit" onclick="resetForm()" class="hidden px-5 py-2.5 bg-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-300 transition">Hủy</button>
+                        <button type="submit" id="btn-submit-form" class="px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl shadow hover:bg-indigo-700 transition">Lưu Vào Kho</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Danh sách quản lý từ -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                    <h3 class="text-xl font-black text-slate-800">📋 Quản Lý Danh Sách Từ Vựng</h3>
+                    <input type="text" id="search-keyword" oninput="renderWordTable()" placeholder="🔍 Tìm kiếm từ..." class="px-4 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-400 text-xs uppercase">
+                                <th class="py-3 px-4 font-bold">Từ / Nghĩa</th>
+                                <th class="py-3 px-4 font-bold">Từ loại</th>
+                                <th class="py-3 px-4 font-bold">Phiên âm & Ví dụ</th>
+                                <th class="py-3 px-4 font-bold text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="word-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-slate-400 text-sm">
+        <p>Học từ vựng thông minh cùng Pro English Kids ❤️</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const defaultWords = [
+            { word: "Home", meaning: "Nhà, mái ấm", phonetic: "/hoʊm/", pos: "Noun", image: "🏠", example: "I love my home.", exampleVi: "Tôi yêu ngôi nhà của mình." },
+            { word: "Space", meaning: "Không gian", phonetic: "/speɪs/", pos: "Noun", image: "🌌", example: "There is not enough space.", exampleVi: "Không có đủ không gian." },
+            { word: "Run", meaning: "Chạy", phonetic: "/rʌn/", pos: "Verb", image: "🏃", example: "He can run very fast.", exampleVi: "Cậu ấy có thể chạy rất nhanh." }
+        ];
+
+        if (!localStorage.getItem('pro_english_words')) {
+            localStorage.setItem('pro_english_words', JSON.stringify(defaultWords));
+        }
+
+        if (!localStorage.getItem('pro_english_stats')) {
+            localStorage.setItem('pro_english_stats', JSON.stringify({ totalQuizCount: 0, totalCorrect: 0, totalWrong: 0 }));
+        }
+
+        let wordsData = JSON.parse(localStorage.getItem('pro_english_words'));
+        let currentIndex = 0;
+        let currentMode = 'flashcard';
+        let quizScore = 0, currentQuizIndex = 0, currentQuizWord = null;
+        let posIndex = 0, currentPosWord = null;
+        let scrambleAnswerList = [], currentScrambleWord = null;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        function switchTab(tabName) {
+            const learnTab = document.getElementById('tab-learn');
+            const statsTab = document.getElementById('tab-stats');
+            const parentTab = document.getElementById('tab-parent');
+            
+            const btnLearn = document.getElementById('btn-tab-learn');
+            const btnStats = document.getElementById('btn-tab-stats');
+            const btnParent = document.getElementById('btn-tab-parent');
+
+            learnTab.classList.add('hidden');
+            statsTab.classList.add('hidden');
+            parentTab.classList.add('hidden');
+            
+            btnLearn.className = "px-3.5 py-2 rounded-xl font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition text-sm whitespace-nowrap";
+            btnStats.className = "px-3.5 py-2 rounded-xl font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition text-sm whitespace-nowrap";
+            btnParent.className = "px-3.5 py-2 rounded-xl font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition text-sm whitespace-nowrap";
+
+            if (tabName === 'learn') {
+                learnTab.classList.remove('hidden');
+                btnLearn.className = "px-3.5 py-2 rounded-xl font-bold bg-indigo-600 text-white shadow-md transition hover:bg-indigo-700 text-sm whitespace-nowrap";
+                initGameSession();
+            } else if (tabName === 'stats') {
+                statsTab.classList.remove('hidden');
+                btnStats.className = "px-3.5 py-2 rounded-xl font-bold bg-indigo-600 text-white shadow-md transition hover:bg-indigo-700 text-sm whitespace-nowrap";
+                renderStatsData();
+            } else {
+                parentTab.classList.remove('hidden');
+                btnParent.className = "px-3.5 py-2 rounded-xl font-bold bg-indigo-600 text-white shadow-md transition hover:bg-indigo-700 text-sm whitespace-nowrap";
+                renderWordTable();
+            }
+        }
+
+        function getSmartEmoji(word, meaning) {
+            const w = word.toLowerCase().trim();
+            const m = meaning.toLowerCase().trim();
+
+            const emojiDict = {
+                'cat': '🐱', 'dog': '🐶', 'bird': '🐦', 'fish': '🐟', 'elephant': '🐘', 'lion': '🦁', 'tiger': '🐯', 'monkey': '🐵', 'rabbit': '🐰', 'duck': '🦆', 'chicken': '🐔', 'cow': '🐮', 'pig': '🐷', 'horse': '🐴', 'bee': '🐝', 'butterfly': '🦋', 'snake': '🐍', 'bear': '🐻', 'panda': '🐼', 'frog': '🐸', 'turtle': '🐢',
+                'apple': '🍎', 'banana': '🍌', 'orange': '🍊', 'grape': '🍇', 'strawberry': '🍓', 'water': '💧', 'milk': '🥛', 'bread': '🍞', 'cake': '🎂', 'cookie': '🍪', 'pizza': '🍕', 'burger': '🍔', 'ice cream': '🍦', 'candy': '🍬', 'egg': '🥚', 'meat': '🥩', 'rice': '🍚', 'soup': '🍲', 'fruit': '🍎', 'food': '🍲',
+                'book': '📖', 'pen': '🖊️', 'pencil': '✏️', 'bag': '🎒', 'school': '🏫', 'house': '🏠', 'home': '🏠', 'door': '🚪', 'window': '🪟', 'bed': '🛏️', 'chair': '🪑', 'table': '🪵', 'phone': '📱', 'computer': '💻', 'clock': '⏰', 'key': '🔑', 'money': '💵', 'gift': '🎁', 'toy': '🧸', 'ball': '⚽', 'balloon': '🎈', 'paper': '📄', 'box': '📦', 'space': '🌌',
+                'car': '🚗', 'bus': '🚌', 'bike': '🚲', 'train': '🚂', 'plane': '✈️', 'boat': '⛵', 'ship': '🚢', 'rocket': '🚀',
+                'sun': '☀️', 'moon': '🌙', 'star': '⭐', 'cloud': '☁️', 'rain': '🌧️', 'snow': '❄️', 'fire': '🔥', 'tree': '🌳', 'flower': '🌸', 'leaf': '🍃', 'ocean': '🌊', 'mountain': '⛰️', 'boy': '👦', 'girl': '👧', 'baby': '👶', 'man': '👨', 'woman': '👩', 'family': '👨‍👩‍👧‍👦', 'friend': '🤝', 'person': '🧑',
+                'happy': '😊', 'sad': '😢', 'angry': '😠', 'smile': '😄', 'laugh': '😂', 'cry': '😭', 'love': '❤️', 'like': '👍', 'run': '🏃', 'walk': '🚶', 'jump': '🦘', 'fly': '🦅', 'swim': '🏊', 'sleep': '😴', 'eat': '🍽️', 'drink': '🥤', 'read': '📖', 'write': '✍️', 'play': '⚽', 'sing': '🎤', 'dance': '💃', 'fast': '⚡', 'slow': '🐢', 'big': '🐘', 'small': '🐜', 'hot': '🔥', 'cold': '❄️', 'good': '👍', 'beautiful': '🌸', 'bad': '👎', 'new': '✨', 'old': '👴'
+            };
+
+            for (let key in emojiDict) {
+                if (w.includes(key) || m.includes(key)) return emojiDict[key];
+            }
+            return '🌟';
+        }
+
+        // --- HỆ THỐNG TRA CỨU TỰ ĐỘNG THÔNG MINH ---
+        async function autoFetchWordData() {
+            const wordInput = document.getElementById('input-word').value.trim();
+            if (!wordInput) {
+                alert('Vui lòng nhập từ tiếng Anh trước khi bấm tự động tra!');
+                document.getElementById('input-word').focus();
+                return;
+            }
+
+            const btn = document.getElementById('btn-auto-fetch');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span>⏳ Đang tra từ điển...</span>`;
+            btn.disabled = true;
+
+            try {
+                let phoneticVal = `/${wordInput.toLowerCase()}/`;
+                let partOfSpeechVal = 'Noun';
+                let exampleVal = '';
+
+                // 1. Tra cứu Free Dictionary API lấy phiên âm, từ loại và ví dụ gốc của từ điển
+                try {
+                    const dictRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(wordInput)}`);
+                    if (dictRes.ok) {
+                        const dictData = await dictRes.json();
+                        if (dictData && dictData.length > 0) {
+                            const entry = dictData[0];
+                            if (entry.phonetic) phoneticVal = entry.phonetic;
+                            else if (entry.phonetics && entry.phonetics.length > 0) {
+                                const foundPhonetic = entry.phonetics.find(p => p.text);
+                                if (foundPhonetic) phoneticVal = foundPhonetic.text;
+                            }
+                            if (entry.meanings && entry.meanings.length > 0) {
+                                const posRaw = entry.meanings[0].partOfSpeech;
+                                if (posRaw === 'verb') partOfSpeechVal = 'Verb';
+                                else if (posRaw === 'adjective') partOfSpeechVal = 'Adjective';
+                                else if (posRaw === 'adverb') partOfSpeechVal = 'Adverb';
+                                else partOfSpeechVal = 'Noun';
+
+                                // Quét tìm ví dụ có sẵn trong từ điển
+                                for (let m of entry.meanings) {
+                                    if (m.definitions) {
+                                        const def = m.definitions.find(d => d.example);
+                                        if (def && def.example) {
+                                            exampleVal = def.example;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (e) { console.log('Không lấy được ví dụ từ từ điển gốc, dùng phương án dự phòng thông minh.'); }
+
+                // 2. Nếu từ điển không có ví dụ sẵn, dùng câu dự phòng linh hoạt tự nhiên theo từ loại
+                if (!exampleVal) {
+                    const p = partOfSpeechVal.toLowerCase();
+                    if (p.includes('verb')) {
+                        exampleVal = `We can ${wordInput} together.`;
+                    } else if (p.includes('adjective')) {
+                        exampleVal = `This is very ${wordInput}.`;
+                    } else {
+                        exampleVal = `I need a new ${wordInput}.`;
+                    }
+                }
+
+                document.getElementById('input-phonetic').value = phoneticVal;
+                document.getElementById('input-pos').value = partOfSpeechVal;
+                document.getElementById('input-example').value = exampleVal;
+
+                // 3. Dịch nghĩa tiếng Việt cho từ vựng và câu ví dụ
+                const transRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(wordInput)}&langpair=en|vi`);
+                const transData = await transRes.json();
+                let translatedMeaning = "Từ vựng";
+                if (transData && transData.responseData && transData.responseData.translatedText) {
+                    translatedMeaning = transData.responseData.translatedText;
+                    translatedMeaning = translatedMeaning.charAt(0).toUpperCase() + translatedMeaning.slice(1);
+                }
+                document.getElementById('input-meaning').value = translatedMeaning;
+
+                const exTransRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(exampleVal)}&langpair=en|vi`);
+                const exTransData = await exTransRes.json();
+                if (exTransData && exTransData.responseData && exTransData.responseData.translatedText) {
+                    document.getElementById('input-example-vi').value = exTransData.responseData.translatedText;
+                } else {
+                    document.getElementById('input-example-vi').value = `Ví dụ với từ ${wordInput}.`;
+                }
+
+                document.getElementById('input-image').value = getSmartEmoji(wordInput, translatedMeaning);
+                alert('⚡ Đã tra cứu dữ liệu và câu ví dụ thành công!');
+            } catch (err) {
+                console.error(err);
+                alert('Không thể kết nối mạng để tra cứu. Vui lòng nhập thông tin thủ công!');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function recordStat(isCorrect) {
+            let stats = JSON.parse(localStorage.getItem('pro_english_stats'));
+            stats.totalQuizCount++;
+            if (isCorrect) stats.totalCorrect++;
+            else stats.totalWrong++;
+            localStorage.setItem('pro_english_stats', JSON.stringify(stats));
+        }
+
+        function renderStatsData() {
+            let stats = JSON.parse(localStorage.getItem('pro_english_stats'));
+            document.getElementById('stat-total-words').innerText = wordsData.length;
+            document.getElementById('stat-total-quiz').innerText = stats.totalQuizCount;
+            
+            let accuracy = stats.totalQuizCount > 0 ? Math.round((stats.totalCorrect / stats.totalQuizCount) * 100) : 0;
+            document.getElementById('stat-accuracy').innerText = accuracy + '%';
+
+            let adviceEl = document.getElementById('stat-advice');
+            if (stats.totalQuizCount === 0) {
+                adviceEl.innerText = `"Bé chưa bắt đầu làm bài tập nào. Phụ huynh hãy hướng dẫn bé sang 'Khu Vực Học' để luyện tập nhé!"`;
+            } else if (accuracy >= 80) {
+                adviceEl.innerText = `"Tuyệt vời! Bé nắm bài rất vững với tỉ lệ đúng ${accuracy}%."`;
+            } else {
+                adviceEl.innerText = `"Bé đang làm quen, phụ huynh hãy cùng bé ôn tập lại thẻ Flashcard nhé!"`;
+            }
+        }
+
+        function resetStatsData() {
+            if (confirm("Đặt lại toàn bộ số liệu thống kê?")) {
+                localStorage.setItem('pro_english_stats', JSON.stringify({ totalQuizCount: 0, totalCorrect: 0, totalWrong: 0 }));
+                renderStatsData();
+                alert("Đã làm mới số liệu!");
+            }
+        }
+
+        function initGameSession() {
+            document.getElementById('learning-total-count').innerText = wordsData.length;
+            const noticeEl = document.getElementById('no-words-notice');
+            if (wordsData.length === 0) {
+                noticeEl.classList.remove('hidden');
+                document.querySelectorAll('.game-container').forEach(el => el.classList.add('hidden'));
+                return;
+            }
+            noticeEl.classList.add('hidden');
+            changeGameMode();
+        }
+
+        function changeGameMode() {
+            if (wordsData.length === 0) return;
+            currentMode = document.getElementById('mode-select').value;
+            document.querySelectorAll('.game-container').forEach(el => el.classList.add('hidden'));
+
+            if (currentMode === 'flashcard') {
+                document.getElementById('game-flashcard').classList.remove('hidden');
+                currentIndex = 0; updateFlashcard();
+            } else if (currentMode === 'quiz') {
+                document.getElementById('game-quiz').classList.remove('hidden');
+                currentQuizIndex = 0; quizScore = 0; loadQuizQuestion();
+            } else if (currentMode === 'pos') {
+                document.getElementById('game-pos').classList.remove('hidden');
+                posIndex = 0; loadPosQuestion();
+            } else if (currentMode === 'scramble') {
+                document.getElementById('game-scramble').classList.remove('hidden');
+                loadScrambleQuestion();
+            } else if (currentMode === 'fillblank') {
+                document.getElementById('game-fillblank').classList.remove('hidden');
+                loadFillBlankQuestion();
+            }
+        }
+
+        function updateFlashcard() {
+            if (wordsData.length === 0) return;
+            document.querySelector('.flip-card').classList.remove('flipped');
+            const item = wordsData[currentIndex];
+            document.getElementById('fc-pos').innerText = item.pos || 'Noun';
+            document.getElementById('fc-image').innerText = item.image || '🌟';
+            document.getElementById('fc-word').innerText = item.word;
+            document.getElementById('fc-phonetic').innerText = item.phonetic || '';
+            document.getElementById('fc-meaning').innerText = item.meaning;
+            document.getElementById('fc-example').innerText = item.example ? `"${item.example}"` : '';
+            document.getElementById('fc-example-vi').innerText = item.exampleVi ? `"${item.exampleVi}"` : '';
+            document.getElementById('fc-counter').innerText = `${currentIndex + 1} / ${wordsData.length}`;
+        }
+        function toggleCardFlip() { document.querySelector('.flip-card').classList.toggle('flipped'); }
+        function nextCard() { currentIndex = (currentIndex + 1) % wordsData.length; updateFlashcard(); }
+        function prevCard() { currentIndex = (currentIndex - 1 + wordsData.length) % wordsData.length; updateFlashcard(); }
+        function speakCurrentWord() { speakText(wordsData[currentIndex].word); }
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US'; u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            }
+        }
+
+        function loadQuizQuestion() {
+            if (currentQuizIndex >= Math.min(5, wordsData.length)) {
+                alert(`🎉 Hoàn thành bài trắc nghiệm! Điểm: ${quizScore} / ${Math.min(5, wordsData.length)}`);
+                currentQuizIndex = 0; quizScore = 0;
+            }
+            currentQuizWord = wordsData[Math.floor(Math.random() * wordsData.length)];
+            document.getElementById('quiz-progress').innerText = `Câu ${currentQuizIndex + 1} / 5`;
+            document.getElementById('quiz-score').innerText = `Điểm: ${quizScore}`;
+            document.getElementById('quiz-image').innerText = currentQuizWord.image || '🎯';
+            document.getElementById('quiz-word').innerText = currentQuizWord.word;
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+            document.getElementById('quiz-feedback').innerHTML = '';
+
+            let options = [currentQuizWord.meaning];
+            while (options.length < 3 && options.length < wordsData.length) {
+                let r = wordsData[Math.floor(Math.random() * wordsData.length)];
+                if (!options.includes(r.meaning)) options.push(r.meaning);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                container.innerHTML += `<button onclick="checkQuizAnswer(this, '${opt}', '${currentQuizWord.meaning}')" class="w-full py-3 px-4 bg-slate-50 hover:bg-indigo-50 border border-slate-200 rounded-xl font-bold text-slate-700 transition text-center">${opt}</button>`;
+            });
+        }
+
+        function checkQuizAnswer(btn, selected, correct) {
+            const allBtns = document.querySelectorAll('#quiz-options button');
+            allBtns.forEach(b => b.disabled = true);
+            const feedback = document.getElementById('quiz-feedback');
+
+            if (selected === correct) {
+                btn.className = "w-full py-3 px-4 bg-emerald-500 text-white border border-emerald-600 rounded-xl font-bold transition text-center";
+                feedback.innerHTML = `<span class="text-emerald-600">🎉 Chính xác tuyệt vời!</span>`;
+                playSound('correct'); quizScore++;
+                recordStat(true);
+            } else {
+                btn.className = "w-full py-3 px-4 bg-red-500 text-white border border-red-600 rounded-xl font-bold transition text-center";
+                feedback.innerHTML = `<span class="text-red-500">❌ Sai mất rồi! Đáp án đúng: ${correct}</span>`;
+                playSound('wrong'); recordStat(false);
+                allBtns.forEach(b => { if (b.innerText === correct) b.className = "w-full py-3 px-4 bg-emerald-500 text-white border border-emerald-600 rounded-xl font-bold transition text-center"; });
+            }
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+        function nextQuizQuestion() { currentQuizIndex++; loadQuizQuestion(); }
+
+        function loadPosQuestion() {
+            if (posIndex >= Math.min(5, wordsData.length)) { posIndex = 0; }
+            currentPosWord = wordsData[Math.floor(Math.random() * wordsData.length)];
+            document.getElementById('pos-progress').innerText = `Câu ${posIndex + 1} / 5`;
+            document.getElementById('pos-image').innerText = currentPosWord.image || '🏷️';
+            document.getElementById('pos-word').innerText = currentPosWord.word;
+            document.getElementById('pos-meaning-hint').innerText = `Nghĩa: ${currentPosWord.meaning}`;
+            document.getElementById('pos-feedback').innerHTML = '';
+
+            const posList = ['Noun', 'Verb', 'Adjective', 'Adverb'];
+            const container = document.getElementById('pos-options');
+            container.innerHTML = '';
+            posList.forEach(pos => {
+                let label = pos === 'Noun' ? 'Danh từ (Noun)' : pos === 'Verb' ? 'Động từ (Verb)' : pos === 'Adjective' ? 'Tính từ (Adj)' : 'Trạng từ (Adv)';
+                container.innerHTML += `<button onclick="checkPosAnswer(this, '${pos}', '${currentPosWord.pos || 'Noun'}')" class="py-3 px-4 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-bold text-slate-700 shadow-sm transition">${label}</button>`;
+            });
+        }
+
+        function checkPosAnswer(btn, selected, correct) {
+            const allBtns = document.querySelectorAll('#pos-options button');
+            allBtns.forEach(b => b.disabled = true);
+            const feedback = document.getElementById('pos-feedback');
+
+            if (selected.toLowerCase() === correct.toLowerCase()) {
+                btn.className = "py-3 px-4 bg-emerald-500 text-white border border-emerald-600 rounded-xl font-bold transition";
+                feedback.innerHTML = `<span class="text-emerald-600">🎉 Chính xác! Đây là ${correct}</span>`;
+                playSound('correct'); recordStat(true);
+            } else {
+                btn.className = "py-3 px-4 bg-red-500 text-white border border-red-600 rounded-xl font-bold transition";
+                feedback.innerHTML = `<span class="text-red-500">❌ Sai rồi, từ này là ${correct}</span>`;
+                playSound('wrong'); recordStat(false);
+                allBtns.forEach(b => { if(b.getAttribute('onclick').includes(correct)) b.className = "py-3 px-4 bg-emerald-500 text-white border border-emerald-600 rounded-xl font-bold transition"; });
+            }
+            setTimeout(() => { posIndex++; loadPosQuestion(); }, 1500);
+        }
+
+        function loadScrambleQuestion() {
+            currentScrambleWord = wordsData[Math.floor(Math.random() * wordsData.length)];
+            scrambleAnswerList = [];
+            document.getElementById('scramble-image').innerText = currentScrambleWord.image || '🧩';
+            document.getElementById('scramble-meaning').innerText = `Ý nghĩa: ${currentScrambleWord.meaning} (${currentScrambleWord.pos || 'Noun'})`;
+            document.getElementById('scramble-feedback').innerHTML = '';
+
+            let letters = currentScrambleWord.word.toUpperCase().split('');
+            letters.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('scramble-letters');
+            container.innerHTML = '';
+            letters.forEach((char) => {
+                container.innerHTML += `<button onclick="pickScrambleLetter('${char}', this)" class="w-10 h-10 bg-indigo-600 text-white font-black rounded-xl shadow hover:bg-indigo-700 transition">${char}</button>`;
+            });
+            renderScrambleSlots();
+        }
+
+        function pickScrambleLetter(char, btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-40', 'cursor-not-allowed');
+            scrambleAnswerList.push({ char, btnElement: btn });
+            renderScrambleSlots();
+        }
+
+        function renderScrambleSlots() {
+            const slots = document.getElementById('user-answer-slots');
+            slots.innerHTML = '';
+            if (scrambleAnswerList.length === 0) {
+                slots.innerHTML = `<span class="text-xs text-slate-400 italic">Chưa chọn chữ cái nào</span>`;
+                return;
+            }
+            scrambleAnswerList.forEach(item => {
+                slots.innerHTML += `<div class="w-10 h-10 bg-indigo-50 border border-indigo-200 text-indigo-600 font-black rounded-xl flex items-center justify-center text-lg shadow-sm">${item.char}</div>`;
+            });
+        }
+
+        function resetScrambleAnswer() {
+            scrambleAnswerList.forEach(i => { i.btnElement.disabled = false; i.btnElement.classList.remove('opacity-40', 'cursor-not-allowed'); });
+            scrambleAnswerList = [];
+            renderScrambleSlots();
+        }
+
+        function checkScrambleAnswer() {
+            const userWord = scrambleAnswerList.map(i => i.char).join('').toLowerCase();
+            const targetWord = currentScrambleWord.word.toLowerCase();
+            const feedback = document.getElementById('scramble-feedback');
+
+            if (userWord === targetWord) {
+                feedback.innerHTML = `<span class="text-emerald-600 font-bold">🌟 Chính xác xuất sắc!</span>`;
+                playSound('correct'); recordStat(true);
+                setTimeout(() => loadScrambleQuestion(), 1200);
+            } else {
+                feedback.innerHTML = `<span class="text-red-500 font-bold">❌ Chưa đúng, bé thử lại nhé!</span>`;
+                playSound('wrong'); recordStat(false);
+                resetScrambleAnswer();
+            }
+        }
+
+        function loadFillBlankQuestion() {
+            let currentFillWord = wordsData[Math.floor(Math.random() * wordsData.length)];
+            let example = currentFillWord.example || `I really like this ${currentFillWord.word}.`;
+            let exampleVi = currentFillWord.exampleVi || `Ví dụ câu minh họa.`;
+            let hiddenSentence = example.replace(new RegExp(currentFillWord.word, 'gi'), '[ ... ]');
+
+            document.getElementById('fill-sentence').innerText = `"${hiddenSentence}"`;
+            document.getElementById('fill-sentence-vi').innerText = `"${exampleVi}"`;
+            document.getElementById('fill-feedback').innerHTML = '';
+
+            let options = [currentFillWord.word];
+            while (options.length < 4 && options.length < wordsData.length) {
+                let r = wordsData[Math.floor(Math.random() * wordsData.length)].word;
+                if (!options.includes(r)) options.push(r);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('fill-options');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                container.innerHTML += `<button onclick="checkFillAnswer(this, '${opt}', '${currentFillWord.word}')" class="py-3 px-4 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl font-bold text-slate-700 shadow-sm transition">${opt}</button>`;
+            });
+        }
+
+        function checkFillAnswer(btn, selected, correct) {
+            const allBtns = document.querySelectorAll('#fill-options button');
+            allBtns.forEach(b => b.disabled = true);
+            const feedback = document.getElementById('fill-feedback');
+
+            if (selected.toLowerCase() === correct.toLowerCase()) {
+                btn.className = "py-3 px-4 bg-emerald-500 text-white font-bold rounded-xl transition";
+                feedback.innerHTML = `<span class="text-emerald-600 font-bold">🎉 Chính xác tuyệt vời!</span>`;
+                playSound('correct'); recordStat(true);
+            } else {
+                btn.className = "py-3 px-4 bg-red-500 text-white font-bold rounded-xl transition";
+                feedback.innerHTML = `<span class="text-red-500 font-bold">❌ Sai rồi! Đáp án đúng: ${correct}</span>`;
+                playSound('wrong'); recordStat(false);
+                allBtns.forEach(b => { if(b.innerText.toLowerCase() === correct.toLowerCase()) b.className = "py-3 px-4 bg-emerald-500 text-white font-bold rounded-xl transition"; });
+            }
+            setTimeout(() => loadFillBlankQuestion(), 1500);
+        }
+
+        function renderWordTable() {
+            const keyword = document.getElementById('search-keyword').value.toLowerCase();
+            const tbody = document.getElementById('word-table-body');
+            tbody.innerHTML = '';
+
+            const displayList = wordsData.filter(item => item.word.toLowerCase().includes(keyword) || item.meaning.toLowerCase().includes(keyword));
+
+            if (displayList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-400">Không tìm thấy từ vựng nào.</td></tr>`;
+                return;
+            }
+
+            displayList.forEach((item) => {
+                const realIndex = wordsData.findIndex(w => w === item);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl">${item.image || '📚'}</span>
+                                <div>
+                                    <p class="font-bold text-slate-800">${item.word}</p>
+                                    <p class="text-xs text-indigo-600 font-semibold">${item.meaning}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg text-xs font-bold">${item.pos || 'Noun'}</span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-600">
+                            <p class="italic text-xs">${item.phonetic || ''}</p>
+                            <p class="text-xs text-slate-500 truncate max-w-xs">${item.example || ''}</p>
+                        </td>
+                        <td class="py-3 px-4 text-right space-x-2">
+                            <button onclick="editWord(${realIndex})" class="px-2.5 py-1 bg-amber-100 text-amber-700 font-bold text-xs rounded-lg hover:bg-amber-200">Sửa</button>
+                            <button onclick="deleteWord(${realIndex})" class="px-2.5 py-1 bg-red-100 text-red-600 font-bold text-xs rounded-lg hover:bg-red-200">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function saveWord(e) {
+            e.preventDefault();
+            const editIndex = document.getElementById('edit-index').value;
+            const newItem = {
+                word: document.getElementById('input-word').value.trim(),
+                meaning: document.getElementById('input-meaning').value.trim(),
+                phonetic: document.getElementById('input-phonetic').value.trim(),
+                pos: document.getElementById('input-pos').value,
+                image: document.getElementById('input-image').value.trim() || '🌟',
+                example: document.getElementById('input-example').value.trim(),
+                exampleVi: document.getElementById('input-example-vi').value.trim()
+            };
+
+            if (editIndex === "") wordsData.unshift(newItem);
+            else wordsData[editIndex] = newItem;
+
+            localStorage.setItem('pro_english_words', JSON.stringify(wordsData));
+            resetForm();
+            renderWordTable();
+            alert('Lưu từ vựng thành công! 🎉');
+        }
+
+        function editWord(index) {
+            const item = wordsData[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('input-word').value = item.word;
+            document.getElementById('input-meaning').value = item.meaning;
+            document.getElementById('input-phonetic').value = item.phonetic || '';
+            document.getElementById('input-pos').value = item.pos || 'Noun';
+            document.getElementById('input-image').value = item.image || '';
+            document.getElementById('input-example').value = item.example || '';
+            document.getElementById('input-example-vi').value = item.exampleVi || '';
+
+            document.getElementById('form-title').innerText = "✏️ Chỉnh Sửa Từ Vựng";
+            document.getElementById('btn-submit-form').innerText = "Cập Nhật";
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+            switchTab('parent');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('word-form').reset();
+            document.getElementById('edit-index').value = "";
+            document.getElementById('form-title').innerText = "✨ Thêm Từ Vựng Tự Động 100%";
+            document.getElementById('btn-submit-form').innerText = "Lưu Vào Kho";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+        }
+
+        function deleteWord(index) {
+            if (confirm(`Xóa từ "${wordsData[index].word}"?`)) {
+                wordsData.splice(index, 1);
+                localStorage.setItem('pro_english_words', JSON.stringify(wordsData));
+                renderWordTable();
+            }
+        }
+    </script>
+</body>
+</html>
