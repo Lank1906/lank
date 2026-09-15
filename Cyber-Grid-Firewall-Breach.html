@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber Grid Firewall Breach</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #030712;
+  font-family: 'Courier New', Courier, monospace;
+  color: #22c55e;
+  overflow: hidden;
+}
+
+.terminal-header {
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ef4444;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-rows: repeat(40, 1fr);
+  grid-template-columns: repeat(40, 1fr);
+  gap: 3px;
+  padding: 10px;
+  width: 500px;
+  aspect-ratio: 1;
+  background: #090d16;
+  border: 2px solid #1e293b;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(34, 197, 94, 0.05);
+}
+
+.rect {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: #1e293b;
+  overflow: hidden;
+  transition: background-color 0.1s, border-color 0.1s, transform 0.1s;
+  cursor: crosshair;
+}
+
+.rect:hover {
+  background-color: #22c55e;
+  border-color: #4ade80;
+  color: #030712;
+  font-weight: bold;
+  transform: scale(0.95);
+  box-shadow: 0 0 10px #22c55e;
+}
+
+.corrupted {
+  background-color: #ef4444 !important;
+  border-color: #fca5a5 !important;
+  color: #fff !important;
+  animation: glitch 0.2s infinite alternate;
+  box-shadow: 0 0 15px #ef4444;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-1px, 1px); }
+  100% { transform: translate(1px, -1px); }
+}
+</style>
+</head>
+<body>
+
+<div class="terminal-header">[STATUS: SYSTEM BREACH DETECTED - CLICK TO INJECT VIRUS]</div>
+<div class="grid-container"></div>
+
+<script>
+const container = document.querySelector('.grid-container');
+const gridSize = 40;
+const maxWidth = 3;
+let xNow = 0;
+let yNow = 0;
+const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(false)); 
+const allRects = [];
+
+function markBlock(x, y, rowSpan, colSpan) {
+  for (let i = x; i < x + rowSpan; i++) {
+    for (let j = y; j < y + colSpan; j++) {
+      grid[i][j] = true;
+    }
+  }
+}
+
+function findNextEmptyCell() {
+  for (let row = xNow; row < gridSize; row++) {
+    for (let col = yNow; col < gridSize; col++) {
+      if (!grid[row][col]) return { row, col };
+    }
+  }
+  return null;
+}
+
+let nextCell = findNextEmptyCell();
+while (nextCell) {
+  const { row, col } = nextCell;
+  xNow = row;
+  let maxRow = 1;
+  let maxCol = 1;
+  
+  for (let i = row + 1; i < Math.min(gridSize, row + maxWidth); i++) {
+    if (!grid[i][col]) maxRow++;
+    else break;
+  }
+  for (let i = col + 1; i < gridSize; i++) {
+    if (!grid[row][i]) maxCol++;
+    else break;
+  }
+  let rowSpan = Math.ceil(Math.random() * maxRow);
+  let colSpan = Math.ceil(Math.random() * Math.min(maxCol, maxWidth));
+  
+  const rect = document.createElement('div');
+  rect.classList.add('rect');
+  rect.style.gridRow = `span ${rowSpan}`;
+  rect.style.gridColumn = `span ${colSpan}`;
+  
+  // Thêm dữ liệu mã nhị phân ngẫu nhiên bên trong ô
+  rect.innerText = Math.random() > 0.5 ? '1' : '0';
+  
+  container.appendChild(rect);
+  allRects.push(rect);
+  
+  markBlock(row, col, rowSpan, colSpan);
+  nextCell = findNextEmptyCell();
+}
+
+// Hiệu ứng click: Tấn công lan truyền (Virus Corruption Wave)
+container.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('rect')) return;
+  
+  // Đổi tiêu đề terminal cảnh báo đỏ rực
+  document.querySelector('.terminal-header').innerText = '[WARNING: FIREWALL OVERRIDDEN - SYSTEM COMPROMISED]';
+  document.querySelector('.terminal-header').style.color = '#ef4444';
+
+  // Kích hoạt hiệu ứng lỗi lan truyền cho toàn bộ các ô ngẫu nhiên
+  allRects.forEach((r, index) => {
+    setTimeout(() => {
+      r.classList.add('corrupted');
+      r.innerText = ['ERR', '404', 'FAIL', 'ROOT', '0x99'][Math.floor(Math.random() * 5)];
+      
+      setTimeout(() => {
+        r.classList.remove('corrupted');
+        r.innerText = Math.random() > 0.5 ? '1' : '0';
+      }, 1000);
+    }, index * 2);
+  });
+});
+
+// Hiệu ứng tự động nhấp nháy dữ liệu ngẫu nhiên tạo cảm giác sống động như máy tính đang chạy
+setInterval(() => {
+  const randomRect = allRects[Math.floor(Math.random() * allRects.length)];
+  if(!randomRect.classList.contains('corrupted')) {
+    randomRect.innerText = Math.random() > 0.5 ? '1' : '0';
+  }
+}, 50);
+</script>
+
+</body>
+</html>
