@@ -3,92 +3,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rectangular Grid</title>
+<title>Satisfying Bento Grid Generator</title>
 <style>
+* {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #fff;
+  background-color: #0f172a;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #fff;
+  overflow: hidden;
 }
+
+.title {
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
 .grid-container {
   display: grid;
-  grid-template-rows: repeat(50, 1fr);
-  grid-template-columns: repeat(50, 1fr);
-  gap: 5px;
-  padding:5px;
-  width: 500px;
+  grid-template-rows: repeat(40, 1fr);
+  grid-template-columns: repeat(40, 1fr);
+  gap: 6px;
+  padding: 12px;
+  width: 520px;
   aspect-ratio: 1;
-  border: 2px solid #000;
+  background: #1e293b;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
 }
+
 .rect {
-  background-color: #fff;
-  border: 1px solid #000;
+  background-color: #3b82f6;
+  border-radius: 8px;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.rect:hover {
+  transform: scale(0.96);
+  filter: brightness(1.2);
+}
+
+@keyframes popIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>
 </head>
 <body>
-<div class="grid-container">
-</div>
+
+<div class="title">✨ Click anywhere to regenerate ✨</div>
+<div class="grid-container"></div>
+
 <script>
-const container = document.querySelector('.grid-container');
-const gridSize = 50;
-maxWidth=2;
-let xNow=0;
-let yNow=0;
-const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(false)); 
+const colors = [
+  '#f43f5e', '#fb923c', '#fbbf24', '#34d399', 
+  '#38bdf8', '#818cf8', '#e879f9', '#2dd4bf', '#60a5fa'
+];
 
-function markBlock(x,y,rowSpan,colSpan){
-	for(let i=x;i<x+rowSpan;i++){
-    	for(let j=y;j<y+colSpan;j++){
-        	grid[i][j]=true;
-        }
+function generateGrid() {
+  const container = document.querySelector('.grid-container');
+  container.innerHTML = '';
+  
+  const gridSize = 40;
+  const maxWidth = 5;
+  const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(false)); 
+
+  function markBlock(x, y, rowSpan, colSpan) {
+    for (let i = x; i < x + rowSpan; i++) {
+      for (let j = y; j < y + colSpan; j++) {
+        grid[i][j] = true;
+      }
     }
-}
+  }
 
-function findNextEmptyCell(){
-	for(let row=xNow;row<gridSize;row++){
-    	for(let col=yNow;col<gridSize;col++){
-        	if(!grid[row][col]) return {row,col}
-        }
+  function findNextEmptyCell() {
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        if (!grid[row][col]) return { row, col };
+      }
     }
     return null;
-}
+  }
 
-let nextCell=findNextEmptyCell()
-while(nextCell){
-	const {row,col}=nextCell
-    xNow=row
-    maxRow=1;
-    maxCol=1
+  let rectsData = [];
+  let nextCell = findNextEmptyCell();
+  
+  while (nextCell) {
+    const { row, col } = nextCell;
+    let maxRow = 1;
+    let maxCol = 1;
     
-    for(let i=row+1;i<Math.min(gridSize,row+maxWidth);i++){
-    	if(!grid[i][col])
-        	maxRow++;
-        else
-        	break;
+    for (let i = row + 1; i < Math.min(gridSize, row + maxWidth); i++) {
+      if (!grid[i][col]) maxRow++;
+      else break;
     }
-    for(let i=col+1;i<gridSize;i++){
-    	if(!grid[row][i])
-        	maxCol++;
-        else
-        	break;
+    for (let i = col + 1; i < Math.min(gridSize, col + maxWidth); i++) {
+      if (!grid[row][i]) maxCol++;
+      else break;
     }
-    rowSpan=Math.ceil(Math.random()* maxRow)
-    colSpan=Math.ceil(Math.random()* Math.min(maxCol,maxWidth))
     
+    const rowSpan = Math.ceil(Math.random() * maxRow);
+    const colSpan = Math.ceil(Math.random() * maxCol);
+    
+    rectsData.push({ row, col, rowSpan, colSpan });
+    markBlock(row, col, rowSpan, colSpan);
+    nextCell = findNextEmptyCell();
+  }
+
+  // Render với độ trễ (delay) theo khoảng cách từ tâm để tạo hiệu ứng làn sóng lan tỏa cực kì mãn nhãn
+  rectsData.forEach((data, index) => {
     const rect = document.createElement('div');
     rect.classList.add('rect');
-    rect.style.gridRow = `span ${rowSpan}`;
-    rect.style.gridColumn = `span ${colSpan}`;
-    container.appendChild(rect);
+    rect.style.gridRow = `${data.row + 1} / span ${data.rowSpan}`;
+    rect.style.gridColumn = `${data.col + 1} / span ${data.colSpan}`;
     
-    markBlock(row,col,rowSpan,colSpan);
-    nextCell=findNextEmptyCell();
+    // Chọn màu ngẫu nhiên hài hòa
+    rect.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    // Tạo hiệu ứng xuất hiện lần lượt mượt mà
+    rect.style.animationDelay = `${index * 0.015}s`;
+    
+    // Tương tác click đổi màu vui nhộn
+    rect.addEventListener('click', () => {
+      rect.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      rect.style.transform = 'scale(1.1)';
+      setTimeout(() => rect.style.transform = 'scale(1)', 150);
+    });
+
+    container.appendChild(rect);
+  });
 }
 
+// Chạy lần đầu
+generateGrid();
+
+// Click vào màn hình để tạo lưới mới ngẫu nhiên
+document.body.addEventListener('click', (e) => {
+  if(e.target.tagName !== 'DIV' || e.target.classList.contains('rect')) return;
+  generateGrid();
+});
 </script>
+
 </body>
 </html>
