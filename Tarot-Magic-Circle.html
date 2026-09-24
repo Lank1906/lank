@@ -1,0 +1,1521 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Tarot Magic Circle</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#020108;
+}
+
+canvas{
+    display:block;
+    width:100vw;
+    height:100vh;
+    cursor:none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let W = 0;
+let H = 0;
+let DPR = 1;
+
+function resize(){
+
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    W = window.innerWidth;
+    H = window.innerHeight;
+
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+
+resize();
+window.addEventListener("resize",resize);
+
+
+/* =========================================================
+   MOUSE
+========================================================= */
+
+const mouse = {
+    x:0,
+    y:0,
+    tx:0,
+    ty:0
+};
+
+window.addEventListener("mousemove",e=>{
+
+    mouse.tx = (e.clientX - W/2) / W;
+    mouse.ty = (e.clientY - H/2) / H;
+
+});
+
+
+/* =========================================================
+   CLICK : SPLIT / MERGE
+========================================================= */
+
+let split = 0;
+let targetSplit = 0;
+
+canvas.addEventListener("click",()=>{
+
+    targetSplit = targetSplit === 0 ? 1 : 0;
+
+});
+
+
+function updateSplit(){
+
+    split += (targetSplit - split) * 0.045;
+
+}
+
+
+/* =========================================================
+   MATH
+========================================================= */
+
+const TAU = Math.PI * 2;
+
+function ease(t){
+
+    return t*t*(3-2*t);
+
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+let cameraX = 0;
+let cameraY = 0;
+
+function updateCamera(){
+
+    cameraX += (
+        mouse.ty * 0.38 -
+        cameraX
+    ) * 0.035;
+
+    cameraY += (
+        mouse.tx * 0.38 -
+        cameraY
+    ) * 0.035;
+
+}
+
+
+/* =========================================================
+   3D
+========================================================= */
+
+function rotateX(p,a){
+
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+
+    return {
+        x:p.x,
+        y:p.y*c-p.z*s,
+        z:p.y*s+p.z*c
+    };
+
+}
+
+
+function rotateY(p,a){
+
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+
+    return {
+        x:p.x*c+p.z*s,
+        y:p.y,
+        z:-p.x*s+p.z*c
+    };
+
+}
+
+
+function rotateZ(p,a){
+
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+
+    return {
+        x:p.x*c-p.y*s,
+        y:p.x*s+p.y*c,
+        z:p.z
+    };
+
+}
+
+
+function project(p){
+
+    const camera = 850;
+
+    const scale =
+        camera /
+        (camera + p.z);
+
+    return {
+
+        x:W/2 + p.x*scale,
+        y:H/2 + p.y*scale,
+        scale:scale,
+        z:p.z
+
+    };
+
+}
+
+
+function transform(
+    p,
+    rx,
+    ry,
+    rz
+){
+
+    p = rotateX(p,rx);
+    p = rotateY(p,ry);
+    p = rotateZ(p,rz);
+
+    /*
+       Camera rotation
+    */
+
+    p = rotateX(p,cameraX);
+    p = rotateY(p,cameraY);
+
+    return p;
+
+}
+
+
+/* =========================================================
+   COLORS
+========================================================= */
+
+const COLORS = [
+
+    "#50eaff",
+    "#637cff",
+    "#a86cff",
+    "#f15cff",
+    "#ff4da6",
+    "#ffd45a"
+
+];
+
+
+/* =========================================================
+   TAROT SYMBOLS
+========================================================= */
+
+const TAROT = [
+    "☉",
+    "☽",
+    "☿",
+    "♀",
+    "♂",
+    "♃",
+    "♄",
+    "⚚",
+    "⚜",
+    "✦",
+    "✧",
+    "◇",
+    "◆",
+    "◈",
+    "△",
+    "▽",
+    "⊙",
+    "☥",
+    "☯",
+    "♢",
+    "♧",
+    "♤",
+    "♡"
+];
+
+
+const RUNES =
+"ᚠᚢᚦᚨᚱᚲᛉᛏᛒᛟᛞᛃᛇᛁᛊᛖᛗᛚᛜ";
+
+
+/* =========================================================
+   RING CONFIG
+========================================================= */
+
+const rings = [
+
+    {
+        radius:330,
+        count:36,
+        color:0,
+        speed:0.00018,
+        direction:1,
+        tiltX:1.05,
+        tiltY:0.05,
+        chars:RUNES
+    },
+
+    {
+        radius:285,
+        count:32,
+        color:5,
+        speed:0.00024,
+        direction:-1,
+        tiltX:1.0,
+        tiltY:0.08,
+        chars:TAROT
+    },
+
+    {
+        radius:235,
+        count:28,
+        color:1,
+        speed:0.00030,
+        direction:1,
+        tiltX:0.45,
+        tiltY:1.0,
+        chars:TAROT
+    },
+
+    {
+        radius:190,
+        count:24,
+        color:3,
+        speed:0.00038,
+        direction:-1,
+        tiltX:0.3,
+        tiltY:1.15,
+        chars:"☉☽☿♀♂♃♄"
+    },
+
+    {
+        radius:145,
+        count:20,
+        color:2,
+        speed:0.00048,
+        direction:1,
+        tiltX:1.2,
+        tiltY:0.3,
+        chars:"✦✧◇◆◈△▽⊙"
+    }
+
+];
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+const stars = [];
+
+for(let i=0;i<120;i++){
+
+    stars.push({
+
+        x:Math.random()*1600-800,
+        y:Math.random()*1200-600,
+        z:Math.random()*900-200,
+        size:Math.random()*1.4+.3
+
+    });
+
+}
+
+
+function background(time){
+
+    ctx.fillStyle = "#020108";
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /*
+       Center atmospheric glow
+    */
+
+    const glow =
+        ctx.createRadialGradient(
+            W/2,
+            H/2,
+            0,
+            W/2,
+            H/2,
+            500
+        );
+
+
+    glow.addColorStop(
+        0,
+        "rgba(90,50,190,.10)"
+    );
+
+    glow.addColorStop(
+        .5,
+        "rgba(40,50,150,.025)"
+    );
+
+    glow.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+
+    ctx.fillStyle = glow;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /*
+       Stars
+    */
+
+    for(const star of stars){
+
+        let p = {
+            x:star.x,
+            y:star.y,
+            z:star.z
+        };
+
+        p = rotateX(p,cameraX);
+        p = rotateY(p,cameraY);
+
+        const q = project(p);
+
+        ctx.fillStyle =
+            "rgba(150,190,255,.25)";
+
+        ctx.fillRect(
+            q.x,
+            q.y,
+            star.size,
+            star.size
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RING LINE
+========================================================= */
+
+function drawCircle(
+    ring,
+    time
+){
+
+    const points = [];
+
+    const splitAmount = ease(split);
+
+    /*
+       Khi split:
+
+       vòng tiến ra phía trước/sau
+    */
+
+    const depth =
+        splitAmount *
+        (
+            50 +
+            ring.radius * 0.6
+        ) *
+        ring.direction;
+
+
+    /*
+       Rất nhẹ breathing bằng sin
+    */
+
+    const breathing =
+        Math.sin(
+            time*0.0015 +
+            ring.radius
+        ) * 2;
+
+
+    for(
+        let i=0;
+        i<=180;
+        i++
+    ){
+
+        const a =
+            i/180*TAU;
+
+
+        let p = {
+
+            x:
+                Math.cos(a) *
+                (ring.radius + breathing),
+
+            y:
+                Math.sin(a) *
+                (ring.radius + breathing),
+
+            z:depth
+        };
+
+
+        p =
+            transform(
+                p,
+                ring.tiltX,
+                ring.tiltY,
+                0
+            );
+
+
+        points.push(
+            project(p)
+        );
+
+    }
+
+
+    ctx.beginPath();
+
+
+    for(
+        let i=0;
+        i<points.length;
+        i++
+    ){
+
+        const p = points[i];
+
+        if(i===0){
+
+            ctx.moveTo(
+                p.x,
+                p.y
+            );
+
+        }else{
+
+            ctx.lineTo(
+                p.x,
+                p.y
+            );
+
+        }
+
+    }
+
+
+    ctx.strokeStyle =
+        COLORS[ring.color];
+
+    ctx.globalAlpha =
+        0.35 +
+        splitAmount*0.2;
+
+    ctx.lineWidth =
+        1.2;
+
+    ctx.shadowColor =
+        COLORS[ring.color];
+
+    ctx.shadowBlur = 6;
+
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+
+}
+
+
+/* =========================================================
+   TAROT RUNE RING
+========================================================= */
+
+function drawGlyphs(
+    ring,
+    time
+){
+
+    const objects = [];
+
+    const splitAmount =
+        ease(split);
+
+
+    const depth =
+        splitAmount *
+        (
+            50 +
+            ring.radius*.6
+        ) *
+        ring.direction;
+
+
+    /*
+       Rotation cực chậm.
+    */
+
+    const rotation =
+        time *
+        ring.speed *
+        ring.direction;
+
+
+    for(
+        let i=0;
+        i<ring.count;
+        i++
+    ){
+
+        const a =
+            i/ring.count*
+            TAU +
+            rotation;
+
+
+        /*
+           Mỗi glyph có breathing
+        */
+
+        const pulse =
+            Math.sin(
+                time*.002+
+                i*.6
+            );
+
+
+        const radius =
+            ring.radius +
+            pulse*2;
+
+
+        let p = {
+
+            x:
+                Math.cos(a)*
+                radius,
+
+            y:
+                Math.sin(a)*
+                radius,
+
+            z:depth
+
+        };
+
+
+        p =
+            transform(
+                p,
+                ring.tiltX,
+                ring.tiltY,
+                0
+            );
+
+
+        const q =
+            project(p);
+
+
+        objects.push({
+
+            q:q,
+            index:i,
+            angle:a
+
+        });
+
+    }
+
+
+    /*
+       3D depth sort
+    */
+
+    objects.sort(
+        (a,b)=>
+            a.q.z-b.q.z
+    );
+
+
+    for(
+        const obj of objects
+    ){
+
+        const q = obj.q;
+
+
+        const chars =
+            ring.chars;
+
+
+        const char =
+            chars[
+                obj.index %
+                chars.length
+            ];
+
+
+        const pulse =
+            Math.sin(
+                time*.002+
+                obj.index*.5
+            );
+
+
+        const size =
+            (
+                12+
+                ring.radius/130
+            ) *
+            q.scale;
+
+
+        ctx.save();
+
+
+        ctx.translate(
+            q.x,
+            q.y
+        );
+
+
+        /*
+           Glyph xoay theo tangent
+        */
+
+        ctx.rotate(
+            obj.angle+
+            Math.PI/2
+        );
+
+
+        ctx.font =
+            `bold ${size}px serif`;
+
+        ctx.textAlign =
+            "center";
+
+        ctx.textBaseline =
+            "middle";
+
+
+        ctx.fillStyle =
+            COLORS[
+                ring.color
+            ];
+
+
+        ctx.globalAlpha =
+            .45+
+            q.scale*.45+
+            pulse*.05;
+
+
+        ctx.shadowColor =
+            COLORS[
+                ring.color
+            ];
+
+        ctx.shadowBlur =
+            5;
+
+
+        ctx.fillText(
+            char,
+            0,
+            0
+        );
+
+
+        ctx.restore();
+
+    }
+
+}
+
+
+/* =========================================================
+   TICKS
+========================================================= */
+
+function drawTicks(
+    radius,
+    count,
+    color,
+    time
+){
+
+    const splitAmount =
+        ease(split);
+
+
+    const depth =
+        splitAmount*30;
+
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        const a =
+            i/count*TAU +
+            time*.00005;
+
+
+        const length =
+            i%6===0
+            ? 14
+            : 6;
+
+
+        let p1={
+
+            x:Math.cos(a)*radius,
+            y:Math.sin(a)*radius,
+            z:depth
+
+        };
+
+
+        let p2={
+
+            x:Math.cos(a)*(radius+length),
+            y:Math.sin(a)*(radius+length),
+            z:depth
+
+        };
+
+
+        p1 =
+            project(
+                transform(
+                    p1,
+                    1.05,
+                    .05,
+                    0
+                )
+            );
+
+
+        p2 =
+            project(
+                transform(
+                    p2,
+                    1.05,
+                    .05,
+                    0
+                )
+            );
+
+
+        ctx.strokeStyle =
+            color;
+
+        ctx.globalAlpha =
+            i%6===0 ? .8 : .35;
+
+        ctx.lineWidth =
+            i%6===0 ? 2 : .7;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            p1.x,
+            p1.y
+        );
+
+        ctx.lineTo(
+            p2.x,
+            p2.y
+        );
+
+        ctx.stroke();
+
+    }
+
+    ctx.globalAlpha = 1;
+
+}
+
+
+/* =========================================================
+   GEOMETRIC TRIANGLES
+========================================================= */
+
+function polygon(
+    radius,
+    sides,
+    color,
+    rotation,
+    time
+){
+
+    const points=[];
+
+
+    const splitAmount =
+        ease(split);
+
+
+    const depth =
+        splitAmount*45;
+
+
+    for(
+        let i=0;
+        i<=sides;
+        i++
+    ){
+
+        const a =
+            i/sides*TAU+
+            rotation+
+            time*.0001;
+
+
+        let p={
+
+            x:
+                Math.cos(a)*
+                radius,
+
+            y:
+                Math.sin(a)*
+                radius,
+
+            z:depth
+
+        };
+
+
+        p =
+            transform(
+                p,
+                0.8,
+                0.3,
+                0
+            );
+
+
+        points.push(
+            project(p)
+        );
+
+    }
+
+
+    ctx.strokeStyle =
+        color;
+
+    ctx.globalAlpha = .6;
+
+    ctx.lineWidth = 1.5;
+
+    ctx.shadowColor =
+        color;
+
+    ctx.shadowBlur = 8;
+
+
+    ctx.beginPath();
+
+
+    for(
+        let i=0;
+        i<points.length;
+        i++
+    ){
+
+        if(i===0){
+
+            ctx.moveTo(
+                points[i].x,
+                points[i].y
+            );
+
+        }else{
+
+            ctx.lineTo(
+                points[i].x,
+                points[i].y
+            );
+
+        }
+
+    }
+
+
+    ctx.stroke();
+
+    ctx.globalAlpha = 1;
+
+}
+
+
+/* =========================================================
+   CENTER TAROT SIGIL
+========================================================= */
+
+function center(
+    time
+){
+
+    const pulse =
+        Math.sin(
+            time*.004
+        );
+
+
+    /*
+       Core không tách nhiều
+    */
+
+    const r =
+        32+
+        pulse*3;
+
+
+    ctx.save();
+
+
+    ctx.translate(
+        W/2,
+        H/2
+    );
+
+
+    /*
+       Glow
+    */
+
+    const glow =
+        ctx.createRadialGradient(
+            0,
+            0,
+            0,
+            0,
+            0,
+            100
+        );
+
+
+    glow.addColorStop(
+        0,
+        "rgba(255,255,255,.9)"
+    );
+
+    glow.addColorStop(
+        .15,
+        "rgba(80,230,255,.55)"
+    );
+
+    glow.addColorStop(
+        .35,
+        "rgba(180,70,255,.2)"
+    );
+
+    glow.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
+
+    ctx.fillStyle = glow;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        0,
+        0,
+        100+
+        pulse*5,
+        0,
+        TAU
+    );
+
+    ctx.fill();
+
+
+    /*
+       Outer center circle
+    */
+
+    ctx.strokeStyle =
+        "#8cecff";
+
+    ctx.lineWidth = 2;
+
+    ctx.shadowColor =
+        "#55ddff";
+
+    ctx.shadowBlur = 18;
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        0,
+        0,
+        r,
+        0,
+        TAU
+    );
+
+    ctx.stroke();
+
+
+    /*
+       Triangle
+    */
+
+    ctx.strokeStyle =
+        "#e37aff";
+
+    ctx.lineWidth = 1.5;
+
+
+    ctx.beginPath();
+
+
+    for(
+        let i=0;
+        i<=3;
+        i++
+    ){
+
+        const a =
+            i/3*TAU-
+            Math.PI/2;
+
+
+        const x =
+            Math.cos(a)*r*.78;
+
+        const y =
+            Math.sin(a)*r*.78;
+
+
+        if(i===0)
+            ctx.moveTo(x,y);
+        else
+            ctx.lineTo(x,y);
+
+    }
+
+
+    ctx.stroke();
+
+
+    /*
+       Central tarot eye
+    */
+
+    ctx.fillStyle =
+        "#ffffff";
+
+    ctx.shadowColor =
+        "#70eaff";
+
+    ctx.shadowBlur = 25;
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        0,
+        0,
+        7+
+        pulse,
+        0,
+        TAU
+    );
+
+    ctx.fill();
+
+
+    /*
+       Small symbols
+    */
+
+    const symbols =
+        [
+            "☉",
+            "☽",
+            "☿",
+            "♀",
+            "♂",
+            "♃",
+            "♄"
+        ];
+
+
+    for(
+        let i=0;
+        i<symbols.length;
+        i++
+    ){
+
+        const a =
+            i/7*TAU+
+            time*.0003;
+
+
+        const rr =
+            53+
+            pulse*2;
+
+
+        ctx.save();
+
+
+        ctx.translate(
+            Math.cos(a)*rr,
+            Math.sin(a)*rr
+        );
+
+
+        ctx.rotate(
+            a+
+            Math.PI/2
+        );
+
+
+        ctx.font =
+            "17px serif";
+
+        ctx.textAlign =
+            "center";
+
+        ctx.textBaseline =
+            "middle";
+
+
+        ctx.fillStyle =
+            COLORS[
+                i%COLORS.length
+            ];
+
+
+        ctx.fillText(
+            symbols[i],
+            0,
+            0
+        );
+
+
+        ctx.restore();
+
+    }
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   SPLIT PARTICLES
+========================================================= */
+
+const particles=[];
+
+
+function createParticles(){
+
+    particles.length=0;
+
+
+    for(
+        let i=0;
+        i<100;
+        i++
+    ){
+
+        const a =
+            Math.random()*TAU;
+
+
+        const radius =
+            60+
+            Math.random()*280;
+
+
+        particles.push({
+
+            angle:a,
+
+            radius:radius,
+
+            size:
+                Math.random()*2+
+                .5,
+
+            color:
+                Math.floor(
+                    Math.random()*
+                    COLORS.length
+                ),
+
+            phase:
+                Math.random()*TAU
+
+        });
+
+    }
+
+}
+
+
+createParticles();
+
+
+function particlesEffect(
+    time
+){
+
+    const amount =
+        ease(split);
+
+
+    if(amount<.01)
+        return;
+
+
+    ctx.save();
+
+
+    ctx.globalCompositeOperation =
+        "lighter";
+
+
+    for(
+        const p of particles
+    ){
+
+        const pulse =
+            Math.sin(
+                time*.003+
+                p.phase
+            );
+
+
+        const r =
+            p.radius*
+            amount;
+
+
+        const x =
+            W/2+
+            Math.cos(p.angle)*
+            r;
+
+
+        const y =
+            H/2+
+            Math.sin(p.angle)*
+            r;
+
+
+        ctx.fillStyle =
+            COLORS[p.color];
+
+
+        ctx.globalAlpha =
+            amount*.55;
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            p.size+
+            pulse*.5,
+            0,
+            TAU
+        );
+
+        ctx.fill();
+
+    }
+
+
+    ctx.restore();
+
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+function animate(time){
+
+    updateCamera();
+
+    updateSplit();
+
+
+    background(time);
+
+
+    /*
+       Outer circle
+    */
+
+    for(
+        const ring of rings
+    ){
+
+        drawCircle(
+            ring,
+            time
+        );
+
+    }
+
+
+    /*
+       Tick marks
+    */
+
+    drawTicks(
+        305,
+        72,
+        COLORS[0],
+        time
+    );
+
+
+    /*
+       Geometric layers
+    */
+
+    polygon(
+        310,
+        8,
+        COLORS[5],
+        time*.00008,
+        time
+    );
+
+
+    polygon(
+        245,
+        6,
+        COLORS[2],
+        -time*.00012,
+        time
+    );
+
+
+    polygon(
+        175,
+        4,
+        COLORS[3],
+        time*.00018,
+        time
+    );
+
+
+    /*
+       Tarot glyphs
+    */
+
+    for(
+        const ring of rings
+    ){
+
+        drawGlyphs(
+            ring,
+            time
+        );
+
+    }
+
+
+    /*
+       Split particles
+    */
+
+    particlesEffect(
+        time
+    );
+
+
+    /*
+       Core
+    */
+
+    center(time);
+
+
+    requestAnimationFrame(
+        animate
+    );
+
+}
+
+
+animate(0);
+
+</script>
+
+</body>
+</html>
+```
