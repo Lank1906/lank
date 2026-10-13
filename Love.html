@@ -5,67 +5,146 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#190811">
-<title>Gửi em một lá thư ♥</title>
+<title>Một lá thư dành cho em ♥</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Great+Vibes&display=swap"
+rel="stylesheet">
 
 <style>
 :root {
   --pink: #ffb4cb;
   --gold: #e9c99b;
   --cream: #fff4ed;
-  --muted: #d9b8c6;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
 body {
   margin: 0;
   min-height: 100vh;
-  overflow-x: hidden;
   color: var(--cream);
-  background:
-    radial-gradient(ellipse at 50% 0%, #772742 0%, transparent 50%),
-    radial-gradient(ellipse at 0% 100%, #462039 0%, transparent 48%),
-    linear-gradient(155deg, #13060e, #2c1122 58%, #160812);
+  background: radial-gradient(ellipse at top, #70213f, transparent 65%),
+              linear-gradient(150deg, #13060e, #2c1122, #160812);
   font-family: "Be Vietnam Pro", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-button { font: inherit; }
-button:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 5px;
-}
-button:disabled { cursor: wait; opacity: .65; }
-
+button { font: inherit; cursor: pointer; }
 #stars, #petals, #effects {
   position: fixed;
   inset: 0;
-  pointer-events: none;
   overflow: hidden;
+  pointer-events: none;
 }
 #stars { z-index: 1; }
 #petals { z-index: 4; }
 #effects { z-index: 20; }
 
-.glow {
+#introScreen {
   position: fixed;
-  z-index: 0;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  filter: blur(85px);
-  opacity: .16;
-  background: #ff6596;
-  pointer-events: none;
-  animation: glowDrift 15s ease-in-out infinite alternate;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+  text-align: center;
+  background: radial-gradient(ellipse at center, #70213f, #190811 75%);
+  transition: opacity .8s, visibility .8s;
 }
-.glow.a { top: 10%; left: -120px; }
-.glow.b { bottom: 5%; right: -120px; background: #c18bb8; }
-@keyframes glowDrift {
-  to { transform: translate(80px,60px) scale(1.2); }
+#introScreen.intro-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.intro-content {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 380px);
+  animation: appear 1s ease both;
+}
+.intro-flowers {
+  font-size: 30px;
+  letter-spacing: 8px;
+  animation: float 3s ease-in-out infinite;
+}
+.intro-heart {
+  margin: 24px auto;
+  color: #ff9cbd;
+  font-size: 90px;
+  text-shadow: 0 0 25px #ff5d97, 0 0 60px #ff5d9766;
+  animation: beat 1.4s infinite;
+}
+.intro-content h2 {
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+.intro-content p {
+  color: #e7bdce;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.loading-track {
+  width: 180px;
+  height: 3px;
+  overflow: hidden;
+  margin: 24px auto;
+  background: #ffffff20;
+  border-radius: 10px;
+}
+.loading-progress {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff94b7, #ffe4d3);
+  animation: loading 1.5s ease-in-out infinite;
+}
+#enterGift {
+  padding: 14px 28px;
+  border: 1px solid #ffd4e4;
+  border-radius: 40px;
+  background: linear-gradient(135deg, #ffe4ed, #ff9cbd);
+  color: #68213e;
+  font-weight: 700;
+  box-shadow: 0 0 28px #ff8db444;
+}
+.intro-note {
+  margin-top: 28px;
+  color: #d4a5ba;
+  font-size: 9px;
+  letter-spacing: 3px;
+}
+.intro-particle {
+  position: absolute;
+  top: -30px;
+  left: var(--left);
+  font-size: var(--size);
+  animation: fall var(--duration) linear forwards;
+  pointer-events: none;
+}
+@keyframes loading {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(350%); }
+}
+@keyframes appear {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  50% { transform: translateY(-8px); }
+}
+@keyframes beat {
+  0%,100% { transform: scale(1); }
+  15% { transform: scale(1.13); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.08); }
+}
+@keyframes fall {
+  0% { opacity: 0; transform: translateY(-5vh) rotate(0); }
+  15% { opacity: .9; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--drift),110vh) rotate(540deg);
+  }
 }
 .star {
   position: absolute;
@@ -74,9 +153,9 @@ button:disabled { cursor: wait; opacity: .65; }
   border-radius: 50%;
   background: #fff3d7;
   box-shadow: 0 0 9px 2px #ffc1d566;
-  animation: sparkle var(--speed) ease-in-out infinite alternate;
+  animation: twinkle var(--speed) ease-in-out infinite alternate;
 }
-@keyframes sparkle {
+@keyframes twinkle {
   from { opacity: .15; transform: scale(.6); }
   to { opacity: 1; transform: scale(1.8); }
 }
@@ -85,19 +164,15 @@ button:disabled { cursor: wait; opacity: .65; }
   position: relative;
   z-index: 2;
   width: min(490px, calc(100% - 28px));
-  margin: 0 auto;
+  margin: auto;
   padding: 38px 0 32px;
   text-align: center;
 }
-.eyebrow {
-  font-size: 9px;
-  letter-spacing: 4px;
-  color: var(--gold);
-}
+.eyebrow { font-size: 9px; letter-spacing: 4px; color: var(--gold); }
 h1 {
-  font-size: clamp(31px, 8vw, 45px);
-  line-height: 1.5;
+  font-size: clamp(30px, 8vw, 45px);
   font-weight: 400;
+  line-height: 1.5;
   margin: 22px 0 9px;
 }
 .script {
@@ -105,16 +180,8 @@ h1 {
   color: var(--pink);
   font-weight: 400;
 }
-h1 .script {
-  display: block;
-  font-size: 1.65em;
-  text-shadow: 0 0 35px #ff739c42;
-}
-.subtitle {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 2;
-}
+h1 .script { display: block; font-size: 1.65em; }
+.subtitle { color: #d9b8c6; font-size: 12px; line-height: 2; }
 .date {
   display: inline-block;
   margin: 21px 0 16px;
@@ -134,70 +201,33 @@ h1 .script {
   position: relative;
   border: 1px solid #ffbdd52c;
   border-radius: 50%;
-  background: radial-gradient(circle, #ff8db01b, transparent 72%);
-}
-.heart-orb::before, .heart-orb::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border: 1px solid #ffc0d328;
-  border-radius: 50%;
-  animation: ripple 3.2s ease-out infinite;
-}
-.heart-orb::after { animation-delay: 1.6s; }
-@keyframes ripple {
-  0% { transform: scale(.85); opacity: .6; }
-  100% { transform: scale(1.35); opacity: 0; }
 }
 .heart-orb span {
   color: #ff9db9;
   font-size: 40px;
-  filter: drop-shadow(0 0 12px #ff6799);
-  animation: heartbeat 2.1s ease-in-out infinite;
+  animation: beat 2.1s infinite;
 }
-@keyframes heartbeat {
-  0%,100% { transform: scale(1); }
-  12% { transform: scale(1.14); }
-  24% { transform: scale(1); }
-  36% { transform: scale(1.09); }
-  48% { transform: scale(1); }
-}
-.ornament { color: var(--gold); margin: 25px 0; font-size: 13px; }
-.hint {
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #e6b4c6;
-  margin: 0 0 20px;
-}
+.ornament { color: var(--gold); margin: 25px 0; }
+.hint { font-size: 10px; letter-spacing: 2px; color: #e6b4c6; }
 
-/* Phong thư 3D */
 .envelope {
   position: relative;
   display: block;
-  isolation: isolate;
   width: min(100%, 320px);
   height: 190px;
   padding: 0;
-  margin: 0 auto 38px;
+  margin: 25px auto 38px;
   border: 0;
-  border-radius: 5px;
   background: transparent;
-  cursor: pointer;
   perspective: 1000px;
   filter: drop-shadow(0 18px 24px #0006);
-  transition: transform .3s ease;
-  -webkit-tap-highlight-color: transparent;
 }
-.envelope:hover:not(.opened) { transform: translateY(-4px); }
-.envelope:active { transform: scale(.985); }
 .env-back {
   position: absolute;
   inset: 0;
-  z-index: 0;
   border: 1px solid #e9c99b;
   border-radius: 5px;
   background: linear-gradient(140deg, #a43a5e, #60162f);
-  pointer-events: none;
 }
 .paper {
   position: absolute;
@@ -214,11 +244,8 @@ h1 .script {
   gap: 8px;
   background: linear-gradient(145deg, #fffaf2, #f6dfe7);
   color: #873451;
-  pointer-events: none;
-  transition: transform 1s cubic-bezier(.2,.75,.2,1);
+  transition: transform 1s;
 }
-.paper-heart { font-size: 23px; }
-.paper-small { font-size: 9px; letter-spacing: 2px; }
 .paper-script { font: 30px "Great Vibes", cursive; }
 .env-front {
   position: absolute;
@@ -227,7 +254,6 @@ h1 .script {
   border-radius: 5px;
   background: linear-gradient(145deg, #f18ca9, #a62c51);
   clip-path: polygon(0 0,50% 57%,100% 0,100% 100%,0 100%);
-  pointer-events: none;
 }
 .env-flap {
   position: absolute;
@@ -239,8 +265,7 @@ h1 .script {
   background: linear-gradient(150deg, #ffdae4, #df7597);
   clip-path: polygon(0 0,100% 0,50% 100%);
   transform-origin: top center;
-  transition: transform .75s ease, opacity .4s;
-  pointer-events: none;
+  transition: transform .75s, opacity .4s;
 }
 .seal {
   position: absolute;
@@ -256,35 +281,20 @@ h1 .script {
   border-radius: 50%;
   color: #76243f;
   background: radial-gradient(circle at 30% 25%, #fff2cf, #d9a064);
-  box-shadow: 0 4px 14px #40102255;
-  pointer-events: none;
-  transition: opacity .3s, transform .3s;
+  transition: opacity .3s;
 }
-.envelope.opened .env-flap {
-  transform: rotateX(180deg);
-  opacity: .2;
-}
+.envelope.opened .env-flap { transform: rotateX(180deg); opacity: .2; }
 .envelope.opened .paper { transform: translateY(-105px); }
-.envelope.opened .seal {
-  opacity: 0;
-  transform: translate(-50%,-50%) scale(.5);
-}
+.envelope.opened .seal { opacity: 0; }
 
-/* Nội dung thư */
-.letter { display: none; text-align: left; margin-top: 18px; }
-.letter.visible { display: block; animation: reveal .9s ease both; }
-@keyframes reveal {
-  from { opacity: 0; transform: translateY(25px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.letter { display: none; margin-top: 18px; text-align: left; }
+.letter.visible { display: block; animation: appear .9s ease both; }
 .letter-card {
   padding: 28px 23px;
   border: 1px solid #ffbdd52e;
   border-radius: 20px;
   background: linear-gradient(145deg, #ffffff0e, #ffffff04);
-  box-shadow: 0 18px 55px #0003, inset 0 1px #ffffff0c;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 18px 55px #0003;
 }
 .letter-title {
   text-align: center;
@@ -305,7 +315,6 @@ h1 .script {
   margin: 24px 0;
   border-top: 1px solid #ffb9ce35;
   border-bottom: 1px solid #ffb9ce35;
-  color: #ffe1e9;
   font-size: 13px;
   line-height: 2;
 }
@@ -322,29 +331,18 @@ h1 .script {
   text-align: center;
 }
 .question-label { font-size: 9px; letter-spacing: 3px; color: var(--gold); }
-.question h2 {
-  margin: 16px 0 22px;
-  font-size: 15px;
-  line-height: 2;
-  font-weight: 500;
-}
+.question h2 { font-size: 15px; line-height: 2; font-weight: 500; }
 .question h2 .script { display: block; font-size: 39px; }
 .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.btn {
-  border-radius: 30px;
-  padding: 13px 16px;
-  border: 1px solid #ffbed14a;
-  font-size: 11px;
-  cursor: pointer;
-  transition: transform .2s, box-shadow .2s;
-}
-.btn:hover { transform: translateY(-3px); box-shadow: 0 7px 20px #0002; }
+.btn { border-radius: 30px; padding: 13px 16px; font-size: 11px; }
 .btn-yes {
+  border: 0;
   background: linear-gradient(120deg, #ffe7ee, #ff9fba);
   color: #5d1936;
   font-weight: 700;
 }
-.btn-think { background: #ffffff09; color: #ffe5ec; }
+.btn-think { border: 1px solid #ffbed14a; background: #ffffff09; color: #ffe5ec; }
+.btn:hover { transform: translateY(-2px); }
 .response {
   min-height: 30px;
   margin-top: 19px;
@@ -353,47 +351,25 @@ h1 .script {
   line-height: 1.9;
   text-align: center;
   overflow-wrap: anywhere;
-  white-space: pre-wrap;
 }
 .footer { margin-top: 35px; font-size: 9px; letter-spacing: 3px; color: #caa0b4; }
 .footer span { color: #ff9fbb; }
-
-.petal {
-  position: absolute;
-  top: -35px;
-  opacity: 0;
-  animation: fall var(--duration) linear forwards;
-  filter: drop-shadow(0 0 5px #ffb5cb35);
-}
-@keyframes fall {
-  0% { opacity: 0; transform: translate(0,-5vh) rotate(0); }
-  10% { opacity: .8; }
-  50% { transform: translate(var(--drift),50vh) rotate(280deg); }
-  90% { opacity: .6; }
-  100% {
-    opacity: 0;
-    transform: translate(calc(var(--drift)*-.4),110vh) rotate(600deg);
-  }
-}
 .burst {
   position: fixed;
   z-index: 21;
   left: var(--x);
   top: var(--y);
-  font-size: var(--size);
   pointer-events: none;
-  animation: burst 1.7s cubic-bezier(.1,.7,.3,1) forwards;
+  animation: burst 1.7s ease forwards;
 }
 @keyframes burst {
   0% { opacity: 1; transform: scale(.4); }
-  70% { opacity: 1; }
   100% {
     opacity: 0;
     transform: translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(1.2);
   }
 }
 @media(max-width:370px) {
-  .page { width: calc(100% - 22px); }
   .letter-card { padding: 23px 16px; }
   .envelope { height: 168px; width: min(100%,290px); }
 }
@@ -402,13 +378,26 @@ h1 .script {
     animation-duration:.01ms!important;
     animation-iteration-count:1!important;
     transition-duration:.01ms!important;
-    scroll-behavior:auto!important;
   }
 }
 </style>
 </head>
-
 <body>
+
+<!-- Màn hình mở đầu hoạt động độc lập với thư viện ngoài -->
+<div id="introScreen">
+  <div class="intro-particles" id="introParticles"></div>
+  <div class="intro-content">
+    <div class="intro-flowers">🌸 🌷 🌸</div>
+    <div class="intro-heart">♥</div>
+    <h2>Một món quà dành cho em</h2>
+    <p>Một chút yêu thương đang chờ em khám phá...</p>
+    <div class="loading-track"><div class="loading-progress"></div></div>
+    <button id="enterGift" type="button">Mở món quà ♥</button>
+    <div class="intro-note">MADE WITH LOVE · 20.10</div>
+  </div>
+</div>
+
 <div class="glow a"></div>
 <div class="glow b"></div>
 <div id="stars"></div>
@@ -420,18 +409,15 @@ h1 .script {
   <h1>Happy <span class="script">Women's Day</span></h1>
   <div class="subtitle">Có một món quà nhỏ anh muốn dành riêng cho em</div>
   <div class="date">✧ &nbsp; 20 THÁNG 10 &nbsp; ✧</div>
-
   <div class="heart-orb"><span>♥</span></div>
   <div class="subtitle">Một lá thư nhỏ, một chút chân thành...</div>
   <div class="ornament">✧ ───── ♡ ───── ✧</div>
   <p class="hint" id="hint">CHẠM VÀO PHONG THƯ ĐỂ MỞ THƯ</p>
 
-  <button type="button" class="envelope" id="envelope"
-    aria-label="Mở phong thư" aria-expanded="false">
+  <button type="button" class="envelope" id="envelope" aria-label="Mở phong thư">
     <span class="env-back"></span>
     <span class="paper">
-      <span class="paper-heart">♥</span>
-      <span class="paper-small">A LETTER FOR YOU</span>
+      <span>♥</span>
       <span class="paper-script">With love...</span>
     </span>
     <span class="env-front"></span>
@@ -439,11 +425,10 @@ h1 .script {
     <span class="seal">♥</span>
   </button>
 
-  <section class="letter" id="letter" aria-hidden="true">
+  <section class="letter" id="letter">
     <article class="letter-card">
       <h2 class="letter-title">Gửi em thương...</h2>
       <p>Gửi <span id="recipient">cô gái đặc biệt</span> ♡,</p>
-
       <p>
         Chúc em ngày 20/10 thật rạng rỡ, luôn xinh đẹp,
         vui vẻ và nhận được thật nhiều yêu thương.
@@ -451,7 +436,6 @@ h1 .script {
         những niềm vui nhỏ bé và những người thật lòng
         trân trọng em.
       </p>
-
       <p>
         Anh không biết từ khi nào, những cuộc trò chuyện
         với em đã trở thành điều anh mong đợi. Đôi khi,
@@ -459,26 +443,18 @@ h1 .script {
         Những điều bình thường cũng trở nên đặc biệt hơn
         khi có em.
       </p>
-
       <div class="quote">
         Nếu được ước một điều trong ngày hôm nay,
         anh mong mình có thể trở thành
         <span class="script">một người đặc biệt với em.</span>
       </div>
-
       <p>
-        Anh không muốn dùng những lời hoa mỹ để hứa
-        về một tương lai quá xa. Anh chỉ mong có cơ hội
-        được quan tâm em nhiều hơn, lắng nghe những câu
-        chuyện của em, cùng em chia sẻ niềm vui và ở bên
-        em trong những ngày không vui.
+        Anh không muốn dùng những lời hoa mỹ để hứa về
+        một tương lai quá xa. Anh chỉ mong có cơ hội được
+        quan tâm em nhiều hơn, lắng nghe những câu chuyện
+        của em và cùng em chia sẻ những niềm vui nhỏ bé.
       </p>
-
-      <p>
-        Nhân ngày đặc biệt này, anh muốn hỏi em một điều
-        mà anh đã giữ trong lòng từ lâu...
-      </p>
-
+      <p>Nhân ngày đặc biệt này, anh muốn hỏi em một điều...</p>
       <p class="signature">Một người đang thích em ♥</p>
 
       <div class="question">
@@ -487,7 +463,6 @@ h1 .script {
           <span class="script">Em đồng ý</span>
           cho anh cơ hội làm người yêu em nhé?
         </h2>
-
         <div class="buttons">
           <button type="button" class="btn btn-yes" id="yesBtn">
             Đồng ý, mình thử nhé! 💗
@@ -500,1028 +475,230 @@ h1 .script {
       </div>
     </article>
   </section>
-
   <footer class="footer">MADE WITH <span>♥</span> JUST FOR YOU</footer>
 </main>
 
 <script>
-"use strict";
+/* Dùng duy nhất một đối tượng cấu hình để tránh lỗi khai báo trùng */
+(() => {
+  "use strict";
 
-/* Cấu hình EmailJS */
-const EMAIL_CONFIG = {
-  serviceID: "service_idmjbjb",
-  templateID: "template_e7s4am4",
-  publicKey: "69g4nxNP5JOYytqDS",
-  defaultEmail: "buixuanhoang9c@gmail.com"
-};
+  const EMAIL_CONFIG = Object.freeze({
+    serviceID: "service_idmjbjb",
+    templateID: "template_e7s4am4",
+    publicKey: "69g4nxNP5JOYytqDS",
+    defaultEmail: "buixuanhoang9c@gmail.com"
+  });
 
-/* Đọc tham số URL */
-const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(location.search);
+  const recipientName = (params.get("name") || "cô gái đặc biệt").trim().slice(0, 60)
+    || "cô gái đặc biệt";
+  const notificationEmail = (params.get("to") || EMAIL_CONFIG.defaultEmail).trim();
 
-const recipientName = (
-  params.get("name") || "cô gái đặc biệt"
-).trim().slice(0, 60) || "cô gái đặc biệt";
+  document.getElementById("recipient").textContent = recipientName;
+  document.title = `Gửi ${recipientName} - Thiệp 20/10 ♥`;
 
-const notificationEmail = (
-  params.get("to") || EMAIL_CONFIG.defaultEmail
-).trim().slice(0, 254);
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-document.getElementById("recipient").textContent = recipientName;
-document.title = `Gửi ${recipientName} - Thiệp 20/10 ♥`;
+  /* Hiệu ứng màn hình mở đầu */
+  const intro = document.getElementById("introScreen");
+  const enterButton = document.getElementById("enterGift");
+  const introParticles = document.getElementById("introParticles");
+  let entered = false;
 
-const reducedMotion = window.matchMedia(
-  "(prefers-reduced-motion: reduce)"
-).matches;
-
-/* Hiệu ứng sao */
-const stars = document.getElementById("stars");
-
-for (let i = 0; i < 65; i++) {
-  const star = document.createElement("span");
-  star.className = "star";
-  star.style.left = Math.random() * 100 + "%";
-  star.style.top = Math.random() * 100 + "%";
-  star.style.setProperty("--speed", (2 + Math.random() * 4) + "s");
-  star.style.animationDelay = Math.random() * 4 + "s";
-  stars.appendChild(star);
-}
-
-/* Hiệu ứng cánh hoa */
-const petals = document.getElementById("petals");
-
-function addPetal() {
-  if (reducedMotion || document.hidden || petals.childElementCount >= 32) return;
-
-  const petal = document.createElement("span");
-  petal.className = "petal";
-  petal.textContent = ["🌸", "🌷", "♡", "✿", "♥"][
-    Math.floor(Math.random() * 5)
-  ];
-  petal.style.left = Math.random() * 100 + "%";
-  petal.style.fontSize = (12 + Math.random() * 13) + "px";
-  petal.style.setProperty("--duration", (9 + Math.random() * 7) + "s");
-  petal.style.setProperty("--drift", (Math.random() * 120 - 60) + "px");
-  petals.appendChild(petal);
-
-  setTimeout(() => petal.remove(), 17000);
-}
-
-if (!reducedMotion) {
-  for (let i = 0; i < 15; i++) setTimeout(addPetal, i * 250);
-  setInterval(addPetal, 650);
-}
-
-/* Hiệu ứng trái tim */
-const effects = document.getElementById("effects");
-
-function burstHearts(count) {
-  if (reducedMotion) return;
-
-  const icons = ["💗", "💖", "💕", "♥", "✨", "🌸"];
-
-  for (let i = 0; i < count; i++) {
+  function makeIntroParticle() {
+    if (entered || document.hidden || introParticles.childElementCount > 35) return;
     const item = document.createElement("span");
-    item.className = "burst";
-    item.textContent = icons[Math.floor(Math.random() * icons.length)];
-    item.style.setProperty("--x", (8 + Math.random() * 84) + "vw");
-    item.style.setProperty("--y", (35 + Math.random() * 35) + "vh");
-    item.style.setProperty("--dx", (Math.random() * 320 - 160) + "px");
-    item.style.setProperty("--dy", (-80 - Math.random() * 230) + "px");
-    item.style.setProperty("--rot", (Math.random() * 240 - 120) + "deg");
-    item.style.setProperty("--size", (14 + Math.random() * 18) + "px");
-    effects.appendChild(item);
-    setTimeout(() => item.remove(), 1800);
-  }
-}
-
-/* Mở phong thư */
-const envelope = document.getElementById("envelope");
-const letter = document.getElementById("letter");
-const hint = document.getElementById("hint");
-let opened = false;
-
-envelope.addEventListener("click", () => {
-  if (opened) {
-    letter.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
-      block: "start"
-    });
-    return;
+    item.className = "intro-particle";
+    item.textContent = ["♥", "♡", "🌸", "🌷", "✿", "💕"][Math.floor(Math.random() * 6)];
+    item.style.setProperty("--left", Math.random() * 100 + "%");
+    item.style.setProperty("--size", 12 + Math.random() * 20 + "px");
+    item.style.setProperty("--duration", 5 + Math.random() * 6 + "s");
+    item.style.setProperty("--drift", (Math.random() * 160 - 80) + "px");
+    introParticles.appendChild(item);
+    setTimeout(() => item.remove(), 12000);
   }
 
-  opened = true;
-  envelope.classList.add("opened");
-  envelope.setAttribute("aria-expanded", "true");
-  hint.textContent = "♡ MỘT LÁ THƯ DÀNH RIÊNG CHO EM ♡";
-
-  letter.style.display = "block";
-  letter.classList.add("visible");
-  letter.setAttribute("aria-hidden", "false");
-
-  burstHearts(24);
-
-  setTimeout(() => {
-    letter.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
-      block: "start"
-    });
-  }, reducedMotion ? 0 : 300);
-});
-
-/* EmailJS */
-const yesBtn = document.getElementById("yesBtn");
-const thinkBtn = document.getElementById("thinkBtn");
-const responseBox = document.getElementById("response");
-
-let submitting = false;
-let emailReady = false;
-
-function showStatus(message, type = "info") {
-  responseBox.textContent = message;
-  responseBox.style.color =
-    type === "success" ? "#a8f0c6" :
-    type === "error" ? "#ff9cad" :
-    "#ffc4d6";
-}
-
-function initEmailJS() {
-  if (!window.emailjs) {
-    showStatus(
-      "Chưa tải được dịch vụ gửi thư. Em thử tải lại trang nhé 🌷",
-      "error"
-    );
-    return;
+  if (!reducedMotion) {
+    for (let i = 0; i < 18; i++) setTimeout(makeIntroParticle, i * 180);
+    const introTimer = setInterval(() => {
+      if (entered) clearInterval(introTimer);
+      else makeIntroParticle();
+    }, 350);
   }
 
-  try {
-    emailjs.init({ publicKey: EMAIL_CONFIG.publicKey });
-    emailReady = true;
-  } catch {
-    showStatus(
-      "Chưa kết nối được dịch vụ gửi thư. Em thử lại sau nhé 🌷",
-      "error"
-    );
-  }
-}
-
-initEmailJS();
-
-function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-async function sendChoiceEmail(choice) {
-  if (!emailReady || !window.emailjs) {
-    throw new Error("EmailJS chưa sẵn sàng. Hãy thử tải lại trang.");
+  /* Sao và cánh hoa nền */
+  const stars = document.getElementById("stars");
+  for (let i = 0; i < 65; i++) {
+    const star = document.createElement("span");
+    star.className = "star";
+    star.style.left = Math.random() * 100 + "%";
+    star.style.top = Math.random() * 100 + "%";
+    star.style.setProperty("--speed", 2 + Math.random() * 4 + "s");
+    star.style.animationDelay = Math.random() * 4 + "s";
+    stars.appendChild(star);
   }
 
-  if (!validateEmail(notificationEmail)) {
-    throw new Error("Địa chỉ email nhận thông báo không hợp lệ.");
+  const petals = document.getElementById("petals");
+  function addPetal() {
+    if (reducedMotion || document.hidden || petals.childElementCount >= 32) return;
+    const petal = document.createElement("span");
+    petal.className = "intro-particle";
+    petal.style.left = Math.random() * 100 + "%";
+    petal.style.setProperty("--left", Math.random() * 100 + "%");
+    petal.style.setProperty("--size", 12 + Math.random() * 13 + "px");
+    petal.style.setProperty("--duration", 9 + Math.random() * 7 + "s");
+    petal.style.setProperty("--drift", (Math.random() * 120 - 60) + "px");
+    petal.textContent = ["🌸", "🌷", "♡", "✿", "♥"][Math.floor(Math.random() * 5)];
+    petals.appendChild(petal);
+    setTimeout(() => petal.remove(), 17000);
+  }
+  if (!reducedMotion) {
+    for (let i = 0; i < 12; i++) setTimeout(addPetal, i * 300);
+    setInterval(addPetal, 800);
   }
 
-  const templateParams = {
-    recipient_name: recipientName,
-    choice: choice,
-    reply_time: new Date().toLocaleString("vi-VN", {
-      timeZone: "Asia/Ho_Chi_Minh"
-    }),
-    message: "Phản hồi từ thiệp chúc mừng ngày 20/10.",
-    to_email: notificationEmail
-  };
-
-  const result = await emailjs.send(
-    EMAIL_CONFIG.serviceID,
-    EMAIL_CONFIG.templateID,
-    templateParams
-  );
-
-  if (result.status !== 200) {
-    throw new Error("Dịch vụ gửi thư chưa chấp nhận yêu cầu.");
-  }
-
-  return result;
-}
-
-/* Gửi thông báo, không hiển thị thông tin kỹ thuật */
-async function handleChoice(choice) {
-  if (submitting) return;
-
-  submitting = true;
-  yesBtn.disabled = true;
-  thinkBtn.disabled = true;
-
-  showStatus("Anh đang gửi lời nhắn... 💌");
-
-  try {
-    await sendChoiceEmail(choice);
-
-    showStatus(
-      "Đã gửi lời nhắn thành công! ❤️",
-      "success"
-    );
-
-    burstHearts(choice.startsWith("Đồng ý") ? 45 : 15);
-
-  } catch {
-    showStatus(
-      "Gửi lời nhắn chưa thành công. Em thử lại sau nhé 💗",
-      "error"
-    );
-  } finally {
-    submitting = false;
-    yesBtn.disabled = false;
-    thinkBtn.disabled = false;
-  }
-}
-
-yesBtn.addEventListener("click", () => {
-  handleChoice("Đồng ý làm người yêu ❤️");
-});
-
-thinkBtn.addEventListener("click", () => {
-  handleChoice("Cho em thêm thời gian 🌷");
-});
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#190811">
-<title>For You ♥</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
-<style>
-:root {
-  --bg: #190811;
-  --pink: #ffb4cb;
-  --rose: #ed789e;
-  --gold: #e9c99b;
-  --cream: #fff4ed;
-  --muted: #d9b8c6;
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  overflow-x: hidden;
-  color: var(--cream);
-  background: var(--bg);
-  font-family: "Be Vietnam Pro", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-button { font: inherit; }
-button:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 5px;
-}
-button:disabled { cursor: wait; }
-
-#scene {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 0%, #772742 0%, transparent 50%),
-    radial-gradient(ellipse at 0% 100%, #462039 0%, transparent 48%),
-    linear-gradient(155deg, #13060e, #2c1122 58%, #160812);
-}
-.glow {
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  filter: blur(85px);
-  opacity: .17;
-  background: #ff6596;
-  animation: glowDrift 15s ease-in-out infinite alternate;
-}
-.glow.a { top: 10%; left: -120px; }
-.glow.b {
-  bottom: 5%;
-  right: -120px;
-  background: #c18bb8;
-  animation-delay: -7s;
-}
-@keyframes glowDrift {
-  to { transform: translate(90px, 70px) scale(1.25); }
-}
-#stars, #petals, #effects {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-#stars { z-index: 1; }
-#petals { z-index: 4; }
-#effects { z-index: 20; }
-
-.star {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  border-radius: 50%;
-  background: #fff3d7;
-  box-shadow: 0 0 9px 2px #ffc1d566;
-  animation: sparkle var(--speed) ease-in-out infinite alternate;
-}
-@keyframes sparkle {
-  from { opacity: .12; transform: scale(.6); }
-  to { opacity: 1; transform: scale(1.8); }
-}
-
-.page {
-  position: relative;
-  z-index: 2;
-  width: min(100% - 28px, 490px);
-  margin: 0 auto;
-  padding: 38px 0 32px;
-  text-align: center;
-}
-.eyebrow {
-  font-size: 9px;
-  letter-spacing: 4px;
-  color: var(--gold);
-}
-h1 {
-  font-size: clamp(31px, 8vw, 45px);
-  line-height: 1.5;
-  font-weight: 400;
-  margin: 22px 0 9px;
-}
-.script {
-  font-family: "Great Vibes", "Brush Script MT", cursive;
-  color: var(--pink);
-  font-weight: 400;
-}
-h1 .script {
-  display: block;
-  font-size: 1.65em;
-  text-shadow: 0 0 35px #ff739c42;
-}
-.subtitle {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 2;
-}
-.date {
-  display: inline-block;
-  margin: 21px 0 16px;
-  padding: 10px 17px;
-  border: 1px solid #e9c99b55;
-  border-radius: 40px;
-  color: var(--gold);
-  font-size: 9px;
-  letter-spacing: 3px;
-  background: #ffffff04;
-}
-.heart-orb {
-  width: 94px;
-  height: 94px;
-  display: grid;
-  place-items: center;
-  margin: 3px auto 22px;
-  position: relative;
-  border: 1px solid #ffbdd52c;
-  border-radius: 50%;
-  background: radial-gradient(circle, #ff8db01b, transparent 72%);
-  box-shadow: 0 0 50px #ff759b12;
-}
-.heart-orb::before,
-.heart-orb::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border: 1px solid #ffc0d328;
-  border-radius: 50%;
-  animation: ripple 3.2s ease-out infinite;
-}
-.heart-orb::after { animation-delay: 1.6s; }
-@keyframes ripple {
-  0% { transform: scale(.85); opacity: .6; }
-  100% { transform: scale(1.35); opacity: 0; }
-}
-.heart-orb span {
-  color: #ff9db9;
-  font-size: 40px;
-  filter: drop-shadow(0 0 12px #ff6799);
-  animation: heartbeat 2.1s ease-in-out infinite;
-}
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  12% { transform: scale(1.14); }
-  24% { transform: scale(1); }
-  36% { transform: scale(1.09); }
-  48% { transform: scale(1); }
-}
-.ornament {
-  color: var(--gold);
-  margin: 25px 0;
-  font-size: 13px;
-}
-.hint {
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #e6b4c6;
-  margin: 0 0 20px;
-}
-
-/* PHONG THƯ */
-.envelope {
-  position: relative;
-  display: block;
-  isolation: isolate;
-  width: min(100%, 320px);
-  height: 190px;
-  padding: 0;
-  margin: 0 auto 38px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  cursor: pointer;
-  perspective: 1000px;
-  filter: drop-shadow(0 18px 24px #0006);
-  -webkit-tap-highlight-color: transparent;
-  transition: transform .3s ease;
-}
-.envelope:hover:not(.opened) { transform: translateY(-4px); }
-.envelope:active { transform: scale(.985); }
-
-.env-back {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border: 1px solid #e9c99b;
-  border-radius: 5px;
-  background: linear-gradient(140deg, #a43a5e, #60162f);
-  pointer-events: none;
-}
-.paper {
-  position: absolute;
-  z-index: 1;
-  left: 6%;
-  width: 88%;
-  height: 88%;
-  bottom: 4%;
-  border-radius: 3px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: linear-gradient(145deg, #fffaf2, #f6dfe7);
-  color: #873451;
-  pointer-events: none;
-  transition: transform 1s cubic-bezier(.2,.75,.2,1);
-}
-.paper-heart { font-size: 23px; }
-.paper-small { font-size: 9px; letter-spacing: 2px; }
-.paper-script { font: 30px "Great Vibes", cursive; }
-
-.env-front {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  border-radius: 5px;
-  background: linear-gradient(145deg, #f18ca9, #a62c51);
-  clip-path: polygon(0 0, 50% 57%, 100% 0, 100% 100%, 0 100%);
-  pointer-events: none;
-}
-.env-flap {
-  position: absolute;
-  z-index: 4;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 64%;
-  background: linear-gradient(150deg, #ffdae4, #df7597);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform-origin: top center;
-  transition: transform .75s ease, opacity .4s;
-  pointer-events: none;
-}
-.seal {
-  position: absolute;
-  z-index: 5;
-  top: 56%;
-  left: 50%;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  transform: translate(-50%, -50%);
-  border: 1px solid #fff0ca;
-  border-radius: 50%;
-  color: #76243f;
-  background: radial-gradient(circle at 30% 25%, #fff2cf, #d9a064);
-  box-shadow: 0 4px 14px #40102255;
-  pointer-events: none;
-  transition: opacity .3s, transform .3s;
-}
-.envelope.opened .env-flap {
-  transform: rotateX(180deg);
-  opacity: .2;
-}
-.envelope.opened .paper {
-  transform: translateY(-105px);
-}
-.envelope.opened .seal {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(.5);
-}
-
-/* NỘI DUNG LÁ THƯ */
-.letter {
-  display: none;
-  text-align: left;
-  margin-top: 18px;
-}
-.letter.visible {
-  display: block;
-  animation: reveal .9s ease both;
-}
-@keyframes reveal {
-  from { opacity: 0; transform: translateY(25px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.letter-card {
-  padding: 28px 23px;
-  border: 1px solid #ffbdd52e;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #ffffff0e, #ffffff04);
-  box-shadow: 0 18px 55px #0003, inset 0 1px #ffffff0c;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-.letter-title {
-  text-align: center;
-  color: var(--pink);
-  font: 43px "Great Vibes", cursive;
-  margin: 0 0 25px;
-}
-.letter p {
-  font-size: 13px;
-  line-height: 2.15;
-  font-weight: 400;
-  color: #f3dfe7;
-  overflow-wrap: anywhere;
-}
-#recipient { color: #ffc1d5; font-weight: 700; }
-.quote {
-  text-align: center;
-  padding: 20px 8px;
-  margin: 24px 0;
-  border-top: 1px solid #ffb9ce35;
-  border-bottom: 1px solid #ffb9ce35;
-  color: #ffe1e9;
-  font-size: 13px;
-  line-height: 2;
-}
-.quote .script {
-  display: block;
-  font-size: 33px;
-}
-.signature {
-  text-align: right;
-  color: var(--pink) !important;
-  font: 29px "Great Vibes", cursive !important;
-}
-.question {
-  margin-top: 28px;
-  padding-top: 24px;
-  border-top: 1px solid #ffbdd526;
-  text-align: center;
-}
-.question-label {
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--gold);
-}
-.question h2 {
-  margin: 16px 0 22px;
-  font-size: 15px;
-  line-height: 2;
-  font-weight: 500;
-}
-.question h2 .script {
-  display: block;
-  font-size: 39px;
-}
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
-.btn {
-  border-radius: 30px;
-  padding: 13px 16px;
-  border: 1px solid #ffbed14a;
-  font-size: 11px;
-  cursor: pointer;
-  transition: transform .2s, box-shadow .2s, opacity .2s;
-}
-.btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 7px 20px #0002;
-}
-.btn:disabled { opacity: .55; cursor: wait; }
-.btn-yes {
-  background: linear-gradient(120deg, #ffe7ee, #ff9fba);
-  color: #5d1936;
-  font-weight: 700;
-}
-.btn-think {
-  background: #ffffff09;
-  color: #ffe5ec;
-}
-.response {
-  min-height: 30px;
-  margin-top: 19px;
-  color: #ffc4d6;
-  font-size: 12px;
-  line-height: 1.9;
-  text-align: center;
-  overflow-wrap: anywhere;
-}
-.footer {
-  margin-top: 35px;
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: #caa0b4;
-}
-.footer span { color: #ff9fbb; }
-
-.petal {
-  position: absolute;
-  top: -35px;
-  opacity: 0;
-  animation: fall var(--duration) linear forwards;
-  filter: drop-shadow(0 0 5px #ffb5cb35);
-}
-@keyframes fall {
-  0% { opacity: 0; transform: translate(0, -5vh) rotate(0); }
-  10% { opacity: .8; }
-  50% { transform: translate(var(--drift), 50vh) rotate(280deg); }
-  90% { opacity: .6; }
-  100% {
-    opacity: 0;
-    transform: translate(calc(var(--drift) * -.4), 110vh) rotate(600deg);
-  }
-}
-.burst {
-  position: fixed;
-  z-index: 21;
-  left: var(--x);
-  top: var(--y);
-  font-size: var(--size);
-  pointer-events: none;
-  animation: burst 1.7s cubic-bezier(.1,.7,.3,1) forwards;
-}
-@keyframes burst {
-  0% { opacity: 1; transform: scale(.4); }
-  70% { opacity: 1; }
-  100% {
-    opacity: 0;
-    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1.2);
-  }
-}
-@media(max-width:370px) {
-  .page { width: calc(100% - 22px); }
-  .letter-card { padding: 23px 16px; }
-  .envelope { height: 168px; width: min(100%, 290px); }
-}
-@media(prefers-reduced-motion:reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-</style>
-</head>
-
-<body>
-<div id="scene">
-  <div class="glow a"></div>
-  <div class="glow b"></div>
-</div>
-<div id="stars"></div>
-<div id="petals"></div>
-<div id="effects"></div>
-
-<main class="page">
-  <div class="eyebrow">✦ A LITTLE SECRET FOR YOU ✦</div>
-
-  <h1>Happy <span class="script">Women's Day</span></h1>
-  <div class="subtitle">Có một món quà nhỏ anh muốn dành riêng cho em</div>
-  <div class="date">✧ &nbsp; 20 THÁNG 10 &nbsp; ✧</div>
-
-  <div class="heart-orb"><span>♥</span></div>
-  <div class="subtitle">Một lá thư nhỏ, một chút chân thành...</div>
-  <div class="ornament">✧ ───── ♡ ───── ✧</div>
-
-  <p class="hint" id="hint">CHẠM VÀO PHONG THƯ ĐỂ MỞ THƯ</p>
-
-  <button type="button" class="envelope" id="envelope"
-    aria-label="Mở phong thư" aria-expanded="false">
-    <span class="env-back"></span>
-    <span class="paper">
-      <span class="paper-heart">♥</span>
-      <span class="paper-small">A LETTER FOR YOU</span>
-      <span class="paper-script">With love...</span>
-    </span>
-    <span class="env-front"></span>
-    <span class="env-flap"></span>
-    <span class="seal">♥</span>
-  </button>
-
-  <section class="letter" id="letter" aria-hidden="true">
-    <article class="letter-card">
-      <h2 class="letter-title">Gửi em thương...</h2>
-
-      <p>Gửi <span id="recipient">cô gái đặc biệt</span> ♡,</p>
-
-      <p>
-        Chúc em ngày 20/10 thật rạng rỡ, luôn xinh đẹp,
-        vui vẻ và nhận được thật nhiều yêu thương.
-        Mong mỗi ngày của em đều có những điều dịu dàng,
-        những niềm vui nhỏ bé và những người thật lòng
-        trân trọng em.
-      </p>
-
-      <p>
-        Anh không biết từ khi nào, những cuộc trò chuyện
-        với em đã trở thành điều anh mong đợi. Đôi khi,
-        chỉ một tin nhắn của em cũng đủ khiến anh mỉm cười.
-        Những điều bình thường cũng trở nên đặc biệt hơn
-        khi có em.
-      </p>
-
-      <div class="quote">
-        Nếu được ước một điều trong ngày hôm nay,
-        anh mong mình có thể trở thành
-        <span class="script">một người đặc biệt với em.</span>
-      </div>
-
-      <p>
-        Anh không muốn dùng những lời hoa mỹ để hứa
-        về một tương lai quá xa. Anh chỉ mong có cơ hội
-        được quan tâm em nhiều hơn, lắng nghe những câu
-        chuyện của em, cùng em chia sẻ niềm vui và ở bên
-        em trong những ngày không vui.
-      </p>
-
-      <p>
-        Nhân ngày đặc biệt này, anh muốn hỏi em một điều
-        mà anh đã giữ trong lòng từ lâu...
-      </p>
-
-      <p class="signature">Một người đang thích em ♥</p>
-
-      <div class="question">
-        <div class="question-label">ONE LITTLE QUESTION</div>
-        <h2>
-          <span class="script">Em đồng ý</span>
-          cho anh cơ hội làm người yêu em nhé?
-        </h2>
-
-        <div class="buttons">
-          <button type="button" class="btn btn-yes" id="yesBtn">
-            Đồng ý, mình thử nhé! 💗
-          </button>
-          <button type="button" class="btn btn-think" id="thinkBtn">
-            Cho em thời gian 🌷
-          </button>
-        </div>
-
-        <div class="response" id="response" aria-live="polite"></div>
-      </div>
-    </article>
-  </section>
-
-  <footer class="footer">MADE WITH <span>♥</span> JUST FOR YOU</footer>
-</main>
-
-<script>
-"use strict";
-
-/* ===== EMAILJS CONFIGURATION ===== */
-const EMAIL_CONFIG = {
-  serviceID: "service_idmjbjb",
-  templateID: "template_e7s4am4",
-  publicKey: "69g4nxNP5JOYytqDS"
-};
-
-/* ===== TÊN TÙY CHỈNH TRÊN URL =====
-   Ví dụ: https://your-site.netlify.app/?name=Lan
-*/
-const query = new URLSearchParams(window.location.search);
-const recipientName = (
-  query.get("name") || "cô gái đặc biệt"
-).trim().slice(0, 60) || "cô gái đặc biệt";
-
-document.getElementById("recipient").textContent = recipientName;
-document.title = `Gửi ${recipientName} - Thiệp 20/10 ♥`;
-
-const reducedMotion = window.matchMedia(
-  "(prefers-reduced-motion: reduce)"
-).matches;
-
-/* ===== SAO LẤP LÁNH ===== */
-const stars = document.getElementById("stars");
-
-for (let i = 0; i < 65; i++) {
-  const star = document.createElement("span");
-  star.className = "star";
-  star.style.left = Math.random() * 100 + "%";
-  star.style.top = Math.random() * 100 + "%";
-  star.style.setProperty("--speed", (2 + Math.random() * 4) + "s");
-  star.style.animationDelay = Math.random() * 4 + "s";
-  stars.appendChild(star);
-}
-
-/* ===== CÁNH HOA RƠI ===== */
-const petals = document.getElementById("petals");
-
-function addPetal() {
-  if (reducedMotion || document.hidden || petals.childElementCount >= 32) {
-    return;
-  }
-
-  const petal = document.createElement("span");
-  petal.className = "petal";
-  petal.textContent = ["🌸", "🌷", "♡", "✿", "♥"][
-    Math.floor(Math.random() * 5)
-  ];
-  petal.style.left = Math.random() * 100 + "%";
-  petal.style.fontSize = (12 + Math.random() * 13) + "px";
-  petal.style.setProperty("--duration", (9 + Math.random() * 7) + "s");
-  petal.style.setProperty("--drift", (Math.random() * 120 - 60) + "px");
-
-  petals.appendChild(petal);
-  setTimeout(() => petal.remove(), 17000);
-}
-
-if (!reducedMotion) {
-  for (let i = 0; i < 15; i++) {
-    setTimeout(addPetal, i * 250);
-  }
-  setInterval(addPetal, 650);
-}
-
-/* ===== TRÁI TIM BAY ===== */
-const effects = document.getElementById("effects");
-
-function burstHearts(count) {
-  if (reducedMotion) return;
-
-  const icons = ["💗", "💖", "💕", "♥", "✨", "🌸"];
-
-  for (let i = 0; i < count; i++) {
-    const item = document.createElement("span");
-    item.className = "burst";
-    item.textContent = icons[Math.floor(Math.random() * icons.length)];
-    item.style.setProperty("--x", (8 + Math.random() * 84) + "vw");
-    item.style.setProperty("--y", (35 + Math.random() * 35) + "vh");
-    item.style.setProperty("--dx", (Math.random() * 320 - 160) + "px");
-    item.style.setProperty("--dy", (-80 - Math.random() * 230) + "px");
-    item.style.setProperty("--rot", (Math.random() * 240 - 120) + "deg");
-    item.style.setProperty("--size", (14 + Math.random() * 18) + "px");
-
-    effects.appendChild(item);
-    setTimeout(() => item.remove(), 1800);
-  }
-}
-
-/* ===== MỞ PHONG THƯ ===== */
-const envelope = document.getElementById("envelope");
-const letter = document.getElementById("letter");
-const hint = document.getElementById("hint");
-
-let opened = false;
-
-envelope.addEventListener("click", () => {
-  if (opened) {
-    letter.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
-      block: "start"
-    });
-    return;
-  }
-
-  opened = true;
-  envelope.classList.add("opened");
-  envelope.setAttribute("aria-expanded", "true");
-  hint.textContent = "♡ MỘT LÁ THƯ DÀNH RIÊNG CHO EM ♡";
-
-  /* Hiện nội dung độc lập với animation của phong thư */
-  letter.style.display = "block";
-  letter.classList.add("visible");
-  letter.setAttribute("aria-hidden", "false");
-
-  burstHearts(24);
-
-  setTimeout(() => {
-    letter.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
-      block: "start"
-    });
-  }, reducedMotion ? 0 : 300);
-});
-
-/* ===== EMAILJS ===== */
-const yesBtn = document.getElementById("yesBtn");
-const thinkBtn = document.getElementById("thinkBtn");
-const responseBox = document.getElementById("response");
-
-let submitting = false;
-let emailReady = false;
-
-function initEmailJS() {
-  if (!window.emailjs) {
-    console.error("Không tải được thư viện EmailJS.");
-    return;
-  }
-
-  try {
-    emailjs.init({ publicKey: EMAIL_CONFIG.publicKey });
-    emailReady = true;
-  } catch (error) {
-    console.error("EmailJS initialization error:", error);
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initEmailJS, { once: true });
-} else {
-  initEmailJS();
-}
-
-async function sendChoiceEmail(choice) {
-  if (!window.emailjs || !emailReady) {
-    throw new Error("EmailJS chưa sẵn sàng hoặc chưa tải được.");
-  }
-
-  return emailjs.send(
-    EMAIL_CONFIG.serviceID,
-    EMAIL_CONFIG.templateID,
-    {
-      recipient_name: recipientName,
-      choice: choice,
-      reply_time: new Date().toLocaleString("vi-VN", {
-        timeZone: "Asia/Ho_Chi_Minh"
-      }),
-      message: "Phản hồi từ thiệp chúc mừng ngày 20/10."
+  function burstHearts(count) {
+    if (reducedMotion) return;
+    const effects = document.getElementById("effects");
+    const icons = ["💗", "💖", "💕", "♥", "✨", "🌸"];
+    for (let i = 0; i < count; i++) {
+      const item = document.createElement("span");
+      item.className = "burst";
+      item.textContent = icons[Math.floor(Math.random() * icons.length)];
+      item.style.setProperty("--x", 8 + Math.random() * 84 + "vw");
+      item.style.setProperty("--y", 35 + Math.random() * 35 + "vh");
+      item.style.setProperty("--dx", (Math.random() * 320 - 160) + "px");
+      item.style.setProperty("--dy", (-80 - Math.random() * 230) + "px");
+      item.style.setProperty("--rot", (Math.random() * 240 - 120) + "deg");
+      item.style.fontSize = 14 + Math.random() * 18 + "px";
+      effects.appendChild(item);
+      setTimeout(() => item.remove(), 1800);
     }
-  );
-}
-
-/* Cho phép chọn lại sau mỗi lần gửi thành công hoặc thất bại */
-async function handleChoice(choice) {
-  if (submitting) return;
-
-  submitting = true;
-  yesBtn.disabled = true;
-  thinkBtn.disabled = true;
-  responseBox.textContent = "Đang gửi thông báo... 💌";
-
-  try {
-    await sendChoiceEmail(choice);
-
-    responseBox.textContent =
-      "Đã ghi nhận lựa chọn của em! Em vẫn có thể chọn lại nhé ❤️";
-
-    burstHearts(choice.startsWith("Đồng ý") ? 55 : 15);
-
-  } catch (error) {
-    console.error("EmailJS error:", error);
-
-    responseBox.textContent =
-      "Chưa gửi được thông báo. Hãy kiểm tra kết nối rồi thử lại nhé.";
-  } finally {
-    submitting = false;
-    yesBtn.disabled = false;
-    thinkBtn.disabled = false;
   }
-}
 
-yesBtn.addEventListener("click", () => {
-  handleChoice("Đồng ý làm người yêu ❤️");
-});
+  const envelope = document.getElementById("envelope");
+  const letter = document.getElementById("letter");
+  const hint = document.getElementById("hint");
+  let opened = false;
 
-thinkBtn.addEventListener("click", () => {
-  handleChoice("Cho em thêm thời gian 🌷");
-});
+  function openEnvelope() {
+    if (opened) {
+      letter.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+      return;
+    }
+    opened = true;
+    envelope.classList.add("opened");
+    envelope.setAttribute("aria-expanded", "true");
+    hint.textContent = "♡ MỘT LÁ THƯ DÀNH RIÊNG CHO EM ♡";
+    letter.style.display = "block";
+    letter.classList.add("visible");
+    letter.setAttribute("aria-hidden", "false");
+    burstHearts(24);
+    setTimeout(() => letter.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth", block: "start"
+    }), reducedMotion ? 0 : 300);
+  }
+
+  envelope.addEventListener("click", openEnvelope);
+
+  enterButton.addEventListener("click", () => {
+    if (entered) return;
+    entered = true;
+    intro.classList.add("intro-hidden");
+    openEnvelope();
+    setTimeout(() => intro.remove(), 900);
+  });
+
+  /* EmailJS được tải sau khi trang đã hiển thị */
+  const yesBtn = document.getElementById("yesBtn");
+  const thinkBtn = document.getElementById("thinkBtn");
+  const responseBox = document.getElementById("response");
+  let submitting = false;
+  let emailReady = false;
+
+  function showStatus(message, type) {
+    responseBox.textContent = message;
+    responseBox.style.color = type === "success" ? "#a8f0c6"
+      : type === "error" ? "#ff9cad" : "#ffc4d6";
+  }
+
+  function loadEmailJS() {
+    if (window.emailjs) {
+      initializeEmailJS();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
+    script.async = true;
+    script.onload = initializeEmailJS;
+    script.onerror = () => { emailReady = false; };
+    document.head.appendChild(script);
+  }
+
+  function initializeEmailJS() {
+    if (!window.emailjs) return;
+    try {
+      window.emailjs.init({ publicKey: EMAIL_CONFIG.publicKey });
+      emailReady = true;
+    } catch {
+      emailReady = false;
+    }
+  }
+
+  loadEmailJS();
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  async function sendChoiceEmail(choice) {
+    if (!emailReady || !window.emailjs) {
+      throw new Error("EmailJS chưa sẵn sàng.");
+    }
+    if (!isValidEmail(notificationEmail)) {
+      throw new Error("Địa chỉ email không hợp lệ.");
+    }
+
+    return window.emailjs.send(
+      EMAIL_CONFIG.serviceID,
+      EMAIL_CONFIG.templateID,
+      {
+        recipient_name: recipientName,
+        choice: choice,
+        reply_time: new Date().toLocaleString("vi-VN", {
+          timeZone: "Asia/Ho_Chi_Minh"
+        }),
+        message: "Phản hồi từ thiệp chúc mừng ngày 20/10.",
+        to_email: notificationEmail
+      }
+    );
+  }
+
+  async function handleChoice(choice) {
+    if (submitting) return;
+    submitting = true;
+    yesBtn.disabled = true;
+    thinkBtn.disabled = true;
+    showStatus("Đang gửi lời nhắn... 💌", "info");
+
+    try {
+      await sendChoiceEmail(choice);
+      showStatus("Đã gửi thông báo thành công! ❤️", "success");
+      burstHearts(choice.startsWith("Đồng ý") ? 45 : 15);
+    } catch {
+      showStatus("Chưa gửi được thông báo. Em thử lại sau nhé 💗", "error");
+    } finally {
+      submitting = false;
+      yesBtn.disabled = false;
+      thinkBtn.disabled = false;
+    }
+  }
+
+  yesBtn.addEventListener("click", () => handleChoice("Đồng ý làm người yêu ❤️"));
+  thinkBtn.addEventListener("click", () => handleChoice("Cho em thêm thời gian 🌷"));
+})();
 </script>
 </body>
 </html>
