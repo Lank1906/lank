@@ -264,8 +264,8 @@ const canvas=$('wheel'),ctx=canvas.getContext('2d'),TAU=Math.PI*2;
 function drawWheel(){
  const mid=500,r=468,n=pool.length;ctx.clearRect(0,0,1000,1000);ctx.save();ctx.translate(mid,mid);
  const rim=ctx.createRadialGradient(0,0,r-8,0,0,r+22);rim.addColorStop(0,'#af813f');rim.addColorStop(.45,'#ffe7aa');rim.addColorStop(1,'#b78945');ctx.beginPath();ctx.arc(0,0,r+20,0,TAU);ctx.fillStyle=rim;ctx.fill();
- ctx.rotate(rotation);const hue=state.config.event.theme==='tet'?['#8f2133','#bc3b46']:state.config.event.theme==='yearend'?['#443168','#6b4b8e']:state.config.event.theme==='classic'?['#176170','#247e86']:['#0c4273','#155b94'];
- if(n){const arc=TAU/n,step=Math.max(1,Math.ceil(n/26));for(let i=0;i<n;i++){ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,i*arc,(i+1)*arc);ctx.closePath();ctx.fillStyle=hue[Math.floor(i/step)%2];ctx.fill();if(n<=50){ctx.strokeStyle='#ffffff16';ctx.lineWidth=1;ctx.stroke();}
+ ctx.rotate(rotation);const hue=['#b73554','#bd631d','#26794b','#147e89','#2456a4','#6346ad','#a23987','#8d6420'];
+ if(n){const arc=TAU/n,step=Math.max(1,Math.ceil(n/26));for(let i=0;i<n;i++){ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,i*arc,(i+1)*arc);ctx.closePath();ctx.fillStyle=hue[Math.floor(i/step)%hue.length];ctx.fill();if(n<=50){ctx.strokeStyle='#ffffff16';ctx.lineWidth=1;ctx.stroke();}
  if(i%step===0){ctx.save();ctx.rotate((i+.5)*arc);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#fff0ce';ctx.font='600 29px Segoe UI';ctx.fillText(format(pool[i]),r-25,0);ctx.restore();}}}else{ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fillStyle='#173c59';ctx.fill();}
  ctx.restore();for(let i=0;i<48;i++){const a=i*TAU/48;ctx.beginPath();ctx.arc(mid+Math.cos(a)*(r+10),mid+Math.sin(a)*(r+10),3,0,TAU);ctx.fillStyle='#fff0c8';ctx.fill();}
 }
